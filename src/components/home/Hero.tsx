@@ -45,12 +45,10 @@ export function Hero() {
     >
       <div
         data-hero-bg
-        className="absolute inset-0 will-change-transform"
+        className="absolute inset-0 will-change-transform bg-cover bg-center"
         style={{
           backgroundImage:
-            "linear-gradient(180deg, rgba(28,26,22,0.55) 0%, rgba(28,26,22,0.85) 100%), radial-gradient(circle at 30% 40%, #6b5a3a 0%, #2a241a 60%, #14110d 100%)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+            "linear-gradient(180deg, rgba(28,26,22,0.55) 0%, rgba(28,26,22,0.85) 100%), url('/images/hero_bg.png')",
         }}
       />
       <GrainOverlay opacity={0.18} />

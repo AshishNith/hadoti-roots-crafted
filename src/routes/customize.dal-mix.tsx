@@ -52,7 +52,7 @@ function DalMixBuilder() {
     .filter((d) => (amounts[d.id] ?? 0) > 0)
     .map((d) => ({ id: d.id, label: d.name, value: amounts[d.id] ?? 0 }));
   const total = slices.reduce((s, x) => s + x.value, 0);
-  const target = parseInt(pack);
+  const target = pack === "500g" ? 500 : pack === "1kg" ? 1000 : 2000;
   const extra = bags.find((b) => b.id === bag)?.extra ?? 0;
   const basePrice = Math.round(target * 0.32);
   const price = basePrice + extra;
@@ -113,7 +113,7 @@ function DalMixBuilder() {
               {step === 0 && (
                 <div>
                   <p className="font-display italic text-2xl text-[color:var(--muted-foreground)] mb-8 max-w-xl">
-                    Pick your dals. Aim for roughly {target * 100}g total.
+                    Pick your dals. Aim for roughly {target}g total.
                   </p>
                   <div className="grid sm:grid-cols-2 gap-4">
                     {dalOptions.map((d) => {

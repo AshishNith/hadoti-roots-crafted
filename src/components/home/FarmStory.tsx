@@ -42,10 +42,10 @@ export function FarmStory() {
         <div className="md:col-span-3 relative h-[480px] md:h-[600px] overflow-hidden">
           <div
             data-parallax-img
-            className="absolute -inset-y-12 inset-x-0"
+            className="absolute -inset-y-12 inset-x-0 bg-cover bg-center"
             style={{
-              background:
-                "linear-gradient(160deg,#8b7a4f 0%,#3a2f1c 60%,#1c1812 100%)",
+              backgroundImage:
+                "linear-gradient(180deg, rgba(28,26,22,0.1) 0%, rgba(28,26,22,0.4) 100%), url('/images/farm_story.png')",
             }}
           />
           <div className="absolute inset-0 flex items-end p-8">

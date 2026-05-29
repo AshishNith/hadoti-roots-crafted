@@ -1,16 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { gsap } from "@/lib/gsap";
-import { products, formatINR } from "@/lib/data";
-
-const palette = [
-  "linear-gradient(160deg,#a8895c,#5a4128)",
-  "linear-gradient(160deg,#c5a47a,#6e4f2e)",
-  "linear-gradient(160deg,#7d8b6a,#3d4530)",
-  "linear-gradient(160deg,#b35b3a,#5a2415)",
-  "linear-gradient(160deg,#c98e3a,#5e3f15)",
-  "linear-gradient(160deg,#8a7a5a,#3a3024)",
-];
+import { products, formatINR, imageFor } from "@/lib/data";
 
 export function BestsellerScroll() {
   const root = useRef<HTMLElement>(null);
@@ -59,9 +50,10 @@ export function BestsellerScroll() {
           >
             <div className="relative h-[420px] zoom-frame">
               <div
-                className="absolute inset-0"
-                style={{ background: palette[i % palette.length] }}
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                style={{ backgroundImage: `url(${imageFor(p.slug)})` }}
               />
+              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
               <div className="absolute inset-0 flex items-end p-6">
                 <div className="font-display italic text-7xl text-white/15 leading-none">
                   {p.name.split(" ")[0]}

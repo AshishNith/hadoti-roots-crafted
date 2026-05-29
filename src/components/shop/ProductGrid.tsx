@@ -1,22 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { products, formatINR, type Product } from "@/lib/data";
-
-const palette = [
-  "linear-gradient(160deg,#a8895c,#5a4128)",
-  "linear-gradient(160deg,#c5a47a,#6e4f2e)",
-  "linear-gradient(160deg,#7d8b6a,#3d4530)",
-  "linear-gradient(160deg,#b35b3a,#5a2415)",
-  "linear-gradient(160deg,#c98e3a,#5e3f15)",
-  "linear-gradient(160deg,#8a7a5a,#3a3024)",
-  "linear-gradient(160deg,#6b7f5e,#2a3424)",
-  "linear-gradient(160deg,#8b5e3c,#2c1d12)",
-];
-
-function bgFor(slug: string) {
-  let h = 0;
-  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
-  return palette[h % palette.length];
-}
+import { products, formatINR, imageFor, type Product } from "@/lib/data";
 
 export function ProductCard({ product }: { product: Product }) {
   return (
@@ -26,7 +9,11 @@ export function ProductCard({ product }: { product: Product }) {
       className="group block"
     >
       <div className="zoom-frame relative h-[360px] md:h-[420px] bg-[color:var(--cream)]">
-        <div className="absolute inset-0" style={{ background: bgFor(product.slug) }} />
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+          style={{ backgroundImage: `url(${imageFor(product.slug)})` }}
+        />
+        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
         <div className="absolute inset-0 flex items-end p-6">
           <div className="font-display italic text-6xl text-white/15 leading-none truncate">
             {product.name.split(" ")[0]}

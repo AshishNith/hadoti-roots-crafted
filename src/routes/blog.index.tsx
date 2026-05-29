@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { blogPosts } from "@/lib/data";
+import { blogPosts, imageForBlog } from "@/lib/data";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({ meta: [{ title: "Journal — Hadoti Farms" }] }),
@@ -35,7 +35,12 @@ function BlogIndex() {
 
         {featured && (
           <Link to="/blog/$slug" params={{ slug: featured.slug }} className="block mt-16 group">
-            <div className="zoom-frame relative h-[420px] md:h-[560px]" style={{ background: "linear-gradient(160deg,#8b5e3c,#1c1812)" }}>
+            <div className="zoom-frame relative h-[420px] md:h-[560px]">
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                style={{ backgroundImage: `url(${imageForBlog(featured.slug)})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/75 group-hover:from-black/15 group-hover:to-black/70 transition-colors duration-500" />
               <div className="absolute inset-0 flex items-end p-10 md:p-16">
                 <div>
                   <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--gold)]">{featured.type}</div>
@@ -54,7 +59,13 @@ function BlogIndex() {
               params={{ slug: p.slug }}
               className={`group ${i === 1 ? "md:mt-16" : ""}`}
             >
-              <div className="zoom-frame relative aspect-[4/3]" style={{ background: `linear-gradient(160deg,#${i % 2 ? "6b7f5e" : "8b5e3c"},#1c1812)` }} />
+              <div className="zoom-frame relative aspect-[4/3]">
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${imageForBlog(p.slug)})` }}
+                />
+                <div className="absolute inset-0 bg-black/15 group-hover:bg-black/5 transition-colors duration-500" />
+              </div>
               <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--earth)]">{p.type} · {p.date}</div>
               <h3 className="font-display text-2xl mt-2">{p.title}</h3>
               <p className="text-sm text-[color:var(--muted-foreground)] mt-2">{p.excerpt}</p>

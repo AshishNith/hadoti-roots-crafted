@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { blogPosts } from "@/lib/data";
+import { blogPosts, imageForBlog } from "@/lib/data";
 
 export const Route = createFileRoute("/blog/$slug")({
   head: ({ params }) => {
@@ -22,7 +22,13 @@ function PostPage() {
         <Link to="/blog" className="story-link font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--earth)]">← Journal</Link>
         <div className="mt-6 font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--muted-foreground)]">{post.type} · {post.date}</div>
         <h1 className="font-display text-5xl md:text-7xl mt-4 leading-[1.05] italic">{post.title}</h1>
-        <div className="mt-12 zoom-frame relative h-[420px]" style={{ background: "linear-gradient(160deg,#8b5e3c,#1c1812)" }} />
+        <div className="mt-12 zoom-frame relative h-[420px]">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${imageForBlog(post.slug)})` }}
+          />
+          <div className="absolute inset-0 bg-black/10" />
+        </div>
         <div className="mt-12 font-display text-2xl leading-relaxed text-[color:var(--ink)]/85 space-y-6">
           <p className="text-3xl italic">{post.excerpt}</p>
           <p>The fields of Hadoti hold a particular silence at dawn. Black cotton soil, low monsoon, slow seasons — these are the conditions that shape every grain we ship.</p>

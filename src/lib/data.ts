@@ -186,3 +186,38 @@ export const dalOptions = [
 
 export const formatINR = (n: number) =>
   "₹" + n.toLocaleString("en-IN");
+
+export function imageFor(slug: string): string {
+  const mapping: Record<string, string> = {
+    "hadoti-panchratan-dal": "/images/panchratan_dal.png",
+    "pure-moong-dhuli": "/images/moong_dal.png",
+    "kali-urad-dal": "/images/kali_urad_dal.png",
+    "custom-masala-blend": "/images/masala_blend.png",
+    "lal-mirch-powder": "/images/lal_mirch.png",
+    "monthly-ration-box-small": "/images/ration_box.png",
+    "festive-gift-hamper": "/images/gift_hamper.png",
+    "jowar-atta": "/images/jowar_atta.png",
+  };
+  return mapping[slug] || "/images/panchratan_dal.png";
+}
+
+export function imageForBlog(slug: string): string {
+  const mapping: Record<string, string> = {
+    "perfect-protein-dal-mix": "/images/blog_dal_mix.png",
+    "story-of-mathania-chilli": "/images/blog_mathania_chilli.png",
+    "why-hadoti-urad-is-different": "/images/blog_urad_dal.png",
+    "first-custom-ration-box": "/images/blog_ration_box.png",
+  };
+  return mapping[slug] || "/images/blog_dal_mix.png";
+}
+
+export function imageForFarmer(name: string): string {
+  const mapping: Record<string, string> = {
+    "Ramesh Gurjar": "/images/farmer_ramesh.png",
+    "Savitri Devi": "/images/farmer_savitri.png",
+    "Mohan Lal Meena": "/images/farmer_mohan.png",
+    "Dinesh Sharma": "/images/lal_mirch.png",
+  };
+  return mapping[name] || "/images/farmer_ramesh.png";
+}
+

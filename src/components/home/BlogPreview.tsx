@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { blogPosts } from "@/lib/data";
+import { blogPosts, imageForBlog } from "@/lib/data";
 
 export function BlogPreview() {
   const posts = blogPosts.slice(0, 2);
@@ -24,14 +24,12 @@ export function BlogPreview() {
             >
               <div className="zoom-frame relative h-[360px]">
                 <div
-                  className="absolute inset-0"
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                   style={{
-                    background:
-                      i === 0
-                        ? "linear-gradient(160deg,#8b5e3c,#2c1d12)"
-                        : "linear-gradient(160deg,#6b7f5e,#1f2a18)",
+                    backgroundImage: `url(${imageForBlog(p.slug)})`,
                   }}
                 />
+                <div className="absolute inset-0 bg-black/15 group-hover:bg-black/5 transition-colors duration-500" />
               </div>
               <div className="mt-5 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--muted-foreground)]">
                 <span className="text-[color:var(--earth)]">{p.type}</span>

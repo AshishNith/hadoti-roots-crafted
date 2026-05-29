@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { products, formatINR } from "@/lib/data";
+import { products, formatINR, imageFor } from "@/lib/data";
 import { Button } from "@/components/ui/HFButton";
 import { QuantityControl } from "@/components/ui/QuantityControl";
 import { useCart } from "@/lib/store";
@@ -24,7 +24,13 @@ export const Route = createFileRoute("/product/$slug")({
   component: ProductPage,
 });
 
-const weights = ["250g", "500g", "1kg"];
+const parseWeightToG = (wStr: string): number | null => {
+  const match = wStr.match(/^(\d+(?:\.\d+)?)\s*(g|kg)$/i);
+  if (!match) return null;
+  const num = parseFloat(match[1]);
+  const unit = match[2].toLowerCase();
+  return unit === "kg" ? num * 1000 : num;
+};
 
 function ProductPage() {
   const { product } = Route.useLoaderData();
@@ -33,11 +39,26 @@ function ProductPage() {
   const [tab, setTab] = useState<"desc" | "nutri" | "farm" | "rev">("desc");
   const add = useCart((s) => s.add);
 
+  const weights = product.weight === "Gift Box"
+    ? []
+    : product.category === "masalas"
+      ? ["100g", "250g", "500g"]
+      : product.category === "ration"
+        ? ["3kg", "5kg", "8kg"]
+        : ["250g", "500g", "1kg"];
+
+  const defaultWeightG = parseWeightToG(product.weight);
+  const selectedWeightG = parseWeightToG(weight);
+
+  const price = defaultWeightG && selectedWeightG
+    ? Math.round((product.price / defaultWeightG) * selectedWeightG)
+    : product.price;
+
   const onAdd = () => {
     add({
       id: `${product.slug}-${weight}`,
       name: product.name,
-      price: product.price,
+      price,
       weight,
       qty,
       customization: product.customizable ? "Standard blend" : undefined,
@@ -55,10 +76,12 @@ function ProductPage() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
           {/* Gallery */}
           <div>
-            <div
-              className="aspect-square w-full zoom-frame relative"
-              style={{ background: "linear-gradient(160deg,#8b5e3c,#2c1d12)" }}
-            >
+            <div className="aspect-square w-full zoom-frame relative bg-[color:var(--cream)]">
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                style={{ backgroundImage: `url(${imageFor(product.slug)})` }}
+              />
+              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="font-display italic text-[8rem] text-white/15 leading-none px-8 text-center">
                   {product.name.split(" ")[0]}
@@ -86,24 +109,26 @@ function ProductPage() {
             <h1 className="font-display text-5xl md:text-6xl leading-[1]">{product.name}</h1>
             <p className="mt-5 text-[color:var(--muted-foreground)] max-w-md">{product.shortDesc}</p>
 
-            <div className="mt-8">
-              <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-3">Weight</div>
-              <div className="flex gap-2">
-                {weights.map((w) => (
-                  <button
-                    key={w}
-                    onClick={() => setWeight(w)}
-                    className={`font-mono text-xs uppercase tracking-[0.18em] px-5 py-2 border ${
-                      weight === w
-                        ? "bg-[color:var(--earth)] text-white border-[color:var(--earth)]"
-                        : "border-[color:var(--ink)]"
-                    }`}
-                  >
-                    {w}
-                  </button>
-                ))}
+            {weights.length > 0 && (
+              <div className="mt-8">
+                <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-3">Weight</div>
+                <div className="flex gap-2">
+                  {weights.map((w) => (
+                    <button
+                      key={w}
+                      onClick={() => setWeight(w)}
+                      className={`font-mono text-xs uppercase tracking-[0.18em] px-5 py-2 border ${
+                        weight === w
+                          ? "bg-[color:var(--earth)] text-white border-[color:var(--earth)]"
+                          : "border-[color:var(--ink)]"
+                      }`}
+                    >
+                      {w}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {product.customizable === "dal" && (
               <Link
@@ -123,7 +148,7 @@ function ProductPage() {
             )}
 
             <div className="mt-10 flex items-end justify-between">
-              <div className="font-display text-4xl">{formatINR(product.price)}</div>
+              <div className="font-display text-4xl">{formatINR(price)}</div>
               <QuantityControl value={qty} onChange={setQty} />
             </div>
 

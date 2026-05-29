@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { farmers } from "@/lib/data";
+import { farmers, imageForFarmer } from "@/lib/data";
 import { GrainOverlay } from "@/components/ui/GrainOverlay";
 
 export const Route = createFileRoute("/our-farms")({
@@ -32,9 +32,15 @@ function OurFarms() {
   return (
     <>
       <section className="relative h-[90vh] bg-[color:var(--ink)] text-white overflow-hidden">
-        <div className="absolute inset-0" style={{ background: "linear-gradient(160deg,#3a2f1c 0%,#1c1812 100%)" }} />
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, rgba(28,26,22,0.45) 0%, rgba(28,26,22,0.85) 100%), url('/images/farm_story.png')",
+          }}
+        />
         <GrainOverlay opacity={0.16} />
-        <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-10 flex items-end pb-24">
+        <div className="relative z-10 h-full max-w-[1400px] mx-auto px-6 lg:px-10 flex items-end pb-24">
           <div>
             <div className="font-mono text-[11px] uppercase tracking-[0.24em] text-[color:var(--gold)] mb-6">Hadoti Region · Rajasthan</div>
             <h1 className="font-display text-7xl md:text-[10rem] leading-[0.92] max-w-5xl">
@@ -89,9 +95,13 @@ function OurFarms() {
           <h2 className="font-display text-5xl mb-16 max-w-xl">Meet the <span className="italic">growers.</span></h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {farmers.map((f, i) => (
-              <article key={f.name} className="bg-[color:var(--bg)] border border-[color:var(--border)] overflow-hidden">
-                <div className="aspect-[4/5] zoom-frame">
-                  <div className="absolute inset-0" style={{ background: `linear-gradient(160deg,#8b${(5 + i).toString(16)}e3c,#2c1d12)` }} />
+              <article key={f.name} className="bg-[color:var(--bg)] border border-[color:var(--border)] overflow-hidden group">
+                <div className="aspect-[4/5] zoom-frame relative">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                    style={{ backgroundImage: `url(${imageForFarmer(f.name)})` }}
+                  />
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
                 </div>
                 <div className="p-5">
                   <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--earth)]">{f.village}</div>
