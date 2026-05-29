@@ -1,9 +1,19 @@
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import { gsap } from "@/lib/gsap";
-import { stats } from "@/lib/data";
+import { stats as backupStats } from "@/lib/data";
+import { getStats } from "@/lib/api-client";
 
 export function StatsSection() {
   const root = useRef<HTMLElement>(null);
+  const [data, setData] = useState(backupStats);
+
+  useEffect(() => {
+    getStats().then((res) => {
+      if (res && res.length > 0) {
+        setData(res);
+      }
+    });
+  }, []);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -23,12 +33,12 @@ export function StatsSection() {
       });
     }, root);
     return () => ctx.revert();
-  }, []);
+  }, [data]);
 
   return (
     <section ref={root} className="py-28 border-y border-[color:var(--border)] bg-[color:var(--bg)]">
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-6">
-        {stats.map((s) => (
+        {data.map((s) => (
           <div key={s.label}>
             <div className="font-display text-6xl md:text-8xl text-[color:var(--earth)] leading-none">
               <span data-count={s.value}>0</span>

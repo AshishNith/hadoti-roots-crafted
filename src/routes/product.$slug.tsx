@@ -1,14 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { products, formatINR, imageFor } from "@/lib/data";
+import { formatINR, imageFor } from "@/lib/data";
+import { getProductBySlug } from "@/lib/api-client";
 import { Button } from "@/components/ui/HFButton";
 import { QuantityControl } from "@/components/ui/QuantityControl";
 import { useCart } from "@/lib/store";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/product/$slug")({
-  head: ({ params }) => {
-    const p = products.find((x) => x.slug === params.slug);
+  head: ({ loaderData }) => {
+    const p = (loaderData as any)?.product;
     return {
       meta: [
         { title: p ? `${p.name} — Hadoti Farms` : "Product — Hadoti Farms" },
@@ -16,10 +17,14 @@ export const Route = createFileRoute("/product/$slug")({
       ],
     };
   },
-  loader: ({ params }) => {
-    const p = products.find((x) => x.slug === params.slug);
-    if (!p) throw notFound();
-    return { product: p };
+  loader: async ({ params }) => {
+    try {
+      const p = await getProductBySlug(params.slug);
+      if (!p) throw notFound();
+      return { product: p };
+    } catch (e) {
+      throw notFound();
+    }
   },
   component: ProductPage,
 });
@@ -58,7 +63,7 @@ const grindStyles = [
 ] as const;
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
+  const { product } = Route.useLoaderData() as any;
   const [weight, setWeight] = useState(product.weight);
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState<"desc" | "nutri" | "farm" | "rev">("desc");
@@ -203,7 +208,7 @@ function ProductPage() {
             <div className="aspect-square w-full zoom-frame relative bg-[color:var(--cream)]">
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                style={{ backgroundImage: `url(${imageFor(product.slug)})` }}
+                style={{ backgroundImage: `url(${product.image || imageFor(product.slug)})` }}
               />
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
               <div className="absolute inset-0 flex items-center justify-center">

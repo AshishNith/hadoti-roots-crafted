@@ -1,8 +1,20 @@
+import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import { blogPosts, imageForBlog } from "@/lib/data";
+import { blogPosts as backupBlogPosts, imageForBlog } from "@/lib/data";
+import { getBlogs } from "@/lib/api-client";
 
 export function BlogPreview() {
-  const posts = blogPosts.slice(0, 2);
+  const [data, setData] = useState(backupBlogPosts);
+
+  useEffect(() => {
+    getBlogs().then((res) => {
+      if (res && res.length > 0) {
+        setData(res);
+      }
+    });
+  }, []);
+
+  const posts = data.slice(0, 2);
   return (
     <section className="py-28">
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
@@ -26,7 +38,7 @@ export function BlogPreview() {
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                   style={{
-                    backgroundImage: `url(${imageForBlog(p.slug)})`,
+                    backgroundImage: `url(${p.image || imageForBlog(p.slug)})`,
                   }}
                 />
                 <div className="absolute inset-0 bg-black/15 group-hover:bg-black/5 transition-colors duration-500" />

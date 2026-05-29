@@ -1,52 +1,25 @@
-export type Product = {
-  slug: string;
-  name: string;
-  shortDesc: string;
-  category: "dals" | "masalas" | "ration" | "hampers" | "grains";
-  price: number;
-  weight: string;
-  customizable: "dal" | "masala" | "ration" | "hamper" | "grain" | null;
-  image?: string | null;
-};
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import connectDB from "./config/db.js";
+import { uploadImage } from "./config/cloudinary.js";
 
-export type Farmer = {
-  name: string;
-  village: string;
-  years: number;
-  crop: string;
-  quote: string;
-  image?: string | null;
-};
+// Models
+import Product from "./models/Product.js";
+import Farmer from "./models/Farmer.js";
+import BlogPost from "./models/BlogPost.js";
+import Testimonial from "./models/Testimonial.js";
+import Stat from "./models/Stat.js";
+import DalOption from "./models/DalOption.js";
 
-export type BlogPost = {
-  slug: string;
-  type: string;
-  title: string;
-  excerpt: string;
-  date: string;
-  image?: string | null;
-};
+// Load env variables
+dotenv.config();
 
-export type Testimonial = {
-  quote: string;
-  name: string;
-  city: string;
-  rating: number;
-};
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-export type Stat = {
-  value: number;
-  suffix: string;
-  label: string;
-};
-
-export type DalOption = {
-  id: string;
-  name: string;
-  desc: string;
-};
-
-export const products: Product[] = [
+const productsSeed = [
   {
     slug: "hadoti-panchratan-dal",
     name: "Hadoti Panchratan Dal",
@@ -130,7 +103,7 @@ export const products: Product[] = [
   },
 ];
 
-export const farmers: Farmer[] = [
+const farmersSeed = [
   {
     name: "Ramesh Gurjar",
     village: "Bundi",
@@ -161,7 +134,7 @@ export const farmers: Farmer[] = [
   },
 ];
 
-export const blogPosts: BlogPost[] = [
+const blogPostsSeed = [
   {
     slug: "perfect-protein-dal-mix",
     type: "Recipe",
@@ -192,7 +165,7 @@ export const blogPosts: BlogPost[] = [
   },
 ];
 
-export const testimonials: Testimonial[] = [
+const testimonialsSeed = [
   {
     quote: "It tastes like what my mother used to send from her village.",
     name: "Aarti Mehta",
@@ -213,14 +186,14 @@ export const testimonials: Testimonial[] = [
   },
 ];
 
-export const stats: Stat[] = [
+const statsSeed = [
   { value: 400, suffix: "+", label: "Farmers" },
   { value: 12, suffix: "", label: "Native Crops" },
   { value: 3, suffix: "", label: "Districts" },
   { value: 10000, suffix: "+", label: "Happy Orders" },
 ];
 
-export const dalOptions: DalOption[] = [
+const dalOptionsSeed = [
   { id: "moong", name: "Moong", desc: "Cooling, light, easy to digest." },
   { id: "urad", name: "Urad", desc: "Earthy, deep, slow-cooked richness." },
   { id: "masoor", name: "Masoor", desc: "Quick-cooking, gentle red lentil." },
@@ -231,41 +204,86 @@ export const dalOptions: DalOption[] = [
   { id: "kulthi", name: "Kulthi", desc: "Hadoti horse gram, monsoon crop." },
 ];
 
-export const formatINR = (n: number) =>
-  "₹" + n.toLocaleString("en-IN");
+// File mappings
+const productImageMapping = {
+  "hadoti-panchratan-dal": "panchratan_dal.png",
+  "pure-moong-dhuli": "moong_dal.png",
+  "kali-urad-dal": "kali_urad_dal.png",
+  "custom-masala-blend": "masala_blend.png",
+  "lal-mirch-powder": "lal_mirch.png",
+  "monthly-ration-box-small": "ration_box.png",
+  "festive-gift-hamper": "gift_hamper.png",
+  "jowar-atta": "jowar_atta.png",
+  "custom-flour-blend": "jowar_atta.png",
+};
 
-export function imageFor(slug: string): string {
-  const mapping: Record<string, string> = {
-    "hadoti-panchratan-dal": "/images/panchratan_dal.png",
-    "pure-moong-dhuli": "/images/moong_dal.png",
-    "kali-urad-dal": "/images/kali_urad_dal.png",
-    "custom-masala-blend": "/images/masala_blend.png",
-    "lal-mirch-powder": "/images/lal_mirch.png",
-    "monthly-ration-box-small": "/images/ration_box.png",
-    "festive-gift-hamper": "/images/gift_hamper.png",
-    "jowar-atta": "/images/jowar_atta.png",
-    "custom-flour-blend": "/images/jowar_atta.png",
-  };
-  return mapping[slug] || "/images/panchratan_dal.png";
-}
+const farmerImageMapping = {
+  "Ramesh Gurjar": "farmer_ramesh.png",
+  "Savitri Devi": "farmer_savitri.png",
+  "Mohan Lal Meena": "farmer_mohan.png",
+  "Dinesh Sharma": "lal_mirch.png",
+};
 
-export function imageForBlog(slug: string): string {
-  const mapping: Record<string, string> = {
-    "perfect-protein-dal-mix": "/images/blog_dal_mix.png",
-    "story-of-mathania-chilli": "/images/blog_mathania_chilli.png",
-    "why-hadoti-urad-is-different": "/images/blog_urad_dal.png",
-    "first-custom-ration-box": "/images/blog_ration_box.png",
-  };
-  return mapping[slug] || "/images/blog_dal_mix.png";
-}
+const blogImageMapping = {
+  "perfect-protein-dal-mix": "blog_dal_mix.png",
+  "story-of-mathania-chilli": "blog_mathania_chilli.png",
+  "why-hadoti-urad-is-different": "blog_urad_dal.png",
+  "first-custom-ration-box": "blog_ration_box.png",
+};
 
-export function imageForFarmer(name: string): string {
-  const mapping: Record<string, string> = {
-    "Ramesh Gurjar": "/images/farmer_ramesh.png",
-    "Savitri Devi": "/images/farmer_savitri.png",
-    "Mohan Lal Meena": "/images/farmer_mohan.png",
-    "Dinesh Sharma": "/images/lal_mirch.png",
-  };
-  return mapping[name] || "/images/farmer_ramesh.png";
-}
+const seedData = async () => {
+  try {
+    await connectDB();
 
+    console.log("Clearing existing database collections...");
+    await Product.deleteMany({});
+    await Farmer.deleteMany({});
+    await BlogPost.deleteMany({});
+    await Testimonial.deleteMany({});
+    await Stat.deleteMany({});
+    await DalOption.deleteMany({});
+
+    console.log("\n--- Seeding Products with Cloudinary ---");
+    for (const item of productsSeed) {
+      const fileName = productImageMapping[item.slug] || "panchratan_dal.png";
+      const localPath = path.join(__dirname, "../public/images", fileName);
+      
+      const cloudinaryUrl = await uploadImage(localPath, "hadoti_farms/products");
+      item.image = cloudinaryUrl || `/images/${fileName}`;
+    }
+    await Product.insertMany(productsSeed);
+
+    console.log("\n--- Seeding Farmers with Cloudinary ---");
+    for (const item of farmersSeed) {
+      const fileName = farmerImageMapping[item.name] || "farmer_ramesh.png";
+      const localPath = path.join(__dirname, "../public/images", fileName);
+      
+      const cloudinaryUrl = await uploadImage(localPath, "hadoti_farms/farmers");
+      item.image = cloudinaryUrl || `/images/${fileName}`;
+    }
+    await Farmer.insertMany(farmersSeed);
+
+    console.log("\n--- Seeding Blog Posts with Cloudinary ---");
+    for (const item of blogPostsSeed) {
+      const fileName = blogImageMapping[item.slug] || "blog_dal_mix.png";
+      const localPath = path.join(__dirname, "../public/images", fileName);
+      
+      const cloudinaryUrl = await uploadImage(localPath, "hadoti_farms/blogs");
+      item.image = cloudinaryUrl || `/images/${fileName}`;
+    }
+    await BlogPost.insertMany(blogPostsSeed);
+
+    console.log("\n--- Seeding Static Data ---");
+    await Testimonial.insertMany(testimonialsSeed);
+    await Stat.insertMany(statsSeed);
+    await DalOption.insertMany(dalOptionsSeed);
+
+    console.log("\n🎉 Database seeded successfully with Cloudinary assets!");
+    process.exit(0);
+  } catch (error) {
+    console.error(`❌ Seeding error: ${error.message}`);
+    process.exit(1);
+  }
+};
+
+seedData();

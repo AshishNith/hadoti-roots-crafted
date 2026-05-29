@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { products } from "@/lib/data";
+import { getProducts } from "@/lib/api-client";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 
 export const Route = createFileRoute("/shop/")({
@@ -10,6 +10,10 @@ export const Route = createFileRoute("/shop/")({
       { name: "description", content: "Browse pesticide-free dals, masalas, ration boxes and gift hampers." },
     ],
   }),
+  loader: async () => {
+    const items = await getProducts();
+    return { items };
+  },
   component: ShopIndex,
 });
 
@@ -23,10 +27,11 @@ const cats = [
 ] as const;
 
 function ShopIndex() {
+  const { items: allProducts } = Route.useLoaderData();
   const [cat, setCat] = useState<(typeof cats)[number]["id"]>("all");
   const [sort, setSort] = useState<"featured" | "low" | "high">("featured");
 
-  let items = cat === "all" ? products : products.filter((p) => p.category === cat);
+  let items = cat === "all" ? allProducts : allProducts.filter((p) => p.category === cat);
   if (sort === "low") items = [...items].sort((a, b) => a.price - b.price);
   if (sort === "high") items = [...items].sort((a, b) => b.price - a.price);
 

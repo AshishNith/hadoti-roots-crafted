@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, useLayoutEffect } from "react";
 import { gsap } from "@/lib/gsap";
-import { dalOptions, formatINR } from "@/lib/data";
+import { formatINR, type DalOption } from "@/lib/data";
+import { getDalOptions } from "@/lib/api-client";
 import { BlendDonutChart } from "@/components/customizer/BlendDonutChart";
 import { Button } from "@/components/ui/HFButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -10,6 +11,10 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/customize/dal-mix")({
   head: () => ({ meta: [{ title: "Build Your Dal Mix — Hadoti Farms" }] }),
+  loader: async () => {
+    const options = await getDalOptions();
+    return { options };
+  },
   component: DalMixBuilder,
 });
 
@@ -28,6 +33,7 @@ const bags = [
 ];
 
 function DalMixBuilder() {
+  const { options: dalOptions } = Route.useLoaderData() as { options: DalOption[] };
   const [step, setStep] = useState(0);
   const [amounts, setAmounts] = useState<Record<string, number>>({});
   const [grind, setGrind] = useState("split");

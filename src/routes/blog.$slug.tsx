@@ -1,21 +1,26 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { blogPosts, imageForBlog } from "@/lib/data";
+import { imageForBlog } from "@/lib/data";
+import { getBlogBySlug } from "@/lib/api-client";
 
 export const Route = createFileRoute("/blog/$slug")({
-  head: ({ params }) => {
-    const p = blogPosts.find((x) => x.slug === params.slug);
+  head: ({ loaderData }) => {
+    const p = (loaderData as any)?.post;
     return { meta: [{ title: p ? `${p.title} — Hadoti Farms` : "Journal" }] };
   },
-  loader: ({ params }) => {
-    const p = blogPosts.find((x) => x.slug === params.slug);
-    if (!p) throw notFound();
-    return { post: p };
+  loader: async ({ params }) => {
+    try {
+      const p = await getBlogBySlug(params.slug);
+      if (!p) throw notFound();
+      return { post: p };
+    } catch (e) {
+      throw notFound();
+    }
   },
   component: PostPage,
 });
 
 function PostPage() {
-  const { post } = Route.useLoaderData();
+  const { post } = Route.useLoaderData() as any;
   return (
     <article className="pt-32 pb-32">
       <div className="max-w-[820px] mx-auto px-6">
@@ -25,7 +30,7 @@ function PostPage() {
         <div className="mt-12 zoom-frame relative h-[420px]">
           <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${imageForBlog(post.slug)})` }}
+            style={{ backgroundImage: `url(${post.image || imageForBlog(post.slug)})` }}
           />
           <div className="absolute inset-0 bg-black/10" />
         </div>

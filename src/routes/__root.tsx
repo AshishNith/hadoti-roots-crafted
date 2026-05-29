@@ -104,8 +104,34 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, isFirebaseConfigured } from "@/lib/firebase";
+import { useAuth } from "@/lib/auth-store";
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const setUser = useAuth((s) => s.setUser);
+
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [setUser]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <CustomCursor />

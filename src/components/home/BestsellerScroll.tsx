@@ -1,11 +1,21 @@
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { gsap } from "@/lib/gsap";
-import { products, formatINR, imageFor } from "@/lib/data";
+import { products as backupProducts, formatINR, imageFor } from "@/lib/data";
+import { getProducts } from "@/lib/api-client";
 
 export function BestsellerScroll() {
   const root = useRef<HTMLElement>(null);
   const track = useRef<HTMLDivElement>(null);
+  const [data, setData] = useState(backupProducts);
+
+  useEffect(() => {
+    getProducts().then((res) => {
+      if (res && res.length > 0) {
+        setData(res);
+      }
+    });
+  }, []);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -25,9 +35,9 @@ export function BestsellerScroll() {
       });
     }, root);
     return () => ctx.revert();
-  }, []);
+  }, [data]);
 
-  const items = products.slice(0, 6);
+  const items = data.slice(0, 6);
 
   return (
     <section ref={root} className="relative bg-[color:var(--bg)] py-24 overflow-hidden">
@@ -51,7 +61,7 @@ export function BestsellerScroll() {
             <div className="relative h-[420px] zoom-frame">
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                style={{ backgroundImage: `url(${imageFor(p.slug)})` }}
+                style={{ backgroundImage: `url(${p.image || imageFor(p.slug)})` }}
               />
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
               <div className="absolute inset-0 flex items-end p-6">

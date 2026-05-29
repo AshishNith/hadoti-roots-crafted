@@ -11,7 +11,7 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="zoom-frame relative h-[360px] md:h-[420px] bg-[color:var(--cream)]">
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-          style={{ backgroundImage: `url(${imageFor(product.slug)})` }}
+          style={{ backgroundImage: `url(${product.image || imageFor(product.slug)})` }}
         />
         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
         <div className="absolute inset-0 flex items-end p-6">

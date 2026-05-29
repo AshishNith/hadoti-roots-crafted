@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { products } from "@/lib/data";
+import { getProducts } from "@/lib/api-client";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 
 const categoryLabels: Record<string, string> = {
@@ -17,16 +17,17 @@ export const Route = createFileRoute("/shop/$category")({
       { name: "description", content: `Shop ${categoryLabels[params.category] ?? "products"} from Hadoti Farms.` },
     ],
   }),
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
     if (!categoryLabels[params.category]) throw notFound();
-    return { category: params.category };
+    const allProducts = await getProducts();
+    const items = allProducts.filter((p) => p.category === params.category);
+    return { category: params.category, items };
   },
   component: CategoryPage,
 });
 
 function CategoryPage() {
-  const { category } = Route.useLoaderData();
-  const items = products.filter((p) => p.category === category);
+  const { category, items } = Route.useLoaderData();
   return (
     <section className="pt-40 pb-32">
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10">

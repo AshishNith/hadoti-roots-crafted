@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { farmers, imageForFarmer } from "@/lib/data";
+import { imageForFarmer, type Farmer } from "@/lib/data";
+import { getFarmers } from "@/lib/api-client";
 import { GrainOverlay } from "@/components/ui/GrainOverlay";
 
 export const Route = createFileRoute("/our-farms")({
@@ -10,6 +11,10 @@ export const Route = createFileRoute("/our-farms")({
       { name: "description", content: "400+ farmers across Kota, Bundi and Jhalawar. Meet the land behind every grain." },
     ],
   }),
+  loader: async () => {
+    const growers = await getFarmers();
+    return { growers };
+  },
   component: OurFarms,
 });
 
@@ -28,6 +33,7 @@ const timeline = [
 ];
 
 function OurFarms() {
+  const { growers } = Route.useLoaderData() as { growers: Farmer[] };
   const [active, setActive] = useState(districts[1]);
   return (
     <>
@@ -94,12 +100,12 @@ function OurFarms() {
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <h2 className="font-display text-5xl mb-16 max-w-xl">Meet the <span className="italic">growers.</span></h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {farmers.map((f, i) => (
+            {growers.map((f, i) => (
               <article key={f.name} className="bg-[color:var(--bg)] border border-[color:var(--border)] overflow-hidden group">
                 <div className="aspect-[4/5] zoom-frame relative">
                   <div
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${imageForFarmer(f.name)})` }}
+                    style={{ backgroundImage: `url(${f.image || imageForFarmer(f.name)})` }}
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
                 </div>
