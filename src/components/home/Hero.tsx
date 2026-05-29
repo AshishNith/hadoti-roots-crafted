@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap } from "@/lib/gsap";
 import { GrainOverlay } from "@/components/ui/GrainOverlay";
 import { Button } from "@/components/ui/HFButton";
 import { Ticker } from "@/components/layout/Ticker";
@@ -10,29 +10,48 @@ export function Hero() {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
+      // 1. Initial position of Step 2 (starts hidden and shifted down)
+      gsap.set("[data-hero-step2]", { opacity: 0, y: 45 });
+
+      // 2. Entrance animation on page load (not tied to scroll)
       const lineWords = gsap.utils.toArray<HTMLElement>("[data-word]");
       gsap.set(lineWords, { yPercent: 110, opacity: 0 });
       gsap.set("[data-hero-sub]", { opacity: 0, y: 20 });
       gsap.set("[data-hero-ctas]", { opacity: 0, y: 20 });
 
+      const entryTl = gsap.timeline();
+      entryTl.to(lineWords, {
+        yPercent: 0,
+        opacity: 1,
+        stagger: 0.12,
+        duration: 0.9,
+        ease: "power4.out",
+      }, 0.1)
+      .to("[data-hero-sub]", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, "-=0.6")
+      .to("[data-hero-ctas]", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, "-=0.6");
+
+      // 3. Scroll-linked timeline with pinning and scrubbing
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: root.current,
           start: "top top",
-          end: "+=1600",
+          end: "+=1800",
           pin: true,
-          scrub: 0.7,
+          scrub: 0.8,
         },
       });
+
+      // Background zoom throughout the scroll
       tl.to("[data-hero-bg]", { scale: 1.15, ease: "none" }, 0);
-      tl.to(lineWords, {
-        yPercent: 0,
-        opacity: 1,
-        stagger: 0.15,
-        ease: "power3.out",
-      }, 0.05);
-      tl.to("[data-hero-sub]", { opacity: 1, y: 0, ease: "power2.out" }, 0.7);
-      tl.to("[data-hero-ctas]", { opacity: 1, y: 0, ease: "power2.out" }, 0.85);
+
+      // Step 1 content fades out and moves up as we scroll
+      tl.to("[data-hero-step1]", { opacity: 0, y: -65, ease: "power1.inOut" }, 0.05);
+
+      // Step 2 content fades in and moves up
+      tl.to("[data-hero-step2]", { opacity: 1, y: 0, ease: "power1.inOut" }, 0.55);
+
+      // Step 2 content fades out at the very end
+      tl.to("[data-hero-step2]", { opacity: 0, y: -45, ease: "power1.in" }, 1.1);
     }, root);
 
     return () => ctx.revert();
@@ -44,7 +63,6 @@ export function Hero() {
       className="relative h-screen w-full overflow-hidden bg-[color:var(--ink)] text-white"
     >
       <div
-      
         data-hero-bg
         className="absolute inset-0 will-change-transform bg-cover bg-center"
         style={{
@@ -54,9 +72,10 @@ export function Hero() {
       />
       <GrainOverlay opacity={0.18} />
 
-      <div className="relative h-full flex flex-col">
-        <div className="flex-1 flex items-center">
-          <div className="max-w-[1400px] mx-auto w-full px-6 lg:px-10">
+      <div className="relative h-full flex flex-col justify-between py-12">
+        <div className="flex-1 flex items-center relative">
+          {/* Step 1 Content: Fully visible on mount */}
+          <div data-hero-step1 className="relative max-w-[1400px] mx-auto w-full px-6 lg:px-10">
             <h1 className="font-display leading-[0.95] text-[14vw] md:text-[10vw] lg:text-[9rem]">
               <span className="block overflow-hidden">
                 <span data-word className="inline-block text-[color:var(--gold)]">Grown</span>{" "}
@@ -75,6 +94,20 @@ export function Hero() {
             <div data-hero-ctas className="mt-10 flex flex-wrap gap-4">
               <Link to="/shop"><Button>Shop Now</Button></Link>
               <Link to="/customize"><Button variant="light">Build Your Box →</Button></Link>
+            </div>
+          </div>
+
+          {/* Step 2 Content: Appears as you scroll */}
+          <div data-hero-step2 className="absolute inset-x-0 px-6 lg:px-10 max-w-[1400px] mx-auto w-full pointer-events-none">
+            <h2 className="font-display leading-[0.95] text-[9vw] md:text-[7vw] lg:text-[6rem]">
+              <span className="block">Pure black soil.</span>
+              <span className="block italic text-[color:var(--gold)]">Zero pesticides.</span>
+            </h2>
+            <p className="mt-8 max-w-xl text-base md:text-lg text-white/75">
+              Every grain is stone-ground the slow way and dried under the open Rajasthani sun. Pure, traceable, direct from our families to yours.
+            </p>
+            <div className="mt-10 flex flex-wrap gap-4 pointer-events-auto">
+              <Link to="/our-farms"><Button>Meet Our Farmers</Button></Link>
             </div>
           </div>
         </div>
