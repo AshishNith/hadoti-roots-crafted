@@ -9,16 +9,48 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OurFarmsRouteImport } from './routes/our-farms'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as CartRouteImport } from './routes/cart'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as CustomizeIndexRouteImport } from './routes/customize.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ShopCategoryRouteImport } from './routes/shop.$category'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as CustomizeRationBoxRouteImport } from './routes/customize.ration-box'
 import { Route as CustomizeMasalaRouteImport } from './routes/customize.masala'
 import { Route as CustomizeGiftHamperRouteImport } from './routes/customize.gift-hamper'
 import { Route as CustomizeDalMixRouteImport } from './routes/customize.dal-mix'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
+const OurFarmsRoute = OurFarmsRouteImport.update({
+  id: '/our-farms',
+  path: '/our-farms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -32,6 +64,11 @@ const ShopIndexRoute = ShopIndexRouteImport.update({
 const CustomizeIndexRoute = CustomizeIndexRouteImport.update({
   id: '/customize/',
   path: '/customize/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopCategoryRoute = ShopCategoryRouteImport.update({
@@ -64,38 +101,64 @@ const CustomizeDalMixRoute = CustomizeDalMixRouteImport.update({
   path: '/customize/dal-mix',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/our-farms': typeof OurFarmsRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
   '/customize/masala': typeof CustomizeMasalaRoute
   '/customize/ration-box': typeof CustomizeRationBoxRoute
   '/product/$slug': typeof ProductSlugRoute
   '/shop/$category': typeof ShopCategoryRoute
+  '/blog/': typeof BlogIndexRoute
   '/customize/': typeof CustomizeIndexRoute
   '/shop/': typeof ShopIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/our-farms': typeof OurFarmsRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
   '/customize/masala': typeof CustomizeMasalaRoute
   '/customize/ration-box': typeof CustomizeRationBoxRoute
   '/product/$slug': typeof ProductSlugRoute
   '/shop/$category': typeof ShopCategoryRoute
+  '/blog': typeof BlogIndexRoute
   '/customize': typeof CustomizeIndexRoute
   '/shop': typeof ShopIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/our-farms': typeof OurFarmsRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
   '/customize/masala': typeof CustomizeMasalaRoute
   '/customize/ration-box': typeof CustomizeRationBoxRoute
   '/product/$slug': typeof ProductSlugRoute
   '/shop/$category': typeof ShopCategoryRoute
+  '/blog/': typeof BlogIndexRoute
   '/customize/': typeof CustomizeIndexRoute
   '/shop/': typeof ShopIndexRoute
 }
@@ -103,52 +166,115 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
+    | '/cart'
+    | '/checkout'
+    | '/contact'
+    | '/our-farms'
+    | '/blog/$slug'
     | '/customize/dal-mix'
     | '/customize/gift-hamper'
     | '/customize/masala'
     | '/customize/ration-box'
     | '/product/$slug'
     | '/shop/$category'
+    | '/blog/'
     | '/customize/'
     | '/shop/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
+    | '/cart'
+    | '/checkout'
+    | '/contact'
+    | '/our-farms'
+    | '/blog/$slug'
     | '/customize/dal-mix'
     | '/customize/gift-hamper'
     | '/customize/masala'
     | '/customize/ration-box'
     | '/product/$slug'
     | '/shop/$category'
+    | '/blog'
     | '/customize'
     | '/shop'
   id:
     | '__root__'
     | '/'
+    | '/account'
+    | '/cart'
+    | '/checkout'
+    | '/contact'
+    | '/our-farms'
+    | '/blog/$slug'
     | '/customize/dal-mix'
     | '/customize/gift-hamper'
     | '/customize/masala'
     | '/customize/ration-box'
     | '/product/$slug'
     | '/shop/$category'
+    | '/blog/'
     | '/customize/'
     | '/shop/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
+  CartRoute: typeof CartRoute
+  CheckoutRoute: typeof CheckoutRoute
+  ContactRoute: typeof ContactRoute
+  OurFarmsRoute: typeof OurFarmsRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   CustomizeDalMixRoute: typeof CustomizeDalMixRoute
   CustomizeGiftHamperRoute: typeof CustomizeGiftHamperRoute
   CustomizeMasalaRoute: typeof CustomizeMasalaRoute
   CustomizeRationBoxRoute: typeof CustomizeRationBoxRoute
   ProductSlugRoute: typeof ProductSlugRoute
   ShopCategoryRoute: typeof ShopCategoryRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   CustomizeIndexRoute: typeof CustomizeIndexRoute
   ShopIndexRoute: typeof ShopIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/our-farms': {
+      id: '/our-farms'
+      path: '/our-farms'
+      fullPath: '/our-farms'
+      preLoaderRoute: typeof OurFarmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -168,6 +294,13 @@ declare module '@tanstack/react-router' {
       path: '/customize'
       fullPath: '/customize/'
       preLoaderRoute: typeof CustomizeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop/$category': {
@@ -212,20 +345,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomizeDalMixRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
+  CartRoute: CartRoute,
+  CheckoutRoute: CheckoutRoute,
+  ContactRoute: ContactRoute,
+  OurFarmsRoute: OurFarmsRoute,
+  BlogSlugRoute: BlogSlugRoute,
   CustomizeDalMixRoute: CustomizeDalMixRoute,
   CustomizeGiftHamperRoute: CustomizeGiftHamperRoute,
   CustomizeMasalaRoute: CustomizeMasalaRoute,
   CustomizeRationBoxRoute: CustomizeRationBoxRoute,
   ProductSlugRoute: ProductSlugRoute,
   ShopCategoryRoute: ShopCategoryRoute,
+  BlogIndexRoute: BlogIndexRoute,
   CustomizeIndexRoute: CustomizeIndexRoute,
   ShopIndexRoute: ShopIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
