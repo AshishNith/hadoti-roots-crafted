@@ -5,7 +5,7 @@ export type Product = {
   category: "dals" | "masalas" | "ration" | "hampers" | "grains";
   price: number;
   weight: string;
-  customizable: "dal" | "masala" | "ration" | "hamper" | null;
+  customizable: "dal" | "masala" | "ration" | "hamper" | "grain" | null;
 };
 
 export const products: Product[] = [
@@ -80,6 +80,15 @@ export const products: Product[] = [
     price: 110,
     weight: "1kg",
     customizable: null,
+  },
+  {
+    slug: "custom-flour-blend",
+    name: "Custom Flour Blend (Atta)",
+    shortDesc: "Stone-ground to order. Calibrate gluten, carbs, and seeds to your family's needs.",
+    category: "grains",
+    price: 130,
+    weight: "1kg",
+    customizable: "grain",
   },
 ];
 
@@ -197,6 +206,7 @@ export function imageFor(slug: string): string {
     "monthly-ration-box-small": "/images/ration_box.png",
     "festive-gift-hamper": "/images/gift_hamper.png",
     "jowar-atta": "/images/jowar_atta.png",
+    "custom-flour-blend": "/images/jowar_atta.png",
   };
   return mapping[slug] || "/images/panchratan_dal.png";
 }

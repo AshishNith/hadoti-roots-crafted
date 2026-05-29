@@ -14,6 +14,7 @@ export const Route = createFileRoute("/customize/")({
 const tiles = [
   { to: "/customize/dal-mix", icon: Wheat, title: "Dal Mix", tag: "3 steps", desc: "Pick up to six dals. Set grind. Name your blend." },
   { to: "/customize/masala", icon: Flame, title: "Masala Blender", tag: "Quick", desc: "Dial in heat, add-ons, ground to order." },
+  { to: "/product/custom-flour-blend", icon: Wheat, title: "Custom Flour Blend", tag: "Tailored nutrition", desc: "Calibrate gluten, carbs, and seed booster shots." },
   { to: "/customize/ration-box", icon: Package, title: "Monthly Ration Box", tag: "Subscribe & save", desc: "A month of staples, built around you." },
   { to: "/customize/gift-hamper", icon: Gift, title: "Gift Hamper", tag: "Wrapped in jute", desc: "Curate a festival box for someone." },
 ];
