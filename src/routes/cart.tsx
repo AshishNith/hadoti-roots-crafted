@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCart } from "@/lib/store";
-import { formatINR } from "@/lib/data";
+import { formatINR, imageFor } from "@/lib/data";
 import { Button } from "@/components/ui/HFButton";
 import { QuantityControl } from "@/components/ui/QuantityControl";
 import { X } from "lucide-react";
@@ -34,7 +34,13 @@ function CartPage() {
             <div className="lg:col-span-2 space-y-6">
               {items.map((i) => (
                 <div key={i.id} className="flex gap-6 border-b border-[color:var(--border)] pb-6">
-                  <div className="w-28 h-28 shrink-0" style={{ background: "linear-gradient(160deg,#8b5e3c,#2c1d12)" }} />
+                  <div className="w-28 h-28 shrink-0 zoom-frame relative bg-[color:var(--cream)] border border-[color:var(--border)]">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${i.image || imageFor(i.id)})` }}
+                    />
+                    <div className="absolute inset-0 bg-black/5" />
+                  </div>
                   <div className="flex-1">
                     <div className="flex justify-between gap-4">
                       <div>

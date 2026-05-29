@@ -49,3 +49,65 @@ export async function getDalOptions(): Promise<DalOption[]> {
   return fetchOrThrow<DalOption[]>(`${API_BASE_URL}/dal-options`);
 }
 
+async function postOrThrow<T>(url: string, body: any): Promise<T> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status} from ${url}`);
+  }
+  return (await res.json()) as T;
+}
+
+export async function syncUser(userData: {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+}): Promise<any> {
+  return postOrThrow<any>(`${API_BASE_URL}/users/sync`, userData);
+}
+
+export async function placeOrder(orderData: {
+  userUid: string;
+  items: any[];
+  shippingAddress: {
+    name: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    pin: string;
+  };
+  subtotal: number;
+  deliveryFee: number;
+  total: number;
+  paymentMethod: string;
+}): Promise<any> {
+  return postOrThrow<any>(`${API_BASE_URL}/orders`, orderData);
+}
+
+export async function getUserOrders(uid: string): Promise<any[]> {
+  return fetchOrThrow<any[]>(`${API_BASE_URL}/orders/user/${uid}`);
+}
+
+export async function saveBlend(blendData: {
+  userUid: string;
+  name: string;
+  blendType: string;
+  customizationSummary: string;
+  weight: string;
+  price: number;
+}): Promise<any> {
+  return postOrThrow<any>(`${API_BASE_URL}/blends`, blendData);
+}
+
+export async function getSavedBlends(uid: string): Promise<any[]> {
+  return fetchOrThrow<any[]>(`${API_BASE_URL}/blends/user/${uid}`);
+}
+
+

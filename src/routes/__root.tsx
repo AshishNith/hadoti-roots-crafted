@@ -108,6 +108,7 @@ import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, isFirebaseConfigured } from "@/lib/firebase";
 import { useAuth } from "@/lib/auth-store";
+import { syncUser } from "@/lib/api-client";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -118,12 +119,14 @@ function RootComponent() {
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser({
+        const u = {
           uid: user.uid,
           email: user.email,
           displayName: user.displayName,
           photoURL: user.photoURL,
-        });
+        };
+        setUser(u);
+        syncUser(u).catch((err) => console.error("Failed to sync user to MongoDB:", err));
       } else {
         setUser(null);
       }

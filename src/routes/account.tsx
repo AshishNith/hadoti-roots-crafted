@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { Button } from "@/components/ui/HFButton";
 import { toast } from "sonner";
+import { getUserOrders, getSavedBlends } from "@/lib/api-client";
 
 export const Route = createFileRoute("/account")({
   head: () => ({ meta: [{ title: "Account — Hadoti Farms" }] }),
@@ -15,6 +16,21 @@ function AccountPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+
+  const [orders, setOrders] = useState<any[]>([]);
+  const [blends, setBlends] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "blends">("dashboard");
+
+  useEffect(() => {
+    if (user) {
+      getUserOrders(user.uid)
+        .then(setOrders)
+        .catch((err) => console.error("Error fetching orders:", err));
+      getSavedBlends(user.uid)
+        .then(setBlends)
+        .catch((err) => console.error("Error fetching blends:", err));
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,9 +104,26 @@ function AccountPage() {
             </button>
           </div>
 
+          {/* Tabs Navigation */}
+          <div className="flex gap-6 border-b border-[color:var(--border)] pb-4 mb-8">
+            {["dashboard", "orders", "blends"].map((t) => (
+              <button
+                key={t}
+                onClick={() => setActiveTab(t as any)}
+                className={`font-mono text-xs uppercase tracking-[0.2em] pb-2 -mb-px border-b-2 capitalize transition-colors ${
+                  activeTab === t
+                    ? "border-[color:var(--earth)] text-[color:var(--ink)]"
+                    : "border-transparent text-[color:var(--muted-foreground)]"
+                }`}
+              >
+                {t === "dashboard" ? "Overview" : t === "orders" ? `Orders (${orders.length})` : `Saved Blends (${blends.length})`}
+              </button>
+            ))}
+          </div>
+
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Profile Panel */}
-            <div className="bg-[color:var(--cream)] border border-[color:var(--border)] p-8">
+            <div className="bg-[color:var(--cream)] border border-[color:var(--border)] p-8 h-fit">
               <h2 className="font-display text-3xl mb-6">Profile Settings</h2>
               <div className="space-y-4 font-mono text-xs">
                 <div>
@@ -108,35 +141,157 @@ function AccountPage() {
               </div>
             </div>
 
-            {/* Dashboard Cards */}
+            {/* Dashboard Cards & Lists */}
             <div className="lg:col-span-2 space-y-6">
-              <div className="grid sm:grid-cols-2 gap-6">
-                {[
-                  ["Orders", "Track recent orders and view tracing coordinates.", "/cart", "2 Active Orders"],
-                  ["Saved Blends", "Your custom sun-dried mix specifications.", "/customize", "3 Saved Recipes"],
-                ].map(([t, d, to, stat]) => (
-                  <Link key={t} to={to} className="block border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-8 hover:border-[color:var(--ink)] transition-colors group">
-                    <div className="flex justify-between items-start gap-4">
-                      <h3 className="font-display text-3xl">{t}</h3>
-                      <span className="font-mono text-[9px] uppercase tracking-[0.15em] bg-[color:var(--earth)]/10 text-[color:var(--earth)] px-2 py-0.5 rounded-full">{stat}</span>
-                    </div>
-                    <p className="mt-3 text-sm text-[color:var(--muted-foreground)] leading-relaxed">{d}</p>
-                    <span className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em] text-[color:var(--earth)]">Open Panel →</span>
-                  </Link>
-                ))}
-              </div>
+              {activeTab === "dashboard" && (
+                <div className="space-y-6 animate-fade-in">
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <button
+                      onClick={() => setActiveTab("orders")}
+                      className="block text-left border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-8 hover:border-[color:var(--ink)] transition-colors group cursor-pointer"
+                    >
+                      <div className="flex justify-between items-start gap-4">
+                        <h3 className="font-display text-3xl">Orders</h3>
+                        <span className="font-mono text-[9px] uppercase tracking-[0.15em] bg-[color:var(--earth)]/10 text-[color:var(--earth)] px-2 py-0.5 rounded-full">
+                          {orders.length} Active
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm text-[color:var(--muted-foreground)] leading-relaxed">
+                        Track recent orders and view tracing coordinates.
+                      </p>
+                      <span className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em] text-[color:var(--earth)]">
+                        Open Panel →
+                      </span>
+                    </button>
 
-              {/* Subscriptions */}
-              <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-8">
-                <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-                  <h3 className="font-display text-3xl">Active Subscriptions</h3>
-                  <span className="font-mono text-xs text-[color:var(--earth)] uppercase tracking-[0.15em]">Hadoti Ration Box</span>
+                    <button
+                      onClick={() => setActiveTab("blends")}
+                      className="block text-left border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-8 hover:border-[color:var(--ink)] transition-colors group cursor-pointer"
+                    >
+                      <div className="flex justify-between items-start gap-4">
+                        <h3 className="font-display text-3xl">Saved Blends</h3>
+                        <span className="font-mono text-[9px] uppercase tracking-[0.15em] bg-[color:var(--earth)]/10 text-[color:var(--earth)] px-2 py-0.5 rounded-full">
+                          {blends.length} Saved
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm text-[color:var(--muted-foreground)] leading-relaxed">
+                        Your custom sun-dried mix specifications.
+                      </p>
+                      <span className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em] text-[color:var(--earth)]">
+                        Open Panel →
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Subscriptions */}
+                  <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-8">
+                    <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                      <h3 className="font-display text-3xl">Active Subscriptions</h3>
+                      <span className="font-mono text-xs text-[color:var(--earth)] uppercase tracking-[0.15em]">
+                        Hadoti Ration Box
+                      </span>
+                    </div>
+                    <p className="text-sm text-[color:var(--muted-foreground)] max-w-xl leading-relaxed">
+                      Your customized monthly supply (Medium Box - 5kg) of pesticide-free stone-ground grains, heritage dals, and sun-dried chillies is scheduled to ship on June 5, 2026.
+                    </p>
+                    <Link
+                      to="/customize/ration-box"
+                      className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em]"
+                    >
+                      Manage Subscription →
+                    </Link>
+                  </div>
                 </div>
-                <p className="text-sm text-[color:var(--muted-foreground)] max-w-xl leading-relaxed">
-                  Your customized monthly supply (Medium Box - 5kg) of pesticide-free stone-ground grains, heritage dals, and sun-dried chillies is scheduled to ship on June 5, 2026.
-                </p>
-                <Link to="/customize/ration-box" className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em]">Manage Subscription →</Link>
-              </div>
+              )}
+
+              {activeTab === "orders" && (
+                <div className="space-y-6 animate-fade-in">
+                  <h2 className="font-display text-4xl mb-4">Order History</h2>
+                  {orders.length === 0 ? (
+                    <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/20 p-8 text-center">
+                      <p className="font-display italic text-2xl text-[color:var(--muted-foreground)]">
+                        You have no placed orders yet.
+                      </p>
+                      <Link to="/shop" className="mt-4 inline-block story-link font-mono text-xs uppercase tracking-[0.2em]">
+                        Visit the Pantry →
+                      </Link>
+                    </div>
+                  ) : (
+                    orders.map((o) => (
+                      <div key={o._id} className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-6">
+                        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[color:var(--border)] pb-4 mb-4">
+                          <div>
+                            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[color:var(--muted-foreground)]">Order Number</div>
+                            <div className="font-mono text-sm font-semibold text-[color:var(--earth)]">{o.orderNumber}</div>
+                          </div>
+                          <div>
+                            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[color:var(--muted-foreground)]">Date Placed</div>
+                            <div className="font-mono text-xs">{new Date(o.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</div>
+                          </div>
+                          <div>
+                            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[color:var(--muted-foreground)]">Status</div>
+                            <span className="font-mono text-[9px] uppercase tracking-[0.15em] bg-[color:var(--earth)]/10 text-[color:var(--earth)] px-3 py-1 rounded-full">{o.status}</span>
+                          </div>
+                          <div>
+                            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[color:var(--muted-foreground)]">Total</div>
+                            <div className="font-display text-2xl">₹{o.total}</div>
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          {o.items.map((i: any) => (
+                            <div key={i.id} className="flex justify-between items-center text-sm gap-4">
+                              <div>
+                                <span className="font-display text-lg">{i.name}</span>
+                                <span className="font-mono text-[11px] text-[color:var(--muted-foreground)] ml-2">({i.weight}) × {i.qty}</span>
+                                {i.customization && <p className="font-mono text-[10px] text-[color:var(--muted-foreground)] mt-1">{i.customization}</p>}
+                              </div>
+                              <span className="font-mono text-sm">₹{i.price * i.qty}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {activeTab === "blends" && (
+                <div className="space-y-6 animate-fade-in">
+                  <h2 className="font-display text-4xl mb-4">Saved Recipes & Custom Blends</h2>
+                  {blends.length === 0 ? (
+                    <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/20 p-8 text-center">
+                      <p className="font-display italic text-2xl text-[color:var(--muted-foreground)]">
+                        No saved blends found.
+                      </p>
+                      <Link to="/customize" className="mt-4 inline-block story-link font-mono text-xs uppercase tracking-[0.2em]">
+                        Build Your First Blend →
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      {blends.map((b) => (
+                        <div key={b._id} className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-6 flex flex-col justify-between min-h-[220px]">
+                          <div>
+                            <span className="font-mono text-[9px] uppercase tracking-[0.15em] bg-[color:var(--earth)]/10 text-[color:var(--earth)] px-2.5 py-1 rounded-full capitalize">
+                              {b.blendType} mix
+                            </span>
+                            <h3 className="font-display text-3xl mt-4 leading-tight">{b.name}</h3>
+                            <p className="font-mono text-xs text-[color:var(--muted-foreground)] mt-2 leading-relaxed">
+                              {b.customizationSummary}
+                            </p>
+                          </div>
+                          <div className="flex items-center justify-between border-t border-[color:var(--border)] pt-4 mt-6">
+                            <span className="font-mono text-[10px] text-[color:var(--muted-foreground)] uppercase tracking-[0.1em]">
+                              {b.weight} pouch
+                            </span>
+                            <span className="font-display text-2xl">₹{b.price}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

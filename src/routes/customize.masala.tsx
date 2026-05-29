@@ -42,6 +42,7 @@ function MasalaBuilder() {
       weight: "100g",
       qty: 1,
       customization: `${heat} · ${picked.length} add-ons`,
+      image: "/images/masala_blend.png",
     });
     toast.success("Masala added to cart");
   };

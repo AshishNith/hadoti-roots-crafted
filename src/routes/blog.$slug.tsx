@@ -36,9 +36,15 @@ function PostPage() {
         </div>
         <div className="mt-12 font-display text-2xl leading-relaxed text-[color:var(--ink)]/85 space-y-6">
           <p className="text-3xl italic">{post.excerpt}</p>
-          <p>The fields of Hadoti hold a particular silence at dawn. Black cotton soil, low monsoon, slow seasons — these are the conditions that shape every grain we ship.</p>
-          <p>This is a placeholder body for the journal entry. Real long-form writing — interviews with farmers, recipe walkthroughs, seasonal guides — lives here in production.</p>
-          <p className="font-body text-base text-[color:var(--muted-foreground)]">— Hadoti Farms Editorial</p>
+          {post.content ? (
+            <p className="font-body text-lg leading-relaxed text-[color:var(--ink)]/80">{post.content}</p>
+          ) : (
+            <>
+              <p>The fields of Hadoti hold a particular silence at dawn. Black cotton soil, low monsoon, slow seasons — these are the conditions that shape every grain we ship.</p>
+              <p>This is a placeholder body for the journal entry. Real long-form writing — interviews with farmers, recipe walkthroughs, seasonal guides — lives here in production.</p>
+            </>
+          )}
+          <p className="font-body text-base text-[color:var(--muted-foreground)] mt-10 border-t border-[color:var(--border)] pt-6">— Hadoti Farms Editorial</p>
         </div>
       </div>
     </article>

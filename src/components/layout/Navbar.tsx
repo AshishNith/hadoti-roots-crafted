@@ -154,6 +154,23 @@ export function Navbar() {
                 {l.label}
               </Link>
             ))}
+            <div className="h-[1px] w-32 bg-[color:var(--gold)]/20 my-2" data-stagger />
+            <Link
+              to="/account"
+              data-stagger
+              onClick={() => setOpen(false)}
+              className="font-display text-3xl italic text-white/70 hover:text-white"
+            >
+              Account Dashboard
+            </Link>
+            <Link
+              to="/cart"
+              data-stagger
+              onClick={() => setOpen(false)}
+              className="font-display text-3xl italic text-white/70 hover:text-white flex items-center gap-3"
+            >
+              Shopping Cart {count > 0 && <span className="font-mono text-xs bg-[color:var(--gold)] text-black px-2 py-0.5 rounded-full">{count}</span>}
+            </Link>
           </nav>
         </div>
       )}

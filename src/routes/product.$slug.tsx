@@ -191,6 +191,7 @@ function ProductPage() {
       weight,
       qty,
       customization: customizationStr,
+      image: product.image || imageFor(product.slug),
     });
     toast.success(`${product.name} added to cart`);
   };

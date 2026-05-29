@@ -35,6 +35,7 @@ function HamperBuilder() {
       weight: "Gift Box",
       qty: 1,
       customization: note ? `Note: "${note}"` : undefined,
+      image: "/images/gift_hamper.png",
     });
     toast.success("Hamper added to cart");
   };

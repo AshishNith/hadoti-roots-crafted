@@ -51,6 +51,7 @@ function RationBuilder() {
       weight: `${size.weight}kg`,
       qty: 1,
       customization: `${summary || "Empty box"} · ${sub === "monthly" ? "Monthly" : "One-time"}`,
+      image: "/images/ration_box.png",
     });
     toast.success("Box added to cart");
   };

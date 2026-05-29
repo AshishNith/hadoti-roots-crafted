@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/lib/store";
 import { formatINR } from "@/lib/data";
 import { Button } from "@/components/ui/HFButton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-store";
+import { placeOrder, saveBlend } from "@/lib/api-client";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — Hadoti Farms" }] }),
@@ -29,12 +30,78 @@ function CheckoutPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
 
+  // Shipping details state
+  const [shippingName, setShippingName] = useState("");
+  const [shippingPhone, setShippingPhone] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [shippingCity, setShippingCity] = useState("");
+  const [shippingState, setShippingState] = useState("");
+  const [shippingPin, setShippingPin] = useState("");
+
+  useEffect(() => {
+    if (user && !shippingName) {
+      setShippingName(user.displayName || "");
+    }
+  }, [user]);
+
   const total = subtotal + (subtotal > 999 ? 0 : 60);
 
-  const place = () => {
-    clear();
-    setStep(2);
-    toast.success("Order placed. Your harvest is on its way.");
+  const place = async () => {
+    try {
+      const orderItems = items.map((i) => ({
+        id: i.id,
+        name: i.name,
+        price: i.price,
+        weight: i.weight,
+        qty: i.qty,
+        customization: i.customization || null,
+        image: i.image || null,
+      }));
+
+      await placeOrder({
+        userUid: user.uid,
+        items: orderItems,
+        shippingAddress: {
+          name: shippingName,
+          phone: shippingPhone,
+          address: shippingAddress,
+          city: shippingCity,
+          state: shippingState,
+          pin: shippingPin,
+        },
+        subtotal,
+        deliveryFee: subtotal > 999 ? 0 : 60,
+        total,
+        paymentMethod: pay,
+      });
+
+      // Save custom blends
+      for (const i of items) {
+        if (i.customization) {
+          const blendType = i.id.includes("dal")
+            ? "dal"
+            : i.id.includes("masala")
+            ? "masala"
+            : i.id.includes("ration")
+            ? "ration"
+            : "grain";
+          await saveBlend({
+            userUid: user.uid,
+            name: i.name,
+            blendType,
+            customizationSummary: i.customization,
+            weight: i.weight,
+            price: i.price,
+          }).catch((err) => console.error("Error saving blend:", err));
+        }
+      }
+
+      clear();
+      setStep(2);
+      toast.success("Order placed. Your harvest is on its way.");
+    } catch (err: any) {
+      toast.error("Failed to place order: " + (err.message || "Unknown error"));
+    }
   };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
@@ -257,15 +324,15 @@ function CheckoutPage() {
               <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(1); }}>
                 <h2 className="font-display text-3xl">Delivery details</h2>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <Field label="Full name" defaultValue={user.displayName || ""} />
-                  <Field label="Phone" type="tel" />
+                  <Field label="Full name" value={shippingName} onChange={setShippingName} />
+                  <Field label="Phone" type="tel" value={shippingPhone} onChange={setShippingPhone} />
                 </div>
-                <Field label="Email" type="email" defaultValue={user.email || ""} />
-                <Field label="Address" />
+                <Field label="Email" type="email" value={user.email || ""} onChange={() => {}} />
+                <Field label="Address" value={shippingAddress} onChange={setShippingAddress} />
                 <div className="grid sm:grid-cols-3 gap-4">
-                  <Field label="City" />
-                  <Field label="State" />
-                  <Field label="PIN" />
+                  <Field label="City" value={shippingCity} onChange={setShippingCity} />
+                  <Field label="State" value={shippingState} onChange={setShippingState} />
+                  <Field label="PIN" value={shippingPin} onChange={setShippingPin} />
                 </div>
                 <Button>Continue to Payment →</Button>
               </form>
@@ -330,11 +397,29 @@ function CheckoutPage() {
   );
 }
 
-function Field({ label, type = "text", defaultValue = "" }: { label: string; type?: string; defaultValue?: string }) {
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required = true,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+}) {
   return (
     <label className="block">
       <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--muted-foreground)]">{label}</span>
-      <input type={type} required defaultValue={defaultValue} className="mt-1 w-full bg-transparent border-b border-[color:var(--ink)] py-2 outline-none focus:border-[color:var(--earth)] transition-colors" />
+      <input
+        type={type}
+        required={required}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-1 w-full bg-transparent border-b border-[color:var(--ink)] py-2 outline-none focus:border-[color:var(--earth)] transition-colors"
+      />
     </label>
   );
 }

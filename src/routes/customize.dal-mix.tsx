@@ -32,6 +32,17 @@ const bags = [
   { id: "cloth", label: "Reusable Cloth Bag", extra: 30 },
 ];
 
+const dalPrices: Record<string, number> = {
+  moong: 0.28,
+  urad: 0.32,
+  masoor: 0.26,
+  chana: 0.24,
+  toor: 0.30,
+  rajma: 0.38,
+  matki: 0.34,
+  kulthi: 0.36,
+};
+
 function DalMixBuilder() {
   const { options: dalOptions } = Route.useLoaderData() as { options: DalOption[] };
   const [step, setStep] = useState(0);
@@ -59,17 +70,46 @@ function DalMixBuilder() {
     .map((d) => ({ id: d.id, label: d.name, value: amounts[d.id] ?? 0 }));
   const total = slices.reduce((s, x) => s + x.value, 0);
   const target = pack === "500g" ? 500 : pack === "1kg" ? 1000 : 2000;
+  
+  // Calculate dynamic ingredient cost
+  let rawCost = 0;
+  slices.forEach((s) => {
+    const rate = dalPrices[s.id] || 0.30;
+    rawCost += s.value * rate;
+  });
+
+  if (total === 0) {
+    rawCost = target * 0.32;
+  } else {
+    rawCost = (rawCost / total) * target;
+  }
+
   const extra = bags.find((b) => b.id === bag)?.extra ?? 0;
-  const basePrice = Math.round(target * 0.32);
-  const price = basePrice + extra;
+  const price = Math.round(rawCost + extra);
 
   const setAmt = (id: string, v: number) =>
     setAmounts((a) => ({ ...a, [id]: Math.max(0, v) }));
 
-  const goNext = () => setStep((s) => Math.min(2, s + 1));
+  const goNext = () => {
+    if (step === 0) {
+      const minWeight = target * 0.9;
+      const maxWeight = target * 1.1;
+      if (total < minWeight || total > maxWeight) {
+        toast.error(`Please adjust your dals to total between ${minWeight}g and ${maxWeight}g (currently ${total}g) for a ${pack} pack.`);
+        return;
+      }
+    }
+    setStep((s) => Math.min(2, s + 1));
+  };
   const goBack = () => setStep((s) => Math.max(0, s - 1));
 
   const onAdd = () => {
+    const minWeight = target * 0.9;
+    const maxWeight = target * 1.1;
+    if (total < minWeight || total > maxWeight) {
+      toast.error(`Please adjust your dals to total between ${minWeight}g and ${maxWeight}g (currently ${total}g) for a ${pack} pack.`);
+      return;
+    }
     const summary = slices.map((s) => `${Math.round((s.value / total) * 100)}% ${s.label}`).join(", ");
     add({
       id: `custom-dal-${Date.now()}`,
@@ -78,6 +118,7 @@ function DalMixBuilder() {
       weight: pack,
       qty: 1,
       customization: `${summary} · ${grind}`,
+      image: "/images/panchratan_dal.png",
     });
     toast.success("Your blend has been added");
   };

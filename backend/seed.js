@@ -140,6 +140,7 @@ const blogPostsSeed = [
     type: "Recipe",
     title: "How to Build the Perfect Protein Dal Mix",
     excerpt: "The ratios that turn three dals into a complete meal.",
+    content: "The perfect protein dal mix is built on a simple biological truth: while individual pulses lack certain essential amino acids, combining them creates a complete, high-quality protein profile similar to animal sources. In our traditional Hadoti kitchens, we've found that a 5:3:2 ratio of yellow moong, split urad, and quick-cooking red masoor dal creates the absolute sweet spot. The moong provides a light, cooling baseline; the urad brings a deep, earthy texture and rich lipid mouthfeel; and the masoor ties it together by melting down into a thick, binding gravy. Stone-milled and sun-dried, these dals retain their outer nutrient husks, ensuring you get maximum dietary fiber alongside your plant proteins. For a perfect simmer, wash the blend three times, soak for 20 minutes, and slow-cook in a heavy brass vessel with a pinch of Bundi-grown turmeric and ghee.",
     date: "March 2026",
   },
   {
@@ -147,6 +148,7 @@ const blogPostsSeed = [
     type: "Farm Story",
     title: "The Story of Mathania Chilli",
     excerpt: "Why a single village in Rajasthan colors half of India's curries.",
+    content: "Mathania, a small, sun-drenched pocket in Rajasthan, yields a single-origin red chilli that Jodhpur royalty and local farmer collectives have guarded for generations. The Mathania chilli is famous not for blinding, aggressive heat, but for its deep, oil-rich burgundy color, its lingering smoky sweetness, and its ability to emulsify beautifully into gravies like Laal Maas. Under the fierce desert sun, these chillies are slow-dried on large open-air jute sheets. This slow dehydration concentrates the natural capsaicin oils and sugars without scorching the pods. At Hadoti Farms, our farmers in Bundi work closely with Jodhpur growers to preserve these heirloom seeds, stone-grinding them in small batches to order. When you open a jar of our ground Mathania chilli, you are smelling the dry desert wind, the clay earth, and three centuries of desert farming heritage.",
     date: "February 2026",
   },
   {
@@ -154,6 +156,7 @@ const blogPostsSeed = [
     type: "Farm Story",
     title: "Why Hadoti Urad is Different",
     excerpt: "Black soil, low water, slow growth — and what it does to the dal.",
+    content: "Walk through Ramesh Gurjar's fields in Bundi during the late winter, and you will see urad plants clinging tightly to the dark, clayey black cotton soil. Unlike other regions where rich river basins speed up growth, Hadoti's soil holds moisture deep down, forcing the crops to grow slowly and develop thick, robust root structures. This low-water, slow-maturing stress is precisely what gives Hadoti's black urad dal its unparalleled culinary properties. The skin is thick and rich in minerals, and the inner cotyledon is packed with dense, slow-solubilizing starches. When split and washed in our traditional stone mills, it yields a dal that doesn't disintegrate under high heat, but rather slowly releases its natural creamy mucilage. It is this unique quality that makes it the choice for slow-simmered dals like Dal Makhani and traditional Rajasthani Baati accompaniment.",
     date: "January 2026",
   },
   {
@@ -161,6 +164,7 @@ const blogPostsSeed = [
     type: "Seasonal Guide",
     title: "Building Your First Custom Ration Box",
     excerpt: "A simple framework for a month of staples.",
+    content: "A custom ration box is designed to eliminate the waste, chemical exposure, and generic quality of supermarket staples by delivering fresh, pesticide-free, stone-ground grains and sun-dried dals direct from Hadoti's farms to your kitchen. To build your first box, start with your grain baseline: calculate roughly 1kg of flour per family member per week. Next, select your dals: we recommend a mix of Moong for light mid-week lunches, Urad for rich weekend dinners, and Chana for protein-dense salads. Finally, calibrate your spice levels: add single-origin Mathania chilli and stone-ground haldi to round out the monthly requirements. By shifting from industrial packaging to our custom jute-lined boxes, you actively support our cooperative of 400+ farmers, ensuring they receive 30% higher wages while your family enjoys unmatched, traceably clean nutrition.",
     date: "January 2026",
   },
 ];
