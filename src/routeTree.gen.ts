@@ -14,6 +14,10 @@ import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as CustomizeIndexRouteImport } from './routes/customize.index'
 import { Route as ShopCategoryRouteImport } from './routes/shop.$category'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as CustomizeRationBoxRouteImport } from './routes/customize.ration-box'
+import { Route as CustomizeMasalaRouteImport } from './routes/customize.masala'
+import { Route as CustomizeGiftHamperRouteImport } from './routes/customize.gift-hamper'
+import { Route as CustomizeDalMixRouteImport } from './routes/customize.dal-mix'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,9 +44,33 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CustomizeRationBoxRoute = CustomizeRationBoxRouteImport.update({
+  id: '/customize/ration-box',
+  path: '/customize/ration-box',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomizeMasalaRoute = CustomizeMasalaRouteImport.update({
+  id: '/customize/masala',
+  path: '/customize/masala',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomizeGiftHamperRoute = CustomizeGiftHamperRouteImport.update({
+  id: '/customize/gift-hamper',
+  path: '/customize/gift-hamper',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomizeDalMixRoute = CustomizeDalMixRouteImport.update({
+  id: '/customize/dal-mix',
+  path: '/customize/dal-mix',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/customize/dal-mix': typeof CustomizeDalMixRoute
+  '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
+  '/customize/masala': typeof CustomizeMasalaRoute
+  '/customize/ration-box': typeof CustomizeRationBoxRoute
   '/product/$slug': typeof ProductSlugRoute
   '/shop/$category': typeof ShopCategoryRoute
   '/customize/': typeof CustomizeIndexRoute
@@ -50,6 +78,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/customize/dal-mix': typeof CustomizeDalMixRoute
+  '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
+  '/customize/masala': typeof CustomizeMasalaRoute
+  '/customize/ration-box': typeof CustomizeRationBoxRoute
   '/product/$slug': typeof ProductSlugRoute
   '/shop/$category': typeof ShopCategoryRoute
   '/customize': typeof CustomizeIndexRoute
@@ -58,6 +90,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/customize/dal-mix': typeof CustomizeDalMixRoute
+  '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
+  '/customize/masala': typeof CustomizeMasalaRoute
+  '/customize/ration-box': typeof CustomizeRationBoxRoute
   '/product/$slug': typeof ProductSlugRoute
   '/shop/$category': typeof ShopCategoryRoute
   '/customize/': typeof CustomizeIndexRoute
@@ -67,15 +103,32 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/customize/dal-mix'
+    | '/customize/gift-hamper'
+    | '/customize/masala'
+    | '/customize/ration-box'
     | '/product/$slug'
     | '/shop/$category'
     | '/customize/'
     | '/shop/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/product/$slug' | '/shop/$category' | '/customize' | '/shop'
+  to:
+    | '/'
+    | '/customize/dal-mix'
+    | '/customize/gift-hamper'
+    | '/customize/masala'
+    | '/customize/ration-box'
+    | '/product/$slug'
+    | '/shop/$category'
+    | '/customize'
+    | '/shop'
   id:
     | '__root__'
     | '/'
+    | '/customize/dal-mix'
+    | '/customize/gift-hamper'
+    | '/customize/masala'
+    | '/customize/ration-box'
     | '/product/$slug'
     | '/shop/$category'
     | '/customize/'
@@ -84,6 +137,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CustomizeDalMixRoute: typeof CustomizeDalMixRoute
+  CustomizeGiftHamperRoute: typeof CustomizeGiftHamperRoute
+  CustomizeMasalaRoute: typeof CustomizeMasalaRoute
+  CustomizeRationBoxRoute: typeof CustomizeRationBoxRoute
   ProductSlugRoute: typeof ProductSlugRoute
   ShopCategoryRoute: typeof ShopCategoryRoute
   CustomizeIndexRoute: typeof CustomizeIndexRoute
@@ -127,11 +184,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/customize/ration-box': {
+      id: '/customize/ration-box'
+      path: '/customize/ration-box'
+      fullPath: '/customize/ration-box'
+      preLoaderRoute: typeof CustomizeRationBoxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customize/masala': {
+      id: '/customize/masala'
+      path: '/customize/masala'
+      fullPath: '/customize/masala'
+      preLoaderRoute: typeof CustomizeMasalaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customize/gift-hamper': {
+      id: '/customize/gift-hamper'
+      path: '/customize/gift-hamper'
+      fullPath: '/customize/gift-hamper'
+      preLoaderRoute: typeof CustomizeGiftHamperRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customize/dal-mix': {
+      id: '/customize/dal-mix'
+      path: '/customize/dal-mix'
+      fullPath: '/customize/dal-mix'
+      preLoaderRoute: typeof CustomizeDalMixRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CustomizeDalMixRoute: CustomizeDalMixRoute,
+  CustomizeGiftHamperRoute: CustomizeGiftHamperRoute,
+  CustomizeMasalaRoute: CustomizeMasalaRoute,
+  CustomizeRationBoxRoute: CustomizeRationBoxRoute,
   ProductSlugRoute: ProductSlugRoute,
   ShopCategoryRoute: ShopCategoryRoute,
   CustomizeIndexRoute: CustomizeIndexRoute,
