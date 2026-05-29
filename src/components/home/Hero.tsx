@@ -44,6 +44,7 @@ export function Hero() {
       className="relative h-screen w-full overflow-hidden bg-[color:var(--ink)] text-white"
     >
       <div
+      
         data-hero-bg
         className="absolute inset-0 will-change-transform bg-cover bg-center"
         style={{
