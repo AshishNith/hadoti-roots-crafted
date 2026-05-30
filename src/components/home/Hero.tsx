@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { gsap } from "@/lib/gsap";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { GrainOverlay } from "@/components/ui/GrainOverlay";
 import { Button } from "@/components/ui/HFButton";
 import { Ticker } from "@/components/layout/Ticker";
@@ -13,22 +13,32 @@ export function Hero() {
       // 1. Initial position of Step 2 (starts hidden and shifted down)
       gsap.set("[data-hero-step2]", { opacity: 0, y: 45 });
 
-      // 2. Entrance animation on page load (not tied to scroll)
+      // 2. Entrance animation on page load (skipped if page is already scrolled to prevent conflicts)
       const lineWords = gsap.utils.toArray<HTMLElement>("[data-word]");
-      gsap.set(lineWords, { yPercent: 110, opacity: 0 });
-      gsap.set("[data-hero-sub]", { opacity: 0, y: 20 });
-      gsap.set("[data-hero-ctas]", { opacity: 0, y: 20 });
+      const isScrolled = typeof window !== "undefined" && window.scrollY > 10;
 
-      const entryTl = gsap.timeline();
-      entryTl.to(lineWords, {
-        yPercent: 0,
-        opacity: 1,
-        stagger: 0.12,
-        duration: 0.9,
-        ease: "power4.out",
-      }, 0.1)
-      .to("[data-hero-sub]", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, "-=0.6")
-      .to("[data-hero-ctas]", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, "-=0.6");
+      if (isScrolled) {
+        // Immediately fully reveal Step 1 if user scrolled or reloaded down
+        gsap.set(lineWords, { yPercent: 0, opacity: 1 });
+        gsap.set("[data-hero-sub]", { opacity: 1, y: 0 });
+        gsap.set("[data-hero-ctas]", { opacity: 1, y: 0 });
+      } else {
+        // Otherwise, play the elegant entrance transition
+        gsap.set(lineWords, { yPercent: 110, opacity: 0 });
+        gsap.set("[data-hero-sub]", { opacity: 0, y: 20 });
+        gsap.set("[data-hero-ctas]", { opacity: 0, y: 20 });
+
+        const entryTl = gsap.timeline();
+        entryTl.to(lineWords, {
+          yPercent: 0,
+          opacity: 1,
+          stagger: 0.12,
+          duration: 0.9,
+          ease: "power4.out",
+        }, 0.1)
+        .to("[data-hero-sub]", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, "-=0.6")
+        .to("[data-hero-ctas]", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, "-=0.6");
+      }
 
       // 3. Scroll-linked timeline with pinning and scrubbing
       const tl = gsap.timeline({
@@ -98,7 +108,7 @@ export function Hero() {
           </div>
 
           {/* Step 2 Content: Appears as you scroll */}
-          <div data-hero-step2 className="absolute inset-x-0 px-6 lg:px-10 max-w-[1400px] mx-auto w-full pointer-events-none">
+          <div data-hero-step2 className="absolute inset-0 flex flex-col justify-center px-6 lg:px-10 max-w-[1400px] mx-auto w-full pointer-events-none opacity-0">
             <h2 className="font-display leading-[0.95] text-[9vw] md:text-[7vw] lg:text-[6rem]">
               <span className="block">Pure black soil.</span>
               <span className="block italic text-[color:var(--gold)]">Zero pesticides.</span>

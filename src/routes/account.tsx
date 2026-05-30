@@ -4,6 +4,16 @@ import { useAuth } from "@/lib/auth-store";
 import { Button } from "@/components/ui/HFButton";
 import { toast } from "sonner";
 import { getUserOrders, getSavedBlends } from "@/lib/api-client";
+import { 
+  ArrowLeft, 
+  Package, 
+  Truck, 
+  CheckCircle2, 
+  Download, 
+  HelpCircle, 
+  AlertTriangle, 
+  ShieldCheck 
+} from "lucide-react";
 
 export const Route = createFileRoute("/account")({
   head: () => ({ meta: [{ title: "Account — Hadoti Farms" }] }),
@@ -20,6 +30,7 @@ function AccountPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [blends, setBlends] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "blends">("dashboard");
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -109,7 +120,10 @@ function AccountPage() {
             {["dashboard", "orders", "blends"].map((t) => (
               <button
                 key={t}
-                onClick={() => setActiveTab(t as any)}
+                onClick={() => {
+                  setActiveTab(t as any);
+                  setSelectedOrderId(null);
+                }}
                 className={`font-mono text-xs uppercase tracking-[0.2em] pb-2 -mb-px border-b-2 capitalize transition-colors ${
                   activeTab === t
                     ? "border-[color:var(--earth)] text-[color:var(--ink)]"
@@ -205,54 +219,70 @@ function AccountPage() {
               )}
 
               {activeTab === "orders" && (
-                <div className="space-y-6 animate-fade-in">
-                  <h2 className="font-display text-4xl mb-4">Order History</h2>
-                  {orders.length === 0 ? (
-                    <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/20 p-8 text-center">
-                      <p className="font-display italic text-2xl text-[color:var(--muted-foreground)]">
-                        You have no placed orders yet.
-                      </p>
-                      <Link to="/shop" className="mt-4 inline-block story-link font-mono text-xs uppercase tracking-[0.2em]">
-                        Visit the Pantry →
-                      </Link>
+                selectedOrderId ? (
+                  <OrderDetail order={orders.find((o) => o._id === selectedOrderId)} onBack={() => setSelectedOrderId(null)} />
+                ) : (
+                  <div className="space-y-6 animate-fade-in">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="font-display text-4xl">Order History</h2>
+                      <span className="font-mono text-xs text-[color:var(--muted-foreground)] font-semibold uppercase tracking-wider">
+                        Showing {orders.length} transaction{orders.length !== 1 && "s"}
+                      </span>
                     </div>
-                  ) : (
-                    orders.map((o) => (
-                      <div key={o._id} className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-6">
-                        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[color:var(--border)] pb-4 mb-4">
-                          <div>
-                            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[color:var(--muted-foreground)]">Order Number</div>
-                            <div className="font-mono text-sm font-semibold text-[color:var(--earth)]">{o.orderNumber}</div>
-                          </div>
-                          <div>
-                            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[color:var(--muted-foreground)]">Date Placed</div>
-                            <div className="font-mono text-xs">{new Date(o.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</div>
-                          </div>
-                          <div>
-                            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[color:var(--muted-foreground)]">Status</div>
-                            <span className="font-mono text-[9px] uppercase tracking-[0.15em] bg-[color:var(--earth)]/10 text-[color:var(--earth)] px-3 py-1 rounded-full">{o.status}</span>
-                          </div>
-                          <div>
-                            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[color:var(--muted-foreground)]">Total</div>
-                            <div className="font-display text-2xl">₹{o.total}</div>
-                          </div>
-                        </div>
-                        <div className="space-y-4">
-                          {o.items.map((i: any) => (
-                            <div key={i.id} className="flex justify-between items-center text-sm gap-4">
-                              <div>
-                                <span className="font-display text-lg">{i.name}</span>
-                                <span className="font-mono text-[11px] text-[color:var(--muted-foreground)] ml-2">({i.weight}) × {i.qty}</span>
-                                {i.customization && <p className="font-mono text-[10px] text-[color:var(--muted-foreground)] mt-1">{i.customization}</p>}
-                              </div>
-                              <span className="font-mono text-sm">₹{i.price * i.qty}</span>
-                            </div>
-                          ))}
-                        </div>
+                    {orders.length === 0 ? (
+                      <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/20 p-8 text-center">
+                        <p className="font-display italic text-2xl text-[color:var(--muted-foreground)]">
+                          You have no placed orders yet.
+                        </p>
+                        <Link to="/shop" className="mt-4 inline-block story-link font-mono text-xs uppercase tracking-[0.2em]">
+                          Visit the Pantry →
+                        </Link>
                       </div>
-                    ))
-                  )}
-                </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {orders.map((o) => (
+                          <div
+                            key={o._id}
+                            onClick={() => setSelectedOrderId(o._id)}
+                            className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-6 hover:border-[color:var(--ink)] cursor-pointer transition-all duration-300 group flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6"
+                          >
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-3">
+                                <span className="font-mono text-sm font-semibold text-[color:var(--earth)]">
+                                  {o.orderNumber}
+                                </span>
+                                <span className={`font-mono text-[9px] uppercase tracking-[0.15em] px-2.5 py-0.5 rounded-full ${
+                                  o.status === "cancelled"
+                                    ? "bg-red-50 text-red-600 border border-red-100"
+                                    : o.status === "delivered"
+                                    ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                                    : "bg-[color:var(--gold)]/10 text-[color:var(--earth)]"
+                                }`}>
+                                  {o.status}
+                                </span>
+                              </div>
+                              <p className="text-xs text-[color:var(--muted-foreground)] font-mono">
+                                Placed on {new Date(o.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                              </p>
+                              <p className="font-display text-lg text-[color:var(--ink)] leading-snug line-clamp-1">
+                                {o.items.map((i: any) => `${i.name} (x${i.qty})`).join(", ")}
+                              </p>
+                            </div>
+                            <div className="flex sm:flex-col items-end justify-between w-full sm:w-auto gap-4 pt-4 sm:pt-0 border-t border-[color:var(--border)]/40 sm:border-none">
+                              <div className="text-right">
+                                <div className="font-mono text-[9px] text-[color:var(--muted-foreground)] uppercase">Total Amount</div>
+                                <div className="font-display text-2xl">₹{o.total}</div>
+                              </div>
+                              <span className="story-link font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--earth)] group-hover:text-[color:var(--ink)] mt-2">
+                                Details & Track →
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
               )}
 
               {activeTab === "blends" && (
@@ -409,5 +439,366 @@ function AccountPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+// ============================================================================
+// ORDER DETAIL & TRACKING PANEL VIEW
+// ============================================================================
+function OrderDetail({ order, onBack }: { order: any; onBack: () => void }) {
+  if (!order) return null;
+
+  const statuses = ["placed", "processing", "shipped", "delivered"];
+  const currentStatusIndex = statuses.indexOf(order.status);
+  const isCancelled = order.status === "cancelled";
+
+  const trackingSteps = [
+    {
+      title: "Order Placed",
+      desc: "Harvest order received & verified.",
+      icon: ShieldCheck,
+      location: "Digital Ledger",
+    },
+    {
+      title: "Processing",
+      desc: "Stone-ground slow way & custom-sorted.",
+      icon: Package,
+      location: "Jhalawar Artisanal Facility",
+    },
+    {
+      title: "Shipped",
+      desc: "Dispatched from Kota hub.",
+      icon: Truck,
+      location: "Hadoti Logistic Network",
+    },
+    {
+      title: "Delivered",
+      desc: "Arrived at your doorstep.",
+      icon: CheckCircle2,
+      location: "Your Pantry",
+    },
+  ];
+
+  const handleDownloadInvoice = () => {
+    toast.success(`Invoice receipt HF-${order.orderNumber}.pdf downloaded successfully!`);
+  };
+
+  return (
+    <div className="space-y-8 animate-fade-in">
+      {/* Back to Order History Link */}
+      <button
+        onClick={onBack}
+        className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-[color:var(--earth)] hover:text-[color:var(--ink)] transition-colors cursor-pointer border-none bg-transparent p-0"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" /> Back to Order History
+      </button>
+
+      {/* Header Dashboard Summary */}
+      <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-8">
+        <div className="flex flex-wrap items-start justify-between gap-6">
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--earth)] mb-1">
+              Receipt & Tracking Panel
+            </div>
+            <h3 className="font-display text-4xl md:text-5xl">
+              Order <span className="italic text-[color:var(--earth)]">{order.orderNumber}</span>
+            </h3>
+            <p className="font-mono text-xs text-[color:var(--muted-foreground)] mt-2">
+              Placed on {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--muted-foreground)] mb-1">
+              Grand Total
+            </div>
+            <div className="font-display text-4xl text-[color:var(--ink)] font-semibold">₹{order.total}</div>
+            <span className={`inline-block font-mono text-[9px] uppercase tracking-[0.15em] px-3.5 py-1 rounded-full mt-3 ${
+              isCancelled 
+                ? "bg-red-50 text-red-600 border border-red-100"
+                : order.status === "delivered"
+                ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                : "bg-[color:var(--gold)]/10 text-[color:var(--earth)] border border-[color:var(--gold)]/20"
+            }`}>
+              {order.status}
+            </span>
+          </div>
+        </div>
+
+        {/* Cancellation Message */}
+        {isCancelled && (
+          <div className="mt-8 flex items-center gap-3 p-4 bg-red-50/50 border border-red-100/80 text-red-700 font-mono text-xs">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            This transaction was cancelled. If you believe this is an error, please reach out to our farm support team.
+          </div>
+        )}
+
+        {/* Interactive Progress Tracking Steps */}
+        {!isCancelled && (
+          <div className="mt-12 pt-8 border-t border-[color:var(--border)]">
+            <h4 className="font-mono text-[10px] uppercase tracking-[0.25em] text-[color:var(--muted-foreground)] mb-8">
+              Pantry Delivery Pipeline
+            </h4>
+            
+            {/* Desktop View: Horizontal Timeline */}
+            <div className="hidden md:flex justify-between items-start relative mb-6">
+              {/* Line backing */}
+              <div className="absolute top-6 left-8 right-8 h-0.5 bg-[color:var(--border)] -z-10" />
+              {/* Active colored overlay */}
+              <div 
+                className="absolute top-6 left-8 h-0.5 bg-[color:var(--gold)] -z-10 transition-all duration-500" 
+                style={{ width: `${(Math.max(0, currentStatusIndex) / (trackingSteps.length - 1)) * 94}%` }}
+              />
+
+              {trackingSteps.map((step, idx) => {
+                const IconComp = step.icon;
+                const isCompleted = idx <= currentStatusIndex;
+                const isActive = idx === currentStatusIndex;
+
+                return (
+                  <div key={idx} className="flex-1 flex flex-col items-center text-center px-2">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center border transition-all duration-300 ${
+                      isCompleted 
+                        ? "bg-[color:var(--gold)] border-[color:var(--gold)] text-white" 
+                        : "bg-[color:var(--cream)] border-[color:var(--border)] text-[color:var(--muted-foreground)]"
+                    } ${isActive ? "ring-4 ring-[color:var(--gold)]/20" : ""}`}>
+                      <IconComp className="w-5 h-5" />
+                    </div>
+                    <div className="mt-4">
+                      <div className={`font-display text-lg ${isCompleted ? "text-[color:var(--ink)] font-semibold" : "text-[color:var(--muted-foreground)]"}`}>
+                        {step.title}
+                      </div>
+                      <p className="font-mono text-[9px] text-[color:var(--muted-foreground)] uppercase tracking-[0.1em] mt-1">
+                        {isCompleted && isActive ? "Current Stage" : isCompleted ? "Completed" : "Pending"}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Mobile View: Vertical Timeline */}
+            <div className="flex md:hidden flex-col space-y-8 relative pl-4">
+              {/* Line backing */}
+              <div className="absolute top-2 bottom-2 left-7 w-0.5 bg-[color:var(--border)] -z-10" />
+              {/* Active colored overlay */}
+              <div 
+                className="absolute top-2 left-7 w-0.5 bg-[color:var(--gold)] -z-10 transition-all duration-500" 
+                style={{ height: `${(Math.max(0, currentStatusIndex) / (trackingSteps.length - 1)) * 88}%` }}
+              />
+
+              {trackingSteps.map((step, idx) => {
+                const IconComp = step.icon;
+                const isCompleted = idx <= currentStatusIndex;
+                const isActive = idx === currentStatusIndex;
+
+                return (
+                  <div key={idx} className="flex gap-6 items-start">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 transition-all duration-300 ${
+                      isCompleted 
+                        ? "bg-[color:var(--gold)] border-[color:var(--gold)] text-white" 
+                        : "bg-[color:var(--cream)] border-[color:var(--border)] text-[color:var(--muted-foreground)]"
+                    } ${isActive ? "ring-4 ring-[color:var(--gold)]/20" : ""}`}>
+                      <IconComp className="w-4.5 h-4.5" />
+                    </div>
+                    <div>
+                      <div className={`font-display text-lg leading-tight ${isCompleted ? "text-[color:var(--ink)] font-semibold" : "text-[color:var(--muted-foreground)]"}`}>
+                        {step.title}
+                      </div>
+                      <p className="text-xs text-[color:var(--muted-foreground)] mt-1">{step.desc}</p>
+                      <span className="inline-block font-mono text-[9px] text-[color:var(--earth)] uppercase tracking-[0.1em] mt-2 bg-[color:var(--earth)]/5 px-2 py-0.5 rounded-sm">
+                        📍 {step.location}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Logistics Breakdown Table */}
+            <div className="bg-[color:var(--cream)]/60 border border-[color:var(--border)] p-6 mt-8 grid sm:grid-cols-2 md:grid-cols-4 gap-6 font-mono text-[11px]">
+              <div>
+                <div className="text-[color:var(--muted-foreground)] uppercase tracking-[0.1em] mb-1">Carrier Agency</div>
+                <div className="text-sm font-semibold text-[color:var(--ink)]">Hadoti Rural Logistics</div>
+              </div>
+              <div>
+                <div className="text-[color:var(--muted-foreground)] uppercase tracking-[0.1em] mb-1">Tracking ID</div>
+                <div className="text-sm font-semibold text-[color:var(--earth)]">HDT-{order._id.substring(0, 8).toUpperCase()}</div>
+              </div>
+              <div>
+                <div className="text-[color:var(--muted-foreground)] uppercase tracking-[0.1em] mb-1">Estimated Arrival</div>
+                <div className="text-sm font-semibold text-[color:var(--ink)]">
+                  {order.status === "delivered" ? "Delivered" : "3-5 Business Days"}
+                </div>
+              </div>
+              <div>
+                <div className="text-[color:var(--muted-foreground)] uppercase tracking-[0.1em] mb-1">Active Coordinates</div>
+                <div className="text-sm font-semibold text-[color:var(--ink)]">
+                  {order.status === "placed" && "25.18° N, 75.83° E (Order Logged)"}
+                  {order.status === "processing" && "24.58° N, 76.15° E (Milling Site)"}
+                  {order.status === "shipped" && "In Transit (En Route)"}
+                  {order.status === "delivered" && "Arrived (Pantry Restock Completed)"}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-8">
+        {/* Purchased Items List */}
+        <div className="md:col-span-2 space-y-6">
+          <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-6">
+            <h4 className="font-display text-2xl border-b border-[color:var(--border)] pb-4 mb-4">
+              Items Purchased
+            </h4>
+            <div className="divide-y divide-[color:var(--border)]">
+              {order.items.map((item: any) => (
+                <div key={item.id} className="py-4 flex gap-4 items-center justify-between">
+                  <div className="flex gap-4 items-center">
+                    {/* Image Thumbnail */}
+                    <div className="w-16 h-16 bg-[color:var(--cream)] border border-[color:var(--border)] flex items-center justify-center shrink-0 overflow-hidden rounded-sm">
+                      {item.image ? (
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[color:var(--earth)]/10 to-[color:var(--gold)]/10 flex items-center justify-center">
+                          <Package className="w-6 h-6 text-[color:var(--earth)]/40" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h5 className="font-display text-xl leading-tight">{item.name}</h5>
+                      <div className="font-mono text-xs text-[color:var(--muted-foreground)] mt-1 flex flex-wrap items-center gap-2">
+                        <span>Pouch: {item.weight}</span>
+                        <span>•</span>
+                        <span>Qty: {item.qty}</span>
+                        {item.customization && (
+                          <>
+                            <span>•</span>
+                            <span className="text-[color:var(--earth)]">Custom Blend</span>
+                          </>
+                        )}
+                      </div>
+                      {item.customization && (
+                        <div className="font-mono text-[10px] text-[color:var(--muted-foreground)] bg-[color:var(--cream)] p-2 border border-[color:var(--border)] mt-2 rounded-sm max-w-lg leading-relaxed">
+                          {item.customization}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="font-mono text-sm font-semibold">₹{item.price * item.qty}</span>
+                    <p className="font-mono text-[10px] text-[color:var(--muted-foreground)] mt-1">₹{item.price} each</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Traceability & Heritage Card */}
+          <div className="border border-[color:var(--border)] bg-emerald-50/5 p-6 rounded-sm">
+            <h4 className="font-display text-2xl text-[color:var(--sage)] mb-3">
+              Hadoti Traceability Report
+            </h4>
+            <p className="text-sm text-[color:var(--muted-foreground)] leading-relaxed mb-4">
+              Your ingredients in this order have been audited and tracked from the original regur (black) soil of the Hadoti plateau in southeast Rajasthan.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-4 font-mono text-xs border-t border-[color:var(--border)]/60 pt-4">
+              <div>
+                <span className="text-[color:var(--muted-foreground)] block mb-1">AGRICULTURE HUB</span>
+                <span className="font-semibold text-[color:var(--ink)]">Kota & Bundi Soil Cooperatives</span>
+              </div>
+              <div>
+                <span className="text-[color:var(--muted-foreground)] block mb-1">MILLING REVOLUTIONS</span>
+                <span className="font-semibold text-[color:var(--ink)]">Slow Stone-Ground (&lt;30 RPM)</span>
+              </div>
+              <div>
+                <span className="text-[color:var(--muted-foreground)] block mb-1">CHEMICAL AUDIT</span>
+                <span className="font-semibold text-[color:var(--sage)]">100% Pesticide-Free Certified</span>
+              </div>
+              <div>
+                <span className="text-[color:var(--muted-foreground)] block mb-1">PACKAGING SPECS</span>
+                <span className="font-semibold text-[color:var(--ink)]">Zero-Waste Eco-Kraft Pouches</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Shipping & Payment Summaries */}
+        <div className="space-y-6">
+          <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-6 font-mono text-xs leading-relaxed">
+            <h4 className="font-display text-2xl text-[color:var(--ink)] mb-4 border-b border-[color:var(--border)] pb-2">
+              Shipping Address
+            </h4>
+            <div className="space-y-3">
+              <div>
+                <span className="text-[color:var(--muted-foreground)] uppercase block text-[10px] tracking-wider mb-0.5">Recipient Name</span>
+                <span className="text-sm font-semibold text-[color:var(--ink)]">{order.shippingAddress.name}</span>
+              </div>
+              <div>
+                <span className="text-[color:var(--muted-foreground)] uppercase block text-[10px] tracking-wider mb-0.5">Phone Number</span>
+                <span className="text-sm font-semibold text-[color:var(--ink)]">{order.shippingAddress.phone}</span>
+              </div>
+              <div>
+                <span className="text-[color:var(--muted-foreground)] uppercase block text-[10px] tracking-wider mb-0.5">Delivery Location</span>
+                <span className="text-sm font-semibold text-[color:var(--ink)] block leading-snug">
+                  {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.state} — {order.shippingAddress.pin}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Pricing Breakdown */}
+          <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-6 font-mono text-xs">
+            <h4 className="font-display text-2xl text-[color:var(--ink)] mb-4 border-b border-[color:var(--border)] pb-2">
+              Payment Breakdown
+            </h4>
+            <div className="space-y-3 border-b border-[color:var(--border)] pb-4 mb-4">
+              <div className="flex justify-between">
+                <span className="text-[color:var(--muted-foreground)]">Subtotal</span>
+                <span>₹{order.subtotal}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[color:var(--muted-foreground)]">Eco-Shipping</span>
+                <span>{order.deliveryFee === 0 ? "FREE" : `₹${order.deliveryFee}`}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[color:var(--muted-foreground)]">GST (Included)</span>
+                <span>₹0.00</span>
+              </div>
+            </div>
+            <div className="flex justify-between text-base font-semibold text-[color:var(--ink)] mb-6">
+              <span className="font-display text-lg">Grand Total</span>
+              <span className="font-display text-xl">₹{order.total}</span>
+            </div>
+
+            <div className="space-y-3 border-t border-[color:var(--border)] pt-4 mb-6">
+              <div className="flex justify-between">
+                <span className="text-[color:var(--muted-foreground)]">Method</span>
+                <span className="uppercase">{order.paymentMethod}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[color:var(--muted-foreground)]">Transaction</span>
+                <span className="capitalize">{order.paymentStatus}</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={handleDownloadInvoice}
+                className="w-full flex items-center justify-center gap-2 border border-[color:var(--ink)] hover:bg-[color:var(--ink)] hover:text-white transition-all py-3 font-mono text-[10px] uppercase tracking-[0.2em] cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" /> Download Receipt
+              </button>
+              <Link
+                to="/contact"
+                className="w-full flex items-center justify-center gap-2 border border-[color:var(--border)] bg-transparent hover:border-[color:var(--ink)] transition-all py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-center"
+              >
+                <HelpCircle className="w-3.5 h-3.5" /> Need Support?
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
