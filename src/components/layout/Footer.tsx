@@ -4,12 +4,12 @@ import { Instagram, Facebook, Twitter, Youtube } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="relative bg-[color:var(--ink)] text-white/80 mt-32 overflow-hidden">
+    <footer className="relative bg-[color:var(--ink)] text-white/80 mt-0 overflow-hidden">
       <GrainOverlay opacity={0.08} />
       <div className="relative max-w-[1400px] mx-auto px-6 lg:px-10 py-20 grid gap-12 md:grid-cols-5">
         <div className="md:col-span-2">
           <Link to="/" className="inline-block">
-            <img src="/Creatives/whiteLogo.png" alt="Hadoti Farms" className="h-10 object-contain" />
+            <img src="/Creatives/whiteLogo.png" alt="Hadoti Farms" className="h-32 object-contain" />
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed">
             From Hadoti fields to your kitchen. Farm-direct staples, custom-blended, packed in Kota.

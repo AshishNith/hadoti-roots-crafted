@@ -61,9 +61,9 @@ function StandardsPage() {
         <GrainOverlay opacity={0.16} />
         <div className="relative z-10 h-full max-w-[1400px] mx-auto px-6 lg:px-10 flex items-end pb-24">
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.24em] text-[color:var(--gold)] mb-6">
+            {/* <div className="font-mono text-[11px] uppercase tracking-[0.24em] text-[color:var(--gold)] mb-6">
               Purity & Credentials
-            </div>
+            </div> */}
             <h1 className="font-display text-7xl md:text-[9rem] leading-[0.92] max-w-4xl">
               Sourced in truth. <span className="italic text-[color:var(--gold)]">Verified by standard.</span>
             </h1>
