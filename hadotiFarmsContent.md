@@ -507,3 +507,49 @@ Welcome to your website content management document! Below is the complete text,
 *   **Dal 6:** `"Rajma"` (desc: `"Bold kidney bean, slow simmer."`)
 *   **Dal 7:** `"Matki"` (desc: `"Tiny, sprouted, protein dense."`)
 *   **Dal 8:** `"Kulthi"` (desc: `"Hadoti horse gram, monsoon crop."`)
+
+---
+
+## IX. STANDARDS & CERTIFICATIONS PAGE
+
+### 1. SEO & Browser Title
+*   **Browser Tab Title:** `"Our Standards — Hadoti Farms"`
+*   **Search Description:** `"Food safety licensing, organic farming certifications, and chemical-free purity standards at Hadoti Farms."`
+
+### 2. Main Hero Section
+*   **Tagline:** `"Purity & Credentials"`
+*   **Heading:** `"Sourced in truth."`
+*   **Heading (Italicized Gold):** `"Verified by standard."`
+
+### 3. Left Panel Purity Promise
+*   **Tagline:** `"Our Purity Promise"`
+*   **Heading:** `"Scientific rigor meets traditional farming."`
+*   **Description:** `"We believe that transparency shouldn't be a generic claim. Every batch of grains and spices that leaves our Kota facility is verified for chemical-free purity, licensed by official food safety registries, and sourced with absolute traceability."`
+*   **Bullets Checklist:**
+    *   Bullet 1: `"100% Pesticide-free soil tracking"`
+    *   Bullet 2: `"FSSAI licensed hygienic processing"`
+    *   Bullet 3: `"Periodic NABL lab residue tests"`
+    *   Bullet 4: `"Empowering 400+ organic families"`
+
+### 4. Interactive Certificate Cards
+*   **Certificate Card 1:**
+    *   Title: `"FSSAI Food Safety License"`
+    *   Authority: `"Food Safety and Standards Authority of India"`
+    *   Description: `"Licensed processing and packaging standards ensuring 100% hygiene and quality control in our Kota milling facilities."`
+    *   Sidebar Tag: `"Registered & Compliant"`
+*   **Certificate Card 2:**
+    *   Title: `"Organic India Certification"`
+    *   Authority: `"National Programme for Organic Production"`
+    *   Description: `"Verifying that our 400+ farmer cooperatives in Bundi, Jhalawar, and Kota practice 100% natural, chemical-free agriculture."`
+    *   Sidebar Tag: `"100% Organic Sourced"`
+*   **Certificate Card 3:**
+    *   Title: `"Zero-Pesticide Lab Report"`
+    *   Authority: `"NABL Accredited Testing Facility"`
+    *   Description: `"Rigorous batch-testing validating absolute zero trace of chemical pesticide residue on all harvested dals and masalas."`
+    *   Sidebar Tag: `"Lab Tested & Approved"`
+
+### 5. Seasonal Commitment Section
+*   **Heading:** `"Commitment to purity."`
+*   **Description:** `"All our certificates and standard tests are updated seasonally based on harvest cycles. If you require specific batch-level analysis reports or standard FSSAI license verification, please reach out."`
+*   **Button Text:** `"Contact Purity Officer →"`
+

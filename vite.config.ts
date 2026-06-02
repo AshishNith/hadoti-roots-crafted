@@ -25,6 +25,7 @@ export default defineConfig({
       watch: {
         ignored: ["**/.vercel/**", "**/.tanstack/**"],
       },
+      allowedHosts: true,
     },
   },
 });

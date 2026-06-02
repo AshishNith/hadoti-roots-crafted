@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
 import { useCart } from "@/lib/store";
 import { gsap } from "@/lib/gsap";
 
@@ -8,6 +8,7 @@ const links = [
   { to: "/shop", label: "Shop" },
   { to: "/customize", label: "Customize" },
   { to: "/our-farms", label: "Our Farms" },
+  { to: "/standards", label: "Standards" },
   { to: "/blog", label: "Blog" },
 ] as const;
 
@@ -18,7 +19,10 @@ export function Navbar() {
   const count = useCart((s) => s.count());
   const location = useLocation();
 
-  const isDarkHeroPage = location.pathname === "/" || location.pathname === "/our-farms";
+  const isDarkHeroPage = 
+    location.pathname === "/" || 
+    location.pathname === "/our-farms" || 
+    location.pathname === "/standards";
 
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 80);
@@ -44,8 +48,8 @@ export function Navbar() {
           scrolled
             ? "bg-[color:var(--cream)]/95 backdrop-blur shadow-[0_1px_0_rgba(0,0,0,0.06)] py-3 text-[color:var(--ink)]"
             : isDarkHeroPage
-            ? "bg-transparent py-6 text-white"
-            : "bg-transparent py-6 text-[color:var(--ink)]"
+            ? "bg-gradient-to-b from-black/95 via-black/40 to-transparent py-6 text-white"
+            : "bg-[color:var(--cream)]/95 backdrop-blur shadow-[0_1px_0_rgba(0,0,0,0.06)] py-3 text-[color:var(--ink)]"
         }`}
       >
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 flex items-center justify-between gap-6">
@@ -54,7 +58,7 @@ export function Navbar() {
             className="flex items-center"
           >
             <img
-              src={scrolled || !isDarkHeroPage ? "/images/logo-dark.png" : "/images/logo-light.png"}
+              src={scrolled || !isDarkHeroPage ? "/Creatives/darkLogo.png" : "/Creatives/whiteLogo.png"}
               alt="Hadoti Farms"
               className={`transition-all duration-300 object-contain ${
                 scrolled ? "h-16" : "h-16"
@@ -67,7 +71,7 @@ export function Navbar() {
               <Link
                 key={l.to}
                 to={l.to}
-                className="story-link font-body text-[13px] uppercase tracking-[0.18em]"
+                className="story-link font-body text-[15px] uppercase tracking-[0.18em]"
                 activeProps={{ className: "font-bold" }}
               >
                 {l.label}
@@ -106,7 +110,7 @@ export function Navbar() {
                   : "hover:text-[color:var(--earth)]"
               }`}
             >
-              <ShoppingBag size={18} />
+              <ShoppingCart size={18} />
               {count > 0 && (
                 <span
                   className={`absolute -top-2 -right-2 text-[10px] font-mono w-5 h-5 rounded-full flex items-center justify-center ${

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StandardsRouteImport } from './routes/standards'
 import { Route as OurFarmsRouteImport } from './routes/our-farms'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -26,6 +27,11 @@ import { Route as CustomizeGiftHamperRouteImport } from './routes/customize.gift
 import { Route as CustomizeDalMixRouteImport } from './routes/customize.dal-mix'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
+const StandardsRoute = StandardsRouteImport.update({
+  id: '/standards',
+  path: '/standards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OurFarmsRoute = OurFarmsRouteImport.update({
   id: '/our-farms',
   path: '/our-farms',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/our-farms': typeof OurFarmsRoute
+  '/standards': typeof StandardsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/our-farms': typeof OurFarmsRoute
+  '/standards': typeof StandardsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/our-farms': typeof OurFarmsRoute
+  '/standards': typeof StandardsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/our-farms'
+    | '/standards'
     | '/blog/$slug'
     | '/customize/dal-mix'
     | '/customize/gift-hamper'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/our-farms'
+    | '/standards'
     | '/blog/$slug'
     | '/customize/dal-mix'
     | '/customize/gift-hamper'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/our-farms'
+    | '/standards'
     | '/blog/$slug'
     | '/customize/dal-mix'
     | '/customize/gift-hamper'
@@ -226,6 +238,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   OurFarmsRoute: typeof OurFarmsRoute
+  StandardsRoute: typeof StandardsRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CustomizeDalMixRoute: typeof CustomizeDalMixRoute
   CustomizeGiftHamperRoute: typeof CustomizeGiftHamperRoute
@@ -240,6 +253,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/standards': {
+      id: '/standards'
+      path: '/standards'
+      fullPath: '/standards'
+      preLoaderRoute: typeof StandardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/our-farms': {
       id: '/our-farms'
       path: '/our-farms'
@@ -362,6 +382,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   OurFarmsRoute: OurFarmsRoute,
+  StandardsRoute: StandardsRoute,
   BlogSlugRoute: BlogSlugRoute,
   CustomizeDalMixRoute: CustomizeDalMixRoute,
   CustomizeGiftHamperRoute: CustomizeGiftHamperRoute,

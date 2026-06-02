@@ -56,12 +56,15 @@ export function Hero() {
 
       // Step 1 content fades out and moves up as we scroll
       tl.to("[data-hero-step1]", { opacity: 0, y: -65, ease: "power1.inOut" }, 0.05);
+      tl.set("[data-hero-ctas]", { pointerEvents: "none" }, 0.05);
 
       // Step 2 content fades in and moves up
       tl.to("[data-hero-step2]", { opacity: 1, y: 0, ease: "power1.inOut" }, 0.55);
+      tl.set("[data-hero-step2-ctas]", { pointerEvents: "auto" }, 0.55);
 
       // Step 2 content fades out at the very end
       tl.to("[data-hero-step2]", { opacity: 0, y: -45, ease: "power1.in" }, 1.1);
+      tl.set("[data-hero-step2-ctas]", { pointerEvents: "none" }, 1.1);
     }, root);
 
     return () => ctx.revert();
@@ -116,7 +119,7 @@ export function Hero() {
             <p className="mt-8 max-w-xl text-base md:text-lg text-white/75">
               Every grain is stone-ground the slow way and dried under the open Rajasthani sun. Pure, traceable, direct from our families to yours.
             </p>
-            <div className="mt-10 flex flex-wrap gap-4 pointer-events-auto">
+            <div data-hero-step2-ctas className="mt-10 flex flex-wrap gap-4 pointer-events-none">
               <Link to="/our-farms"><Button>Meet Our Farmers</Button></Link>
             </div>
           </div>

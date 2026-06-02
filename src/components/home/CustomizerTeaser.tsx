@@ -9,16 +9,19 @@ const panels = [
     tag: "Dal Mix Builder",
     title: "Blend up to 6 dals.",
     bullets: ["Choose your ratios", "Pick grind level", "Name your blend"],
+    image: "/images/panchratan_dal.png",
   },
   {
     tag: "Masala Blender",
     title: "Calibrate the heat.",
     bullets: ["Mild · Medium · Bold", "Add-on ingredients", "Ground to order"],
+    image: "/images/masala_blend.png",
   },
   {
     tag: "Ration Box Builder",
     title: "Your month, packed.",
     bullets: ["3kg · 5kg · 8kg", "Subscribe & save 8%", "Edit anytime"],
+    image: "/images/ration_box.png",
   },
 ];
 
@@ -28,6 +31,8 @@ export function CustomizerTeaser() {
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       gsap.set("[data-panel]", { opacity: 0, y: 80 });
+      gsap.set("[data-teaser-progress]", { transformOrigin: "top", scaleY: 0 });
+      gsap.set("[data-teaser-progress-mobile]", { transformOrigin: "left", scaleX: 0 });
 
       gsap.timeline({
         scrollTrigger: {
@@ -38,6 +43,8 @@ export function CustomizerTeaser() {
           scrub: 0.6,
         },
       })
+        .to("[data-teaser-progress]", { scaleY: 1, ease: "none" }, 0)
+        .to("[data-teaser-progress-mobile]", { scaleX: 1, ease: "none" }, 0)
         .to("[data-panel='0']", { opacity: 1, y: 0 }, 0)
         .to("[data-panel='0']", { opacity: 0, y: -80 }, 1)
         .to("[data-panel='1']", { opacity: 1, y: 0 }, 1)
@@ -49,10 +56,45 @@ export function CustomizerTeaser() {
 
   return (
     <section ref={root} className="relative h-screen bg-[color:var(--ink)] text-white overflow-hidden">
-      <GrainOverlay opacity={0.1} />
+      <style>{`
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-10px) rotate(1deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 22s linear infinite;
+        }
+        .animate-float-slow {
+          animation: float-slow 6s ease-in-out infinite;
+        }
+      `}</style>
+      <GrainOverlay opacity={0.12} />
       <div className="relative h-full grid md:grid-cols-2">
-        <div className="flex items-center px-6 md:px-16 py-16 border-b md:border-b-0 md:border-r border-white/10">
-          <div className="max-w-md">
+        {/* Elegant middle dividing progress bar for desktop */}
+        <div className="hidden md:block absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[2px] bg-white/10 z-10">
+          <div 
+            data-teaser-progress
+            className="absolute top-0 left-0 right-0 w-full bg-gradient-to-b from-[color:var(--gold)] to-[color:var(--earth)] origin-top h-full will-change-transform"
+          />
+        </div>
+
+        <div className="relative flex items-center px-6 md:px-16 py-16 overflow-hidden">
+          {/* Mobile horizontal progress bar */}
+          <div className="md:hidden absolute bottom-0 left-0 right-0 h-[2px] bg-white/10 z-10">
+            <div 
+              data-teaser-progress-mobile
+              className="absolute top-0 bottom-0 left-0 h-full bg-gradient-to-r from-[color:var(--gold)] to-[color:var(--earth)] origin-left w-full will-change-transform"
+            />
+          </div>
+          
+          {/* Subtle warm ambient highlight on the left */}
+          <div className="absolute left-0 top-0 w-[320px] h-[320px] rounded-full bg-[color:var(--gold)]/5 blur-[100px] pointer-events-none" />
+          
+          <div className="relative max-w-md">
             <div className="font-mono text-[11px] uppercase tracking-[0.24em] text-[color:var(--gold)] mb-6">
               Customize
             </div>
@@ -68,14 +110,18 @@ export function CustomizerTeaser() {
           </div>
         </div>
 
-        <div className="relative flex items-center px-6 md:px-16 py-16">
+        <div className="relative flex items-center px-6 md:px-16 py-16 overflow-hidden">
+          {/* Abstract glowing volumetric aura in the background */}
+          <div className="absolute right-[-10%] bottom-[-10%] w-[450px] h-[450px] rounded-full bg-[color:var(--gold)]/10 blur-[130px] pointer-events-none" />
+          <div className="absolute left-[15%] top-[15%] w-[300px] h-[300px] rounded-full bg-[color:var(--earth)]/12 blur-[100px] pointer-events-none" />
+
           {panels.map((p, i) => (
             <div
               key={p.tag}
               data-panel={i}
-              className="absolute inset-0 px-6 md:px-16 flex items-center"
+              className="absolute inset-0 px-6 md:px-16 flex flex-col md:flex-row items-center gap-12"
             >
-              <div className="max-w-md">
+              <div className="max-w-xs md:max-w-[280px] lg:max-w-md flex-1">
                 <div className="font-mono text-[11px] uppercase tracking-[0.24em] text-[color:var(--gold)] mb-6">
                   {p.tag}
                 </div>
@@ -91,6 +137,34 @@ export function CustomizerTeaser() {
                   ))}
                 </ul>
               </div>
+
+              {/* PREMIUM MOCKUP & GRAPHIC WHEEL */}
+              <div className="hidden md:flex flex-1 items-center justify-center relative shrink-0">
+                <div className="relative w-64 h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 flex items-center justify-center animate-float-slow">
+                  
+                  {/* Rotating dashed circular wireframe */}
+                  <div className="absolute inset-0 rounded-full border border-dashed border-[color:var(--gold)]/20 animate-spin-slow pointer-events-none" />
+                  
+                  {/* Glowing inner core */}
+                  <div className="absolute w-[80%] h-[80%] rounded-full bg-gradient-to-tr from-[color:var(--gold)]/15 to-[color:var(--earth)]/5 blur-2xl pointer-events-none" />
+                  
+                  {/* Glassmorphic card frame */}
+                  <div className="absolute w-[72%] h-[72%] rounded-full bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={p.image} 
+                      alt={p.tag} 
+                      className="w-[82%] h-[82%] object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.5)] transition-transform duration-500 hover:scale-105"
+                    />
+                  </div>
+                  
+                  {/* Floating decorative nodes */}
+                  <div className="absolute top-8 right-8 w-2 h-2 rounded-full bg-[color:var(--gold)] animate-pulse" />
+                  <div className="absolute bottom-10 left-6 font-mono text-[9px] uppercase tracking-[0.2em] text-[color:var(--gold)] opacity-50">
+                    Formulating...
+                  </div>
+                </div>
+              </div>
+
             </div>
           ))}
         </div>
