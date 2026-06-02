@@ -7,7 +7,9 @@ export function Footer() {
       <GrainOverlay opacity={0.08} />
       <div className="relative max-w-[1400px] mx-auto px-6 lg:px-10 py-20 grid gap-12 md:grid-cols-5">
         <div className="md:col-span-2">
-          <div className="font-display italic text-3xl text-[color:var(--gold)]">Hadoti Farms</div>
+          <Link to="/" className="inline-block">
+            <img src="/images/logo-light.png" alt="Hadoti Farms" className="h-10 object-contain" />
+          </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed">
             From Hadoti fields to your kitchen. Farm-direct staples, custom-blended, packed in Kota.
           </p>

@@ -51,18 +51,15 @@ export function Navbar() {
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 flex items-center justify-between gap-6">
           <Link
             to="/"
-            className={`font-display italic tracking-tight transition-all ${
-              scrolled ? "text-2xl" : "text-3xl"
-            }`}
-            style={{
-              color: scrolled
-                ? "var(--earth)"
-                : isDarkHeroPage
-                ? "white"
-                : "var(--earth)",
-            }}
+            className="flex items-center"
           >
-            Hadoti Farms
+            <img
+              src={scrolled || !isDarkHeroPage ? "/images/logo-dark.png" : "/images/logo-light.png"}
+              alt="Hadoti Farms"
+              className={`transition-all duration-300 object-contain ${
+                scrolled ? "h-16" : "h-16"
+              }`}
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-10">
