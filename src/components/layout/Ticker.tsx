@@ -1,18 +1,31 @@
-export function Ticker({ items }: { items: string[] }) {
+interface TickerProps {
+  items: string[];
+  className?: string;
+  textClassName?: string;
+  dotClassName?: string;
+}
+
+export function Ticker({ 
+  items, 
+  className = "border-y border-white/10 py-4", 
+  textClassName = "text-white/70", 
+  dotClassName = "text-[color:var(--gold)]" 
+}: TickerProps) {
   const row = [...items, ...items];
   return (
-    <div className="overflow-hidden border-y border-white/10 py-4">
+    <div className={`overflow-hidden ${className}`}>
       <div className="ticker-track">
         {row.map((item, i) => (
           <span
             key={i}
-            className="font-mono text-xs uppercase tracking-[0.3em] text-white/70 px-8 flex items-center gap-8"
+            className={`font-mono text-xs uppercase tracking-[0.3em] px-8 flex items-center gap-8 shrink-0 whitespace-nowrap ${textClassName}`}
           >
             {item}
-            <span className="text-[color:var(--gold)]">·</span>
+            <span className={dotClassName}>·</span>
           </span>
         ))}
       </div>
     </div>
   );
 }
+

@@ -9,8 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StandardsRouteImport } from './routes/standards'
+import { Route as ShippingRouteImport } from './routes/shipping'
+import { Route as RefundsRouteImport } from './routes/refunds'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OurFarmsRouteImport } from './routes/our-farms'
+import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
@@ -27,14 +32,39 @@ import { Route as CustomizeGiftHamperRouteImport } from './routes/customize.gift
 import { Route as CustomizeDalMixRouteImport } from './routes/customize.dal-mix'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StandardsRoute = StandardsRouteImport.update({
   id: '/standards',
   path: '/standards',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShippingRoute = ShippingRouteImport.update({
+  id: '/shipping',
+  path: '/shipping',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundsRoute = RefundsRouteImport.update({
+  id: '/refunds',
+  path: '/refunds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OurFarmsRoute = OurFarmsRouteImport.update({
   id: '/our-farms',
   path: '/our-farms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisclaimerRoute = DisclaimerRouteImport.update({
+  id: '/disclaimer',
+  path: '/disclaimer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -119,8 +149,13 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/disclaimer': typeof DisclaimerRoute
   '/our-farms': typeof OurFarmsRoute
+  '/privacy': typeof PrivacyRoute
+  '/refunds': typeof RefundsRoute
+  '/shipping': typeof ShippingRoute
   '/standards': typeof StandardsRoute
+  '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
@@ -138,8 +173,13 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/disclaimer': typeof DisclaimerRoute
   '/our-farms': typeof OurFarmsRoute
+  '/privacy': typeof PrivacyRoute
+  '/refunds': typeof RefundsRoute
+  '/shipping': typeof ShippingRoute
   '/standards': typeof StandardsRoute
+  '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
@@ -158,8 +198,13 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/disclaimer': typeof DisclaimerRoute
   '/our-farms': typeof OurFarmsRoute
+  '/privacy': typeof PrivacyRoute
+  '/refunds': typeof RefundsRoute
+  '/shipping': typeof ShippingRoute
   '/standards': typeof StandardsRoute
+  '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
@@ -179,8 +224,13 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/disclaimer'
     | '/our-farms'
+    | '/privacy'
+    | '/refunds'
+    | '/shipping'
     | '/standards'
+    | '/terms'
     | '/blog/$slug'
     | '/customize/dal-mix'
     | '/customize/gift-hamper'
@@ -198,8 +248,13 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/disclaimer'
     | '/our-farms'
+    | '/privacy'
+    | '/refunds'
+    | '/shipping'
     | '/standards'
+    | '/terms'
     | '/blog/$slug'
     | '/customize/dal-mix'
     | '/customize/gift-hamper'
@@ -217,8 +272,13 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/disclaimer'
     | '/our-farms'
+    | '/privacy'
+    | '/refunds'
+    | '/shipping'
     | '/standards'
+    | '/terms'
     | '/blog/$slug'
     | '/customize/dal-mix'
     | '/customize/gift-hamper'
@@ -237,8 +297,13 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  DisclaimerRoute: typeof DisclaimerRoute
   OurFarmsRoute: typeof OurFarmsRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RefundsRoute: typeof RefundsRoute
+  ShippingRoute: typeof ShippingRoute
   StandardsRoute: typeof StandardsRoute
+  TermsRoute: typeof TermsRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CustomizeDalMixRoute: typeof CustomizeDalMixRoute
   CustomizeGiftHamperRoute: typeof CustomizeGiftHamperRoute
@@ -253,6 +318,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/standards': {
       id: '/standards'
       path: '/standards'
@@ -260,11 +332,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StandardsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shipping': {
+      id: '/shipping'
+      path: '/shipping'
+      fullPath: '/shipping'
+      preLoaderRoute: typeof ShippingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refunds': {
+      id: '/refunds'
+      path: '/refunds'
+      fullPath: '/refunds'
+      preLoaderRoute: typeof RefundsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/our-farms': {
       id: '/our-farms'
       path: '/our-farms'
       fullPath: '/our-farms'
       preLoaderRoute: typeof OurFarmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disclaimer': {
+      id: '/disclaimer'
+      path: '/disclaimer'
+      fullPath: '/disclaimer'
+      preLoaderRoute: typeof DisclaimerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -381,8 +481,13 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  DisclaimerRoute: DisclaimerRoute,
   OurFarmsRoute: OurFarmsRoute,
+  PrivacyRoute: PrivacyRoute,
+  RefundsRoute: RefundsRoute,
+  ShippingRoute: ShippingRoute,
   StandardsRoute: StandardsRoute,
+  TermsRoute: TermsRoute,
   BlogSlugRoute: BlogSlugRoute,
   CustomizeDalMixRoute: CustomizeDalMixRoute,
   CustomizeGiftHamperRoute: CustomizeGiftHamperRoute,

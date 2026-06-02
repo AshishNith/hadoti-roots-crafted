@@ -18,28 +18,28 @@ const certificates = [
     id: "fssai",
     title: "FSSAI Food Safety License",
     authority: "Food Safety and Standards Authority of India",
-    desc: "Licensed processing and packaging standards ensuring 100% hygiene and quality control in our Kota milling facilities.",
+    desc: "Central processing and packaging license number 10726031000452. Governs all sun-cleaning, stone-milling, multi-grain custom blending, and hermetic heat-seal operations at our Kota processing facility.",
     image: "/images/certificate.png",
     icon: ShieldCheck,
-    tag: "Registered & Compliant"
+    tag: "Lic. No. 10726031000452"
   },
   {
     id: "organic",
-    title: "Organic India Certification",
-    authority: "National Programme for Organic Production",
-    desc: "Verifying that our 400+ farmer cooperatives in Bundi, Jhalawar, and Kota practice 100% natural, chemical-free agriculture.",
+    title: "Organic Sourcing & Traceability",
+    authority: "NPOP Organic Standards Verification",
+    desc: "Strict verification audits covering our 400+ family grower cooperatives across Bundi, Jhalawar, and Kota districts. We trace and verify natural soil nutrient rotations, neem/manure composting cycles, and organic farming logs.",
     image: "/images/certificate.png",
     icon: Award,
-    tag: "100% Organic Sourced"
+    tag: "Sourcing Ethics Approved"
   },
   {
     id: "lab-report",
-    title: "Zero-Pesticide Lab Report",
+    title: "Zero-Pesticide Residue Validation",
     authority: "NABL Accredited Testing Facility",
-    desc: "Rigorous batch-testing validating absolute zero trace of chemical pesticide residue on all harvested dals and masalas.",
+    desc: "Rigorous batch-level chemical residue laboratory tests. Every single harvest lot is verified at certified NABL facilities, screening for 240+ common pesticides to ensure a zero-residue, pesticide-free footprint before milling.",
     image: "/images/certificate.png",
     icon: FileText,
-    tag: "Lab Tested & Approved"
+    tag: "Lab Tested & Verified"
   }
 ];
 

@@ -28,6 +28,16 @@ function ContactPage() {
               <div className="text-[10px] uppercase tracking-[0.22em] text-[color:var(--muted-foreground)] mb-1">Phone</div>
               <a href="tel:+919876543210" className="story-link">+91 98765 43210</a>
             </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[color:var(--muted-foreground)] mb-1">Follow Us</div>
+              <div className="flex gap-3 mt-1">
+                <a href="https://instagram.com/hadotifarms" target="_blank" rel="noopener noreferrer" className="hover:text-[color:var(--earth)] transition-colors" aria-label="Instagram">Instagram</a>
+                <span className="text-[color:var(--muted-foreground)]">·</span>
+                <a href="https://facebook.com/hadotifarms" target="_blank" rel="noopener noreferrer" className="hover:text-[color:var(--earth)] transition-colors" aria-label="Facebook">Facebook</a>
+                <span className="text-[color:var(--muted-foreground)]">·</span>
+                <a href="https://twitter.com/hadotifarms" target="_blank" rel="noopener noreferrer" className="hover:text-[color:var(--earth)] transition-colors" aria-label="Twitter">Twitter</a>
+              </div>
+            </div>
           </div>
         </div>
         <div>
