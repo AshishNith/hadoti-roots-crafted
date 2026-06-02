@@ -20,4 +20,11 @@ export default defineConfig({
       publicDir: ".vercel/output/static",
     },
   },
+  vite: {
+    server: {
+      watch: {
+        ignored: ["**/.vercel/**", "**/.tanstack/**"],
+      },
+    },
+  },
 });
