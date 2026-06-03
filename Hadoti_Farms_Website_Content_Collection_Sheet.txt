@@ -32,6 +32,10 @@ PAGE 1: GLOBAL WEBSITE LAYOUT (Appears on all pages)
    Write Your Text Here: 
 
 5. Menu Link 4
+   Current Text: Standards
+   Write Your Text Here: 
+
+6. Menu Link 5
    Current Text: Blog
    Write Your Text Here: 
 
@@ -39,79 +43,130 @@ PAGE 1: GLOBAL WEBSITE LAYOUT (Appears on all pages)
 
 [SECTION 1.2: WEBSITE FOOTER (Bottom of the page)]
 
-6. Footer Tagline
+7. Footer Tagline
    Current Text: From Hadoti fields to your kitchen. Farm-direct staples, custom-blended, packed in Kota.
    Write Your Text Here: 
 
-7. Footer Copyright Text
-   Current Text: © 2026 Hadoti Farms · Made in Kota, Rajasthan
+8. Column 1 Title
+   Current Text: Shop
    Write Your Text Here: 
+
+9. Column 2 Title
+   Current Text: Company
+   Write Your Text Here: 
+
+10. Column 3 Title
+    Current Text: Help
+    Write Your Text Here: 
+
+11. Footer Copyright Text
+    Current Text: © 2026 Hadoti Farms · Made in Kota, Rajasthan
+    Write Your Text Here: 
+
+--------------------------------------------------------------------------------
+
+[SECTION 1.3: SYSTEM FALLBACK PAGES]
+
+12. 404 Page Main Header
+    Current Text: 404
+    Write Your Text Here: 
+
+13. 404 Page Sub-heading
+    Current Text: This field is fallow.
+    Write Your Text Here: 
+
+14. 404 Page Description
+    Current Text: The page you're looking for isn't planted here.
+    Write Your Text Here: 
+
+15. 404 Page Button Text
+    Current Text: Back home
+    Write Your Text Here: 
+
+16. Global Error Header
+    Current Text: Something didn't grow right.
+    Write Your Text Here: 
+
+17. Error Retry Button
+    Current Text: Try again
+    Write Your Text Here: 
+
+18. Error Go Home Button
+    Current Text: Go home
+    Write Your Text Here: 
 
 
 ================================================================================
 PAGE 2: HOME PAGE (The Main Landing Page)
 ================================================================================
 
-[SECTION 2.1: SEO & SEARCH INFORMATION]
-This is what appears on Google and in browser tabs.
+[SECTION 2.1: HERO BANNER (First view when page loads)]
 
-8. Browser Tab Title (Under 60 letters)
-   Current Text: Hadoti Farms — Grown in Hadoti
-   Write Your Text Here: 
-
-9. Google Search Description (Under 160 letters)
-   Current Text: Pesticide-free dals, masalas and custom ration boxes from 400+ farmers in Kota, Bundi and Jhalawar.
-   Write Your Text Here: 
-
---------------------------------------------------------------------------------
-
-[SECTION 2.2: HERO BANNER (First view when page loads)]
-
-10. Main Heading - Bold Text
+19. Main Heading - Bold Text
     Current Text: Grown in
     Write Your Text Here: 
 
-11. Main Heading - Highlighted/Italicized Text
+20. Main Heading - Highlighted/Italicized Text
     Current Text: Hadoti.
     Write Your Text Here: 
 
-12. Sub-heading / Main Description
+21. Sub-heading / Main Description
     Current Text: Pesticide-free staples, custom-blended for your kitchen — sourced direct from 400+ farmers across Kota, Bundi and Jhalawar.
     Write Your Text Here: 
 
-13. Primary Button Text
+22. Primary Button Text
     Current Text: Shop Now
     Write Your Text Here: 
 
-14. Secondary Button Text
+23. Secondary Button Text
     Current Text: Build Your Box →
     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
-[SECTION 2.3: HERO BANNER (Second view on scroll)]
+[SECTION 2.2: HERO BANNER (Second view on scroll)]
 
-15. Section Title - Regular Text
+24. Section Title - Regular Text
     Current Text: Pure black soil.
     Write Your Text Here: 
 
-16. Section Title - Highlighted Text
+25. Section Title - Highlighted Text
     Current Text: Zero pesticides.
     Write Your Text Here: 
 
-17. Description
+26. Description
     Current Text: Every grain is stone-ground the slow way and dried under the open Rajasthani sun. Pure, traceable, direct from our families to yours.
     Write Your Text Here: 
 
-18. Button Text
+27. Button Text
     Current Text: Meet Our Farmers
+    Write Your Text Here: 
+
+--------------------------------------------------------------------------------
+
+[SECTION 2.3: TRUST BAR BADGES (Under hero banner)]
+
+28. Badge 1
+    Current Text: Farm Direct
+    Write Your Text Here: 
+
+29. Badge 2
+    Current Text: Pesticide Free
+    Write Your Text Here: 
+
+30. Badge 3
+    Current Text: Custom Orders
+    Write Your Text Here: 
+
+31. Badge 4
+    Current Text: Eco Packaged
     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
 [SECTION 2.4: MOVING TICKER (Sliding text)]
 
-19. Sliding Words (Separate with dots)
+32. Sliding Words (Separate with dots)
     Current Text: Farm Direct · Hadoti Region · No Pesticides · Custom Orders · 400+ Farmers · Stone Ground · Sun Dried
     Write Your Text Here: 
 
@@ -119,27 +174,27 @@ This is what appears on Google and in browser tabs.
 
 [SECTION 2.5: FEATURED CATEGORIES CARDS]
 
-20. Main Categories Heading
+33. Main Categories Heading
     Current Text: Built for everyday cooking.
     Write Your Text Here: 
 
-21. Card 1 Label (Large Card)
+34. Card 1 Label (Large Card)
     Current Text: Dals & Pulses (Tagline: Heritage Varieties)
     Write Your Text Here: 
 
-22. Card 2 Label
+35. Card 2 Label
     Current Text: Masalas (Tagline: Single Origin)
     Write Your Text Here: 
 
-23. Card 3 Label
+36. Card 3 Label
     Current Text: Ration Boxes (Tagline: Monthly Staples)
     Write Your Text Here: 
 
-24. Card 4 Label (Wide Card)
+37. Card 4 Label (Wide Card)
     Current Text: Gift Hampers (Tagline: Festive)
     Write Your Text Here: 
 
-25. "View All" Button Text
+38. "View All" Button Text
     Current Text: View all →
     Write Your Text Here: 
 
@@ -147,27 +202,27 @@ This is what appears on Google and in browser tabs.
 
 [SECTION 2.6: BUILDER TEASER CARDS]
 
-26. Main Section Heading
+39. Main Section Heading
     Current Text: Every order, your way.
     Write Your Text Here: 
 
-27. Main Description
+40. Main Description
     Current Text: Build dal mixes, masala blends and ration boxes that match exactly how you cook.
     Write Your Text Here: 
 
-28. Teaser Card 1 (Dal Mix)
+41. Teaser Card 1 (Dal Mix)
     Current Text: Dal Mix Builder - Blend up to 6 dals. (Bullets: Choose your ratios / Pick grind level / Name your blend)
     Write Your Text Here: 
 
-29. Teaser Card 2 (Masala Blender)
+42. Teaser Card 2 (Masala Blender)
     Current Text: Masala Blender - Calibrate the heat. (Bullets: Mild · Medium · Bold / Add-on ingredients / Ground to order)
     Write Your Text Here: 
 
-30. Teaser Card 3 (Ration Box)
+43. Teaser Card 3 (Ration Box)
     Current Text: Ration Box Builder - Your month, packed. (Bullets: 3kg · 5kg · 8kg / Subscribe & save 8% / Edit anytime)
     Write Your Text Here: 
 
-31. Main Action Button Text
+44. Main Action Button Text
     Current Text: Start Customizing
     Write Your Text Here: 
 
@@ -175,19 +230,19 @@ This is what appears on Google and in browser tabs.
 
 [SECTION 2.7: REGIONAL IMPACT STATS COUNTERS]
 
-32. Stat 1
+45. Stat 1
     Current Text: 400+ Farmers
     Write Your Text Here: 
 
-33. Stat 2
+46. Stat 2
     Current Text: 12 Native Crops
     Write Your Text Here: 
 
-34. Stat 3
+47. Stat 3
     Current Text: 3 Districts
     Write Your Text Here: 
 
-35. Stat 4
+48. Stat 4
     Current Text: 10,000+ Happy Orders
     Write Your Text Here: 
 
@@ -195,11 +250,11 @@ This is what appears on Google and in browser tabs.
 
 [SECTION 2.8: BESTSELLERS INTRO]
 
-36. Section Heading
+49. Section Heading
     Current Text: Most loved.
     Write Your Text Here: 
 
-37. Description
+50. Description
     Current Text: The products our kitchens keep reordering — scroll to browse.
     Write Your Text Here: 
 
@@ -207,47 +262,71 @@ This is what appears on Google and in browser tabs.
 
 [SECTION 2.9: FARM STORY HIGHLIGHT]
 
-38. Section Tagline (Top small text)
+51. Section Tagline (Top small text)
     Current Text: Farm to Kitchen
     Write Your Text Here: 
 
-39. Main Heading
+52. Main Heading
     Current Text: We know where every grain comes from.
     Write Your Text Here: 
 
-40. Description Text
+53. Description Text
     Current Text: Every sack is traceable to a farmer, a village, a season. Three districts. Four hundred families. One promise.
     Write Your Text Here: 
 
-41. Featured Farmer Quote
+54. Featured Farmer Quote
     Current Text: "The black soil here keeps the urad rich. We don't rush it."
     Write Your Text Here: 
 
-42. Farmer Name & Village
+55. Farmer Name & Village
     Current Text: — Ramesh Gurjar, Bundi
     Write Your Text Here: 
 
-43. Link Button Text
+56. Link Button Text
     Current Text: Meet our farmers →
     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
-[SECTION 2.10: NEWSLETTER SIGN-UP]
+[SECTION 2.10: CUSTOMER TESTIMONIALS INTRO]
 
-44. Newsletter Heading
+57. Testimonials Tagline
+    Current Text: Kitchens
+    Write Your Text Here: 
+
+58. Testimonials Heading
+    Current Text: What kitchens are saying.
+    Write Your Text Here: 
+
+--------------------------------------------------------------------------------
+
+[SECTION 2.11: JOURNAL PREVIEW INTRO]
+
+59. Journal Heading
+    Current Text: From the journal.
+    Write Your Text Here: 
+
+60. Journal Link Text
+    Current Text: All posts →
+    Write Your Text Here: 
+
+--------------------------------------------------------------------------------
+
+[SECTION 2.12: NEWSLETTER SIGN-UP]
+
+61. Newsletter Heading
     Current Text: Seasonal drops. Farm updates. First access.
     Write Your Text Here: 
 
-45. Input Field Placeholder
+62. Input Field Placeholder
     Current Text: your@email.com
     Write Your Text Here: 
 
-46. Join Button Text
+63. Join Button Text
     Current Text: Join →
     Write Your Text Here: 
 
-47. Success Message
+64. Success Message
     Current Text: Welcome to the harvest list.
     Write Your Text Here: 
 
@@ -258,11 +337,11 @@ PAGE 3: SHOP PANTRY PAGE (The Standard Products Catalog)
 
 [SECTION 3.1: HEADER DETAILS]
 
-48. Main Heading
+65. Main Heading
     Current Text: The pantry.
     Write Your Text Here: 
 
-49. Description Text
+66. Description Text
     Current Text: Every product traceable. Every blend customizable. Sourced direct from Kota, Bundi and Jhalawar.
     Write Your Text Here: 
 
@@ -270,8 +349,25 @@ PAGE 3: SHOP PANTRY PAGE (The Standard Products Catalog)
 
 [SECTION 3.2: CATEGORY TABS & FILTER LABELS]
 
-50. Category Filter Tabs
+67. Category Filter Tabs
     Current Text: All · Dals · Masalas · Ration · Hampers · Grains
+    Write Your Text Here: 
+
+--------------------------------------------------------------------------------
+
+[SECTION 3.3: DUAL PRICING & STOCK STATUS LABELS]
+These labels are shown on product catalog grids and detail pages.
+
+68. Discount Label Format
+    Current Text: (X% OFF)
+    Write Your Text Here: 
+
+69. Out of Stock Alert Message
+    Current Text: Out of Stock
+    Write Your Text Here: 
+
+70. Low Stock Alert Message
+    Current Text: Only X left in stock - order soon!
     Write Your Text Here: 
 
 
@@ -281,11 +377,11 @@ PAGE 4: CUSTOMIZE GATEWAY PAGE (Choose what to build)
 
 [SECTION 4.1: CUSTOMIZE GATEWAY INTRO]
 
-51. Main Page Heading
+71. Main Page Heading
     Current Text: Every order, your way.
     Write Your Text Here: 
 
-52. Description Text
+72. Description Text
     Current Text: Choose what you want to build. Each customizer takes under three minutes.
     Write Your Text Here: 
 
@@ -293,23 +389,23 @@ PAGE 4: CUSTOMIZE GATEWAY PAGE (Choose what to build)
 
 [SECTION 4.2: CUSTOMIZER TILE CARDS]
 
-53. Card 1: Dal Mix
+73. Card 1: Dal Mix
     Current Text: Dal Mix (Tag: 3 steps) - Pick up to six dals. Set grind. Name your blend.
     Write Your Text Here: 
 
-54. Card 2: Masala Blender
+74. Card 2: Masala Blender
     Current Text: Masala Blender (Tag: Quick) - Dial in heat, add-ons, ground to order.
     Write Your Text Here: 
 
-55. Card 3: Custom Flour Blend
+75. Card 3: Custom Flour Blend
     Current Text: Custom Flour Blend (Tag: Tailored nutrition) - Calibrate gluten, carbs, and seed booster shots.
     Write Your Text Here: 
 
-56. Card 4: Monthly Ration Box
+76. Card 4: Monthly Ration Box
     Current Text: Monthly Ration Box (Tag: Subscribe & save) - A month of staples, built around you.
     Write Your Text Here: 
 
-57. Card 5: Gift Hamper
+77. Card 5: Gift Hamper
     Current Text: Gift Hamper (Tag: Wrapped in jute) - Curate a festival box for someone.
     Write Your Text Here: 
 
@@ -319,110 +415,134 @@ PAGE 5: INTERACTIVE CUSTOMIZERS DETAILS
 ================================================================================
 
 [SECTION 5.1: SINGLE DAL PRODUCT DETAIL PAGES (Weight & Grind Selection)]
-This applies when a customer views any of the 8 individual dals (Moong, Urad, Masoor, Chana, Toor, Rajma, Matki, Kulthi).
+This applies when a customer views any of the individual dals.
 
-58. Weight Options Label & Choices
+78. Weight Options Label & Choices
     Current Text: Pack Size (250g · 500g · 1kg)
     Write Your Text Here: 
 
-59. Grind Option Label & Choices
+79. Grind Option Label & Choices
     Current Text: Grind Texture (Whole Grain · Split)
     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
 [SECTION 5.1A: SINGLE FLOUR PRODUCT DETAIL PAGES (Weight & Grind Selection)]
-This applies when a customer views any of the 7 individual flours (Wheat, Jowar, Maize, Bajra, Ragi, Chana, Oats).
+This applies when a customer views any of the individual flours.
 
-59a. Weight Options Label & Choices
-     Current Text: Pack Size (1kg · 3kg · 5kg)
-     Write Your Text Here: 
+80. Pack Size Options Label & Choices
+    Current Text: Pack Size (1kg · 3kg · 5kg)
+    Write Your Text Here: 
 
-59b. Grind Option Label & Choices
-     Current Text: Grind Style (Fine Ground · Chakki Coarse · Coarse)
-     Write Your Text Here: 
+81. Grind Style Options Label & Choices
+    Current Text: Grind Style (Fine Ground · Chakki Coarse · Coarse)
+    Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
 [SECTION 5.2: MIXED DAL BUILDER (Panch Dal Multi-Customizer)]
-This is the simplified 3-step wizard for creating custom dal blends.
+This is the simplified 3-step builder for creating custom dal blends.
 
-60. Step 1 Header & Help Text (Pick Dals)
+82. Page Title & Description
+    Current Text: Panch dal builder. (Description: Blend up to five dals. Set grind. Name your blend.)
+    Write Your Text Here: 
+
+83. Step 1 Header & Help Text (Pick Dals)
     Current Text: Pick Dals & Ratios: Select up to 5 heritage dals and adjust their proportions (must total 100%).
     Write Your Text Here: 
 
-60a. Step 2 Header & Grind Options (Grind & Style)
-     Current Text: Choose Grind: Whole Grain (Slow-cooked dishes) · Split (Everyday dal)
-     Write Your Text Here: 
+84. Step 2 Header & Grind Options (Grind & Style)
+    Current Text: Choose Grind: Whole Grain (Slow-cooked dishes) · Split (Everyday dal)
+    Write Your Text Here: 
 
-60b. Packaging Bag Styles
-     Current Text: Standard Pouch · Gift Wrap (+Rs 50) · Reusable Cloth Bag (+Rs 30)
-     Write Your Text Here: 
+85. Packaging Bag Styles
+    Current Text: Standard Pouch · Gift Wrap (+Rs 50) · Reusable Cloth Bag (+Rs 30)
+    Write Your Text Here: 
 
-60c. Step 3 Header & Pack Size Options (Pack & Name)
-     Current Text: Choose Pack Size (500g · 1kg) & Name Your Custom Blend.
-     Write Your Text Here: 
-
---------------------------------------------------------------------------------
-
-[SECTION 5.2A: DEDICATED ATTA (FLOUR) CUSTOMIZER]
-This is the interactive flour ratio blender page (presets, sliders, grind and style, pack and name).
-
-60d. Preset Names & Labels
-     Current Text: 100% Sharbati Wheat · Diabetic Friendly (Low-GI) · Gluten-Free Blend · High Protein Blend · Weight Loss (High Fiber)
-     Write Your Text Here: 
-
-60e. Milled Grains & Description Texts
-     Current Text: Sharbati Wheat (Earthy, high-protein base) · Maize/Corn (Makki) (Antioxidant rich, rustic texture) · Sorghum (Jowar) (Low GI, rich fiber) · Pearl Millet (Bajra) (High iron, winter grain) · Finger Millet (Ragi) (Calcium powerhouse, low GI) · Chickpea (Chana/Besan) (High protein, nutty aroma) · Oats (Soluble fiber, heart healthy)
-     Write Your Text Here: 
-
-60f. Step 2 Grind Choices
-     Current Text: Choose Grind: Fine Ground (Soft rotis) · Chakki Coarse (Rustic rotis/parathas) · Coarse (Baati & Choorma)
-     Write Your Text Here: 
-
-60g. Step 3 Pack Size Choices
-     Current Text: Choose Pack Weight (1kg · 3kg · 5kg)
-     Write Your Text Here: 
+86. Step 3 Header & Pack Size Options (Pack & Name)
+    Current Text: Choose Pack Size (500g · 1kg) & Name Your Custom Blend.
+    Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
-[SECTION 5.3: MASALA BLENDER CUSTOMIZER]
+[SECTION 5.3: DEDICATED ATTA (FLOUR) CUSTOMIZER]
+This is the interactive flour ratio blender page.
 
-61. Main Heading
+87. Page Title & Description
+    Current Text: Calibrate your flour. (Description: Adjust protein, carbs, and fiber in real-time. Ground to order in Kota.)
+    Write Your Text Here: 
+
+88. Preset Names & Labels
+    Current Text: 100% Sharbati Wheat · Diabetic Friendly (Low-GI) · Gluten-Free Blend · High Protein Blend · Weight Loss (High Fiber)
+    Write Your Text Here: 
+
+89. Milled Grains & Description Texts
+    Current Text: Sharbati Wheat (Earthy, high-protein base) · Maize/Corn (Makki) (Antioxidant rich, rustic texture) · Sorghum (Jowar) (Low GI, rich fiber) · Pearl Millet (Bajra) (High iron, winter grain) · Finger Millet (Ragi) (Calcium powerhouse, low GI) · Chickpea (Chana/Besan) (High protein, nutty aroma) · Oats (Soluble fiber, heart healthy)
+    Write Your Text Here: 
+
+90. Step 2 Grind Choices
+    Current Text: Choose Grind: Fine Ground (Soft rotis) · Chakki Coarse (Rustic rotis/parathas) · Coarse (Baati & Choorma)
+    Write Your Text Here: 
+
+91. Step 3 Pack Size Choices
+    Current Text: Choose Pack Weight (1kg · 3kg · 5kg)
+    Write Your Text Here: 
+
+--------------------------------------------------------------------------------
+
+[SECTION 5.4: MASALA BLENDER CUSTOMIZER]
+
+92. Page Title & Description
     Current Text: Calibrate the heat.
     Write Your Text Here: 
 
-62. Spice Intensity Choices
+93. Spice Intensity Choices
     Current Text: Mild (Cumin-led, gentle warmth) · Medium (Balanced, kitchen default) · Bold (Mathania chilli forward)
     Write Your Text Here: 
 
-63. Add-on Spice Options
+94. Add-on Spice Options
     Current Text: Kasuri Methi · Toasted Saunf · Anardana · Black Cardamom · Stone Flower (Dagad Phool)
+    Write Your Text Here: 
+
+95. Custom Name Input Placeholder
+    Current Text: Monsoon Garam Masala
     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
-[SECTION 5.3: MONTHLY RATION BOX CUSTOMIZER]
+[SECTION 5.5: MONTHLY RATION BOX CUSTOMIZER]
 
-64. Box Size Options
+96. Page Title & Description
+    Current Text: Your month, packed. (Description: A month of staples, built around you.)
+    Write Your Text Here: 
+
+97. Box Size Options
     Current Text: Small (3kg Capacity) · Medium (5kg Capacity) · Large (8kg Capacity)
     Write Your Text Here: 
 
-65. Delivery Selection Choices
+98. Delivery Plan Choices
     Current Text: One-time delivery (Standard price) · 3-Month Prepaid Plan (Save 5%) · 6-Month Prepaid Plan (Save 10%) · 12-Month Prepaid Plan (Save 15%)
     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
-[SECTION 5.4: GIFT HAMPER CUSTOMIZER]
+[SECTION 5.6: GIFT HAMPER CUSTOMIZER]
 
-66. Theme Style Choices
-    Current Text: Festive (Diwali, Holi, Raksha Bandhan) · Wellness (Sprouts, kulthi, jowar) · Corporate (Sleek jute, debossed logo)
+99. Page Title & Description
+    Current Text: Wrapped in jute.
     Write Your Text Here: 
 
-67. Hamper Size Choices
-    Current Text: Petite · Classic · Grand
-    Write Your Text Here: 
+100. Theme Style Choices
+     Current Text: Festive (Diwali, Holi, Raksha Bandhan) · Wellness (Sprouts, kulthi, jowar) · Corporate (Sleek jute, debossed logo)
+     Write Your Text Here: 
+
+101. Hamper Size Choices
+     Current Text: Petite · Classic · Grand
+     Write Your Text Here: 
+
+102. Gift Greeting Note Label & Placeholder
+     Current Text: Handwritten note (Placeholder: From our kitchen to yours...)
+     Write Your Text Here: 
 
 
 ================================================================================
@@ -431,77 +551,77 @@ PAGE 6: OUR FARMS PAGE (Meet the Growers)
 
 [SECTION 6.1: HERO SECTION]
 
-68. Main Heading
-    Current Text: The land behind every grain.
-    Write Your Text Here: 
+103. Main Heading
+     Current Text: The land behind every grain.
+     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
 [SECTION 6.2: SOIL STORY DETAILS]
 
-69. Story Heading
-    Current Text: Three districts. One soil story.
-    Write Your Text Here: 
+104. Story Heading
+     Current Text: Three districts. One soil story.
+     Write Your Text Here: 
 
-70. Story Description
-    Current Text: Hadoti's black cotton soil holds water like nowhere else in Rajasthan. It's why our urad tastes the way it does, why our jowar is dense, why our chillies dry the way they do.
-    Write Your Text Here: 
+105. Story Description
+     Current Text: Hadoti's black cotton soil holds water like nowhere else in Rajasthan. It's why our urad tastes the way it does, why our jowar is dense, why our chillies dry the way they do.
+     Write Your Text Here: 
 
-71. District 1 (Kota) Crops
-    Current Text: Moong · Chana · Wheat
-    Write Your Text Here: 
+106. District 1 (Kota) Crops
+     Current Text: Moong · Chana · Wheat
+     Write Your Text Here: 
 
-72. District 2 (Bundi) Crops
-    Current Text: Urad · Lal Mirch · Til
-    Write Your Text Here: 
+107. District 2 (Bundi) Crops
+     Current Text: Urad · Lal Mirch · Til
+     Write Your Text Here: 
 
-73. District 3 (Jhalawar) Crops
-    Current Text: Jowar · Til · Maize
-    Write Your Text Here: 
+108. District 3 (Jhalawar) Crops
+     Current Text: Jowar · Til · Maize
+     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
 [SECTION 6.3: FIELD TO DOOR TIMELINE PROCESS]
 
-74. Timeline Heading
-    Current Text: From field to door.
-    Write Your Text Here: 
+109. Timeline Heading
+     Current Text: From field to door.
+     Write Your Text Here: 
 
-75. Step 1: Sown
-    Current Text: Heirloom seeds, dryland farming.
-    Write Your Text Here: 
+110. Step 1: Sown
+     Current Text: Heirloom seeds, dryland farming.
+     Write Your Text Here: 
 
-76. Step 2: Grown
-    Current Text: No pesticides. Neem and cow-manure cycles.
-    Write Your Text Here: 
+111. Step 2: Grown
+     Current Text: No pesticides. Neem and cow-manure cycles.
+     Write Your Text Here: 
 
-77. Step 3: Harvested
-    Current Text: By the farmer family, by hand.
-    Write Your Text Here: 
+112. Step 3: Harvested
+     Current Text: By the farmer family, by hand.
+     Write Your Text Here: 
 
-78. Step 4: Packed
-    Current Text: Sun-cleaned, stone-milled in Kota.
-    Write Your Text Here: 
+113. Step 4: Packed
+     Current Text: Sun-cleaned, stone-milled in Kota.
+     Write Your Text Here: 
 
-79. Step 5: Shipped
-    Current Text: Direct to your kitchen in 3 days.
-    Write Your Text Here: 
+114. Step 5: Shipped
+     Current Text: Direct to your kitchen in 3 days.
+     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
 [SECTION 6.4: CORE VALUE COMMITMENTS]
 
-80. Commitment Pillar 1 (Traditional Methods)
-    Current Text: Traditional Methods: Hand-cleaning, stone milling, sun drying. Slow because it matters.
-    Write Your Text Here: 
+115. Commitment Pillar 1 (Traditional Methods)
+     Current Text: Traditional Methods: Hand-cleaning, stone milling, sun drying. Slow because it matters.
+     Write Your Text Here: 
 
-81. Commitment Pillar 2 (No Pesticides)
-    Current Text: No Pesticides: Neem, cow manure, crop rotation. Period.
-    Write Your Text Here: 
+116. Commitment Pillar 2 (No Pesticides)
+     Current Text: No Pesticides: Neem, cow manure, crop rotation. Period.
+     Write Your Text Here: 
 
-82. Commitment Pillar 3 (Fair Farmer Pay)
-    Current Text: Fair Farmer Pay: We pay 30% above mandi rates and report it publicly.
-    Write Your Text Here: 
+117. Commitment Pillar 3 (Fair Farmer Pay)
+     Current Text: Fair Farmer Pay: We pay 30% above mandi rates and report it publicly.
+     Write Your Text Here: 
 
 
 ================================================================================
@@ -510,61 +630,61 @@ PAGE 7: STANDARDS & CERTIFICATIONS PAGE
 
 [SECTION 7.1: HERO BANNER]
 
-83. Main Heading (First part)
-    Current Text: Sourced in truth.
-    Write Your Text Here: 
+118. Main Heading (First part)
+     Current Text: Sourced in truth.
+     Write Your Text Here: 
 
-84. Main Heading (Second part)
-    Current Text: Verified by standard.
-    Write Your Text Here: 
+119. Main Heading (Second part)
+     Current Text: Verified by standard.
+     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
 [SECTION 7.2: PURITY PROMISE SECTION]
 
-85. Section Heading
-    Current Text: Scientific rigor meets traditional farming.
-    Write Your Text Here: 
+120. Section Heading
+     Current Text: Scientific rigor meets traditional farming.
+     Write Your Text Here: 
 
-86. Section Description Paragraph
-    Current Text: We believe that transparency shouldn't be a generic claim. Every batch of grains and spices that leaves our Kota facility is verified for chemical-free purity, licensed by official food safety registries, and sourced with absolute traceability.
-    Write Your Text Here: 
+121. Section Description Paragraph
+     Current Text: We believe that transparency shouldn't be a generic claim. Every batch of grains and spices that leaves our Kota facility is verified for chemical-free purity, licensed by official food safety registries, and sourced with absolute traceability.
+     Write Your Text Here: 
 
-87. Core Bullet Checkmarks
-    Current Text: 100% Pesticide-free soil tracking · FSSAI licensed hygienic processing · Periodic NABL lab residue tests · Empowering 400+ organic families
-    Write Your Text Here: 
+122. Core Bullet Checkmarks
+     Current Text: 100% Pesticide-free soil tracking · FSSAI licensed hygienic processing · Periodic NABL lab residue tests · Empowering 400+ organic families
+     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
 [SECTION 7.3: ACCREDITATION & CERTIFICATE CARDS]
 
-88. Certificate Card 1 (FSSAI License)
-    Current Text: FSSAI Food Safety License (Authority: Food Safety and Standards Authority of India) - Licensed processing and packaging standards ensuring 100% hygiene and quality control in our Kota milling facilities. (Tag: Registered & Compliant)
-    Write Your Text Here: 
+123. Certificate Card 1 (FSSAI License)
+     Current Text: FSSAI Food Safety License (Authority: Food Safety and Standards Authority of India) - Central processing and packaging license number 10726031000452. Governs all sun-cleaning, stone-milling, multi-grain custom blending, and hermetic heat-seal operations at our Kota processing facility. (Tag: Lic. No. 10726031000452)
+     Write Your Text Here: 
 
-89. Certificate Card 2 (Organic Certification)
-    Current Text: Organic India Certification (Authority: National Programme for Organic Production) - Verifying that our 400+ farmer cooperatives in Bundi, Jhalawar, and Kota practice 100% natural, chemical-free agriculture. (Tag: 100% Organic Sourced)
-    Write Your Text Here: 
+124. Certificate Card 2 (Organic Sourcing & Traceability)
+     Current Text: Organic Sourcing & Traceability (Authority: NPOP Organic Standards Verification) - Strict verification audits covering our 400+ family grower cooperatives across Bundi, Jhalawar, and Kota districts. We trace and verify natural soil nutrient rotations, neem/manure composting cycles, and organic farming logs. (Tag: Sourcing Ethics Approved)
+     Write Your Text Here: 
 
-90. Certificate Card 3 (Zero Pesticide Report)
-    Current Text: Zero-Pesticide Lab Report (Authority: NABL Accredited Testing Facility) - Rigorous batch-testing validating absolute zero trace of chemical pesticide residue on all harvested dals and masalas. (Tag: Lab Tested & Approved)
-    Write Your Text Here: 
+125. Certificate Card 3 (Zero-Pesticide Residue Validation)
+     Current Text: Zero-Pesticide Residue Validation (Authority: NABL Accredited Testing Facility) - Rigorous batch-level chemical residue laboratory tests. Every single harvest lot is verified at certified NABL facilities, screening for 240+ common pesticides to ensure a zero-residue, pesticide-free footprint before milling. (Tag: Lab Tested & Verified)
+     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
 [SECTION 7.4: HARVEST BATCH COMMITMENT]
 
-91. Heading
-    Current Text: Commitment to purity.
-    Write Your Text Here: 
+126. Heading
+     Current Text: Commitment to purity.
+     Write Your Text Here: 
 
-92. Description Paragraph
-    Current Text: All our certificates and standard tests are updated seasonally based on harvest cycles. If you require specific batch-level analysis reports or standard FSSAI license verification, please reach out.
-    Write Your Text Here: 
+127. Description Paragraph
+     Current Text: All our certificates and standard tests are updated seasonally based on harvest cycles. If you require specific batch-level analysis reports or standard FSSAI license verification, please reach out.
+     Write Your Text Here: 
 
-93. Action Button Text
-    Current Text: Contact Purity Officer →
-    Write Your Text Here: 
+128. Action Button Text
+     Current Text: Contact Purity Officer →
+     Write Your Text Here: 
 
 
 ================================================================================
@@ -573,33 +693,33 @@ PAGE 8: CONTACT PAGE
 
 [SECTION 8.1: HEADER DETAILS]
 
-94. Main Page Heading
-    Current Text: Write to us.
-    Write Your Text Here: 
+129. Main Heading
+     Current Text: Write to us.
+     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
 [SECTION 8.2: CONTACT INFORMATION]
 
-95. Office Address Detail
-    Current Text: Hadoti Farms, Industrial Area, Kota, Rajasthan 324007
-    Write Your Text Here: 
+130. Office Address Detail
+     Current Text: Hadoti Farms, Industrial Area, Kota, Rajasthan 324007
+     Write Your Text Here: 
 
-96. Email Address
-    Current Text: hello@hadotifarms.in
-    Write Your Text Here: 
+131. Email Address
+     Current Text: hello@hadotifarms.in
+     Write Your Text Here: 
 
-97. Phone Number
-    Current Text: +91 98765 43210
-    Write Your Text Here: 
+132. Phone Number
+     Current Text: +91 98765 43210
+     Write Your Text Here: 
 
 --------------------------------------------------------------------------------
 
 [SECTION 8.3: CONTACT FORM SUCCESS FEEDBACK]
 
-98. Success Message
-    Current Text: Thanks. We'll write back within a day.
-    Write Your Text Here: 
+133. Success Message
+     Current Text: Thanks. We'll write back within a day.
+     Write Your Text Here: 
 
 
 ================================================================================
