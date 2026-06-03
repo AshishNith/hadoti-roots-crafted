@@ -444,13 +444,43 @@ function ProductPage() {
                   </div>
                 )}
 
+                {/* Stock status indicator */}
+                <div className="mt-6 font-mono text-[11px] uppercase tracking-[0.15em] flex items-center gap-2">
+                  <span className={`inline-block w-2.5 h-2.5 rounded-full ${
+                    product.stock === undefined || product.stock > 3 
+                      ? "bg-[color:var(--sage)]" 
+                      : product.stock > 0 
+                        ? "bg-[color:var(--gold)] animate-pulse" 
+                        : "bg-[color:var(--destructive)]"
+                  }`} />
+                  <span className={
+                    product.stock === undefined || product.stock > 3 
+                      ? "text-[color:var(--muted-foreground)]" 
+                      : product.stock > 0 
+                        ? "text-[color:var(--gold)] font-bold" 
+                        : "text-[color:var(--destructive)] font-bold"
+                  }>
+                    {product.stock === undefined 
+                      ? "In Stock" 
+                      : product.stock > 0 
+                        ? product.stock <= 3 
+                          ? `Only ${product.stock} left in stock - order soon!` 
+                          : "In Stock" 
+                        : "Out of Stock"}
+                  </span>
+                </div>
+
                 <div className="mt-10 flex items-end justify-between">
                   <div className="font-display text-4xl">{formatINR(price)}</div>
                   <QuantityControl value={qty} onChange={setQty} />
                 </div>
 
-                <Button className="mt-6 w-full" onClick={onAdd}>
-                  Add to Cart
+                <Button 
+                  className="mt-6 w-full" 
+                  onClick={onAdd}
+                  disabled={product.stock !== undefined && product.stock <= 0}
+                >
+                  {product.stock !== undefined && product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
                 </Button>
               </>
             )}

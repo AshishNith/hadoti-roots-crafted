@@ -8,6 +8,7 @@ export interface Product {
   weight: string;
   customizable: string | null;
   image: string | null;
+  stock?: number;
 }
 
 export interface Farmer {

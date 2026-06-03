@@ -7,6 +7,7 @@ export type Product = {
   weight: string;
   customizable: "dal" | "masala" | "ration" | "hamper" | "grain" | "single-dal" | "single-flour" | null;
   image?: string | null;
+  stock?: number;
 };
 
 export type Farmer = {

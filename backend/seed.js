@@ -374,6 +374,15 @@ const seedData = async () => {
       
       const cloudinaryUrl = await uploadImage(localPath, "hadoti_farms/products");
       item.image = cloudinaryUrl || `/images/${fileName}`;
+
+      // Assign stock counts
+      if (item.slug === "oats-atta" || item.slug === "festive-gift-hamper") {
+        item.stock = 0; // out of stock
+      } else if (item.slug === "pure-rajma" || item.slug === "lal-mirch-powder") {
+        item.stock = 2; // low stock
+      } else {
+        item.stock = Math.floor(8 + Math.random() * 15); // normal stock
+      }
     }
     await Product.insertMany(productsSeed);
 

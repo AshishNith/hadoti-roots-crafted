@@ -24,6 +24,15 @@ export function ProductCard({ product }: { product: Product }) {
             Customizable
           </div>
         )}
+        {product.stock !== undefined && product.stock <= 0 ? (
+          <div className="absolute top-4 right-4 font-mono text-[10px] uppercase tracking-[0.22em] text-white/90 bg-[color:var(--destructive)] px-2.5 py-1 z-10">
+            Out of Stock
+          </div>
+        ) : product.stock !== undefined && product.stock <= 3 ? (
+          <div className="absolute top-4 right-4 font-mono text-[10px] uppercase tracking-[0.22em] text-black bg-[color:var(--gold)] px-2.5 py-1 z-10 animate-pulse">
+            Low Stock
+          </div>
+        ) : null}
       </div>
       <div className="mt-5 flex items-start justify-between gap-4">
         <div>

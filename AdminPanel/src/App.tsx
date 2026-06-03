@@ -370,7 +370,7 @@ const AdminPanelContent: React.FC = () => {
   const triggerAddProduct = () => {
     setEditingProduct(null);
     setProductForm({
-      name: "", slug: "", shortDesc: "", category: "dals", price: 150, weight: "500g", customizable: null, image: "/images/panchratan_dal.png"
+      name: "", slug: "", shortDesc: "", category: "dals", price: 150, weight: "500g", customizable: null, image: "/images/panchratan_dal.png", stock: 15
     });
     setActiveTab("product-form");
   };
@@ -1306,6 +1306,11 @@ const AdminPanelContent: React.FC = () => {
                               ⚙️ Customizable: {prod.customizable || "Standard"}
                             </div>
 
+                            <div style={{ marginTop: "6px", fontSize: "11.5px", fontWeight: "650", display: "flex", alignItems: "center", gap: "6px" }}>
+                              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", background: prod.stock === undefined || prod.stock > 0 ? (prod.stock !== undefined && prod.stock <= 3 ? "var(--accent-gold)" : "var(--accent-secondary)") : "var(--accent-danger)" }}></span>
+                              <span>Stock Level: {prod.stock === undefined ? "10" : prod.stock} units</span>
+                            </div>
+
                             <div className="product-card-actions">
                               <button className="btn-secondary" onClick={() => triggerEditProduct(prod)}>
                                 <Edit2 size={12} /> Modify
@@ -1864,6 +1869,18 @@ const AdminPanelContent: React.FC = () => {
                           className="form-control" 
                           value={productForm.price}
                           onChange={(e) => setProductForm(p => ({ ...p, price: Number(e.target.value) }))}
+                          min="0"
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label className="form-label">Stock Quantity *</label>
+                        <input 
+                          type="number" 
+                          className="form-control" 
+                          value={productForm.stock === undefined ? 10 : productForm.stock}
+                          onChange={(e) => setProductForm(p => ({ ...p, stock: Number(e.target.value) }))}
                           min="0"
                           required
                         />
