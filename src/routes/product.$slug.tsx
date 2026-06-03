@@ -73,6 +73,7 @@ function ProductPage() {
   const [carbs, setCarbs] = useState<"low" | "medium" | "fiber">("medium");
   const [boosters, setBoosters] = useState<string[]>([]);
   const [grind, setGrind] = useState<"fine" | "medium" | "coarse">("fine");
+  const [dalGrind, setDalGrind] = useState<"whole" | "split">("split");
 
   const weights = product.weight === "Gift Box"
     ? []
@@ -180,6 +181,9 @@ function ProductPage() {
         boosterNames.length ? ` · Boosters: ${boosterNames.join(", ")}` : ""
       }`;
       itemId = `${product.slug}-${weight}-${gluten}-${carbs}-${grind}-${boosters.join("-")}`;
+    } else if (product.customizable === "single-dal") {
+      customizationStr = `Grind: ${dalGrind === "whole" ? "Whole" : "Split"}`;
+      itemId = `${product.slug}-${weight}-${dalGrind}`;
     } else if (product.customizable) {
       customizationStr = "Standard blend";
     }
@@ -275,6 +279,35 @@ function ProductPage() {
               >
                 Build your masala →
               </Link>
+            )}
+
+            {product.customizable === "single-dal" && (
+              <div className="mt-8 border-t border-[color:var(--border)] pt-8 space-y-6 animate-fade-in">
+                <div>
+                  <h3 className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4 text-[color:var(--earth)]">
+                    Grind Texture
+                  </h3>
+                  <div className="flex gap-2">
+                    {[
+                      { id: "whole", label: "Whole" },
+                      { id: "split", label: "Split" },
+                    ].map((g) => (
+                      <button
+                        key={g.id}
+                        type="button"
+                        onClick={() => setDalGrind(g.id as "whole" | "split")}
+                        className={`flex-1 font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-2.5 border rounded-sm text-center transition-all cursor-pointer ${
+                          dalGrind === g.id
+                            ? "bg-[color:var(--earth)] text-white border-[color:var(--earth)]"
+                            : "border-[color:var(--ink)] hover:bg-[color:var(--cream)]"
+                        }`}
+                      >
+                        {g.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
 
             {product.customizable === "grain" && (

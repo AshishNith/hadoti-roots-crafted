@@ -21,8 +21,6 @@ export const Route = createFileRoute("/customize/dal-mix")({
 const grindOptions = [
   { id: "whole", label: "Whole Grain", desc: "Slow-cooked dishes." },
   { id: "split", label: "Split", desc: "Everyday dal." },
-  { id: "coarse", label: "Coarse", desc: "Khichdi, dosa batter." },
-  { id: "fine", label: "Fine", desc: "Soups, bhajiyas." },
 ];
 const coatings = ["None", "Turmeric", "Castor Oil"];
 const packs = ["500g", "1kg", "2kg"];
@@ -135,7 +133,7 @@ function DalMixBuilder() {
 
         {/* Stepper */}
         <div className="mt-12 flex items-center gap-6 max-w-md">
-          {["Pick Dals", "Grind & Process", "Pack & Name"].map((label, i) => (
+          {["Pick Dals", "Grind & Style", "Pack & Name"].map((label, i) => (
             <div key={label} className="flex items-center gap-3">
               <div
                 className={`w-7 h-7 rounded-full border flex items-center justify-center font-mono text-xs ${
@@ -204,7 +202,7 @@ function DalMixBuilder() {
                 <div className="space-y-12">
                   <div>
                     <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4">Grind level</div>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="grid sm:grid-cols-2 gap-3">
                       {grindOptions.map((g) => (
                         <button
                           key={g.id}
@@ -213,34 +211,6 @@ function DalMixBuilder() {
                         >
                           <div className="font-display text-xl">{g.label}</div>
                           <div className="text-xs text-[color:var(--muted-foreground)] mt-1">{g.desc}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4">Wash</div>
-                    <div className="flex gap-2">
-                      {[["pre", "Pre-washed"], ["un", "Unwashed"]].map(([id, l]) => (
-                        <button
-                          key={id}
-                          onClick={() => setWash(id as "pre" | "un")}
-                          className={`font-mono text-xs uppercase tracking-[0.18em] px-5 py-3 border ${wash === id ? "bg-[color:var(--ink)] text-white border-[color:var(--ink)]" : "border-[color:var(--ink)]"}`}
-                        >
-                          {l}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4">Traditional coating</div>
-                    <div className="flex flex-wrap gap-2">
-                      {coatings.map((c) => (
-                        <button
-                          key={c}
-                          onClick={() => setCoating(c)}
-                          className={`font-mono text-xs uppercase tracking-[0.18em] px-5 py-3 border ${coating === c ? "bg-[color:var(--earth)] text-white border-[color:var(--earth)]" : "border-[color:var(--ink)]"}`}
-                        >
-                          {c}
                         </button>
                       ))}
                     </div>

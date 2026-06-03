@@ -5,7 +5,7 @@ export type Product = {
   category: "dals" | "masalas" | "ration" | "hampers" | "grains";
   price: number;
   weight: string;
-  customizable: "dal" | "masala" | "ration" | "hamper" | "grain" | null;
+  customizable: "dal" | "masala" | "ration" | "hamper" | "grain" | "single-dal" | null;
   image?: string | null;
 };
 
@@ -63,7 +63,7 @@ export const products: Product[] = [
     category: "dals",
     price: 140,
     weight: "500g",
-    customizable: "dal",
+    customizable: "single-dal",
   },
   {
     slug: "kali-urad-dal",
@@ -72,7 +72,61 @@ export const products: Product[] = [
     category: "dals",
     price: 160,
     weight: "500g",
-    customizable: "dal",
+    customizable: "single-dal",
+  },
+  {
+    slug: "pure-masoor-dal",
+    name: "Pure Masoor Dal",
+    shortDesc: "Quick-cooking, gentle red lentil.",
+    category: "dals",
+    price: 130,
+    weight: "500g",
+    customizable: "single-dal",
+  },
+  {
+    slug: "pure-chana-dal",
+    name: "Pure Chana Dal",
+    shortDesc: "Nutty, hearty, holds shape.",
+    category: "dals",
+    price: 120,
+    weight: "500g",
+    customizable: "single-dal",
+  },
+  {
+    slug: "pure-toor-dal",
+    name: "Pure Toor Dal",
+    shortDesc: "Everyday sambhar staple.",
+    category: "dals",
+    price: 150,
+    weight: "500g",
+    customizable: "single-dal",
+  },
+  {
+    slug: "pure-rajma",
+    name: "Pure Rajma",
+    shortDesc: "Bold kidney bean, slow simmer.",
+    category: "dals",
+    price: 190,
+    weight: "500g",
+    customizable: "single-dal",
+  },
+  {
+    slug: "pure-matki",
+    name: "Pure Matki",
+    shortDesc: "Tiny, sprouted, protein dense.",
+    category: "dals",
+    price: 170,
+    weight: "500g",
+    customizable: "single-dal",
+  },
+  {
+    slug: "pure-kulthi",
+    name: "Pure Kulthi",
+    shortDesc: "Hadoti horse gram, monsoon crop.",
+    category: "dals",
+    price: 180,
+    weight: "500g",
+    customizable: "single-dal",
   },
   {
     slug: "custom-masala-blend",
@@ -239,6 +293,12 @@ export function imageFor(slug: string): string {
     "hadoti-panchratan-dal": "/images/panchratan_dal.png",
     "pure-moong-dhuli": "/images/moong_dal.png",
     "kali-urad-dal": "/images/kali_urad_dal.png",
+    "pure-masoor-dal": "/images/moong_dal.png",
+    "pure-chana-dal": "/images/moong_dal.png",
+    "pure-toor-dal": "/images/moong_dal.png",
+    "pure-rajma": "/images/kali_urad_dal.png",
+    "pure-matki": "/images/panchratan_dal.png",
+    "pure-kulthi": "/images/panchratan_dal.png",
     "custom-masala-blend": "/images/masala_blend.png",
     "lal-mirch-powder": "/images/lal_mirch.png",
     "monthly-ration-box-small": "/images/ration_box.png",
