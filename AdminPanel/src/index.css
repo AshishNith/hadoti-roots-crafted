@@ -1,35 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  /* Clean, Minimalist Light Theme Palette */
-  --bg-primary: #f8fafc; /* Sleek extremely light slate/grey background */
-  --bg-secondary: #ffffff; /* Pure white for Sidebar and Panels */
-  --bg-card: #ffffff; /* Pure white containers */
-  --bg-glass: #ffffff;
+  /* Editorial minimalist Palette from brand spec */
+  --bg-primary: #F5F0E8; /* Cream/wheat background */
+  --bg-secondary: #EDE8DC; /* Warm beige for panels */
+  --bg-card: #EDE8DC;
+  --bg-glass: #EDE8DC;
   
-  --border-glass: #e2e8f0; /* Thin slate border */
-  --border-glass-hover: #cbd5e1;
+  --border-glass: #d9d2c4; /* Organic border */
+  --border-glass-hover: #b3ab9d;
 
-  --accent-primary: #10b981; /* Fresh Emerald Green */
-  --accent-primary-rgb: 16, 185, 129;
-  --accent-secondary: #f59e0b; /* Warm Amber */
-  --accent-secondary-rgb: 245, 158, 11;
-  --accent-gold: #b45309; /* Hadoti Grains Gold */
-  --accent-gold-rgb: 180, 83, 9;
-  --accent-danger: #ef4444; /* Clean Coral Red */
-  --accent-info: #6366f1; /* Indigo Blue */
+  --accent-primary: #8B5E3C; /* Clay/earth brown */
+  --accent-primary-rgb: 139, 94, 60;
+  --accent-secondary: #6B7F5E; /* Sage green */
+  --accent-secondary-rgb: 107, 127, 94;
+  --accent-gold: #C9A84C; /* Warm gold */
+  --accent-gold-rgb: 201, 168, 76;
+  --accent-danger: #b3261e; /* Earthy red */
+  --accent-info: #8B5E3C;
 
-  --text-primary: #0f172a; /* Slate Dark Charcoal for high legibility */
-  --text-muted: #64748b; /* Medium Slate Grey for secondary captions */
-  --text-dark: #0f172a;
+  --text-primary: #1C1A16; /* Organic ink black */
+  --text-muted: #6b655c; /* Muted brown-grey */
+  --text-dark: #1C1A16;
 
-  --font-body: 'Inter', sans-serif;
-  --font-display: 'Outfit', sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: 'Space Mono', monospace;
 
   --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
-  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
-  --shadow-neon: 0 0 0 2px rgba(16, 185, 129, 0.06);
+  --shadow-premium: 0 10px 15px -3px rgba(28, 26, 22, 0.03), 0 4px 6px -4px rgba(28, 26, 22, 0.03);
+  --shadow-card: 0 1px 3px 0 rgba(28, 26, 22, 0.04), 0 1px 2px 0 rgba(28, 26, 22, 0.02);
+  --shadow-neon: 0 0 0 2px rgba(139, 94, 60, 0.06);
 }
 
 * {

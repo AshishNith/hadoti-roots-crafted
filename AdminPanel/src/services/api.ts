@@ -81,6 +81,7 @@ export interface User {
   displayName: string;
   photoURL: string | null;
   role: "customer" | "admin";
+  addresses?: ShippingAddress[];
   createdAt: string;
 }
 
@@ -98,6 +99,7 @@ export interface DashboardStats {
     totalFarmers: number;
     totalProducts: number;
     totalUsers: number;
+    totalReviews: number;
   };
   recentOrders: Order[];
   recentBlends: any[];
@@ -195,4 +197,11 @@ export const api = {
       method: "PUT", 
       body: JSON.stringify({ role }) 
     }),
+  getUserAddresses: (uid: string) => 
+    fetchOrThrow<ShippingAddress[]>(`${API_BASE}/users/${uid}/addresses`),
+
+  // Reviews
+  getReviews: () => fetchOrThrow<any[]>(`${API_BASE}/reviews`),
+  deleteReview: (id: string) => 
+    fetchOrThrow<{ message: string }>(`${API_BASE}/reviews/${id}`, { method: "DELETE" }),
 };

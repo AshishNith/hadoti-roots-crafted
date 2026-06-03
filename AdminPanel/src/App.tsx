@@ -16,11 +16,14 @@ import {
   MapPin, 
   UserCheck, 
   RefreshCw, 
-  Sliders
+  Sliders,
+  MessageSquare,
+  Star
 } from "lucide-react";
 import { AuthProvider, useAdminAuth } from "./context/AuthContext";
 import { api } from "./services/api";
 import type { Product, Farmer, BlogPost, Order, User, DalOption, DashboardStats } from "./services/api";
+import { jsPDF } from "jspdf";
 
 // -------------------------------------------------------------
 // MAIN ADMIN PANEL CONTAINER COMPONENT
@@ -50,12 +53,19 @@ const AdminPanelContent: React.FC = () => {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [dalOptions, setDalOptions] = useState<DalOption[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+
+  // User addresses details states
+  const [selectedUserForAddresses, setSelectedUserForAddresses] = useState<User | null>(null);
+  const [selectedUserAddresses, setSelectedUserAddresses] = useState<any[]>([]);
+  const [loadingAddresses, setLoadingAddresses] = useState<boolean>(false);
 
   // Filtering states
   const [productSearch, setProductSearch] = useState<string>("");
   const [productCategory, setProductCategory] = useState<string>("all");
   const [orderSearch, setOrderSearch] = useState<string>("");
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>("all");
+  const [reviewSearch, setReviewSearch] = useState<string>("");
   
   // Order Pagination
   const [orderPage, setOrderPage] = useState<number>(1);
@@ -72,7 +82,7 @@ const AdminPanelContent: React.FC = () => {
   // Confirmation Dialogue state
   const [deleteConfirm, setDeleteConfirm] = useState<{
     id: string;
-    type: "product" | "farmer" | "blog" | "dal" | "order";
+    type: "product" | "farmer" | "blog" | "dal" | "order" | "review";
     title: string;
   } | null>(null);
 
@@ -137,6 +147,9 @@ const AdminPanelContent: React.FC = () => {
       } else if (activeTab === "users") {
         const data = await api.getUsers();
         setUsers(data);
+      } else if (activeTab === "reviews") {
+        const data = await api.getReviews();
+        setReviews(data);
       }
     } catch (err: any) {
       console.error(err);
@@ -336,6 +349,9 @@ const AdminPanelContent: React.FC = () => {
       } else if (type === "order") {
         await api.deleteOrder(id);
         showToast("Order transaction removed from database.");
+      } else if (type === "review") {
+        await api.deleteReview(id);
+        showToast("Customer review deleted successfully.");
       }
       setDeleteConfirm(null);
       loadTabData();
@@ -405,6 +421,236 @@ const AdminPanelContent: React.FC = () => {
   const triggerViewOrder = (ord: Order) => {
     setSelectedOrder(ord);
     setActiveTab("order-details");
+  };
+
+  const fetchUserAddresses = async (userRecord: User) => {
+    setSelectedUserForAddresses(userRecord);
+    setLoadingAddresses(true);
+    try {
+      const addrs = await api.getUserAddresses(userRecord.uid);
+      setSelectedUserAddresses(addrs);
+    } catch (err: any) {
+      console.error(err);
+      showToast(err.message || "Failed to load saved addresses for this user.", "error");
+      setSelectedUserForAddresses(null);
+    } finally {
+      setLoadingAddresses(false);
+    }
+  };
+
+  const handleDownloadInvoice = (order: Order) => {
+    try {
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // Set standard colors
+      const colorInk = "#1C1A16";
+      const colorEarth = "#8B5E3C";
+      const colorMuted = "#6b655c";
+
+      // 1. Header (Brand Name & Tagline)
+      doc.setFont("times", "bold");
+      doc.setFontSize(26);
+      doc.setTextColor(colorInk);
+      doc.text("HADOTI FARMS", 20, 25);
+
+      doc.setFont("times", "italic");
+      doc.setFontSize(10);
+      doc.setTextColor(colorEarth);
+      doc.text("Organically Grown, Stone-Ground & Traceable", 20, 30);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(colorMuted);
+      doc.text("Bundi & Kota Soil Cooperatives, Rajasthan, India", 20, 35);
+      doc.text("www.hadotifarms.com | support@hadotifarms.com", 20, 39);
+
+      // 2. Right Side Header (Receipt details)
+      doc.setFont("times", "bold");
+      doc.setFontSize(18);
+      doc.setTextColor(colorInk);
+      doc.text("INVOICE RECEIPT", 190, 25, { align: "right" });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(colorMuted);
+      doc.text(`Receipt #: HF-${order.orderNumber}`, 190, 30, { align: "right" });
+      doc.text(
+        `Date: ${new Date(order.createdAt).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })}`,
+        190,
+        35,
+        { align: "right" }
+      );
+
+      // Divider line
+      doc.setDrawColor(217, 210, 196); // border color #d9d2c4
+      doc.setLineWidth(0.4);
+      doc.line(20, 44, 190, 44);
+
+      // 3. Billing & Shipping Address (Left) and Payment Info (Right)
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(colorEarth);
+      doc.text("DELIVERED TO:", 20, 53);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.5);
+      doc.setTextColor(colorInk);
+      doc.text(order.shippingAddress.name, 20, 59);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(colorMuted);
+
+      // Render shipping address lines
+      const fullAddress = `${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.pin}`;
+      const addressLines = doc.splitTextToSize(fullAddress, 75);
+      let addressY = 64;
+      addressLines.forEach((line: string) => {
+        doc.text(line, 20, addressY);
+        addressY += 4.5;
+      });
+      doc.text(`Phone: ${order.shippingAddress.phone}`, 20, addressY);
+
+      // Payment details on right
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(colorEarth);
+      doc.text("PAYMENT INFORMATION:", 115, 53);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(colorInk);
+      doc.text(`Payment Method: ${order.paymentMethod.toUpperCase()}`, 115, 59);
+      doc.text(`Transaction Status: ${order.paymentStatus.toUpperCase()}`, 115, 63.5);
+      doc.text(`Order Status: ${order.status.toUpperCase()}`, 115, 68);
+
+      // 4. Items Table Header
+      let tableY = Math.max(addressY + 12, 78);
+
+      // Draw table header background
+      doc.setFillColor(237, 232, 220); // Cream color #EDE8DC
+      doc.rect(20, tableY, 170, 8, "F");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(colorInk);
+      doc.text("PRODUCT NAME", 24, tableY + 5.5);
+      doc.text("SPECIFICATIONS / CUSTOMIZATION", 80, tableY + 5.5);
+      doc.text("QTY", 148, tableY + 5.5, { align: "right" });
+      doc.text("PRICE", 168, tableY + 5.5, { align: "right" });
+      doc.text("TOTAL", 186, tableY + 5.5, { align: "right" });
+
+      tableY += 8;
+
+      // Render rows
+      order.items.forEach((item: any) => {
+        let nameY = tableY + 6;
+        let specsY = tableY + 6;
+
+        // Product Name
+        doc.setFont("times", "bold");
+        doc.setFontSize(10.5);
+        doc.setTextColor(colorInk);
+        const nameLines = doc.splitTextToSize(item.name, 52);
+        nameLines.forEach((line: string) => {
+          doc.text(line, 24, nameY);
+          nameY += 4.5;
+        });
+
+        // Specifications
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(colorMuted);
+        doc.text(`Pouch Size: ${item.weight}`, 80, specsY);
+        specsY += 4;
+
+        if (item.customization) {
+          const customLines = doc.splitTextToSize(item.customization, 62);
+          customLines.forEach((line: string) => {
+            doc.text(line, 80, specsY);
+            specsY += 3.5;
+          });
+        }
+
+        // Qty, Price, Total aligning center vertically
+        const rowHeight = Math.max(nameY - tableY, specsY - tableY) + 3;
+        const middleY = tableY + rowHeight / 2 + 1;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(colorInk);
+        doc.text(String(item.qty), 148, middleY, { align: "right" });
+        doc.text(`₹${item.price}`, 168, middleY, { align: "right" });
+        doc.text(`₹${item.price * item.qty}`, 186, middleY, { align: "right" });
+
+        // Row Separator Line
+        doc.setDrawColor(217, 210, 196);
+        doc.setLineWidth(0.2);
+        doc.line(20, tableY + rowHeight, 190, tableY + rowHeight);
+
+        tableY += rowHeight;
+      });
+
+      // 5. Pricing summary block
+      tableY += 8;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(colorMuted);
+      doc.text("Subtotal:", 148, tableY, { align: "right" });
+      doc.text(`₹${order.subtotal}`, 186, tableY, { align: "right" });
+
+      tableY += 5;
+      doc.text("Eco-Shipping:", 148, tableY, { align: "right" });
+      doc.text(order.deliveryFee === 0 ? "FREE" : `₹${order.deliveryFee}`, 186, tableY, { align: "right" });
+
+      tableY += 5;
+      doc.text("GST (Included):", 148, tableY, { align: "right" });
+      doc.text("₹0.00", 186, tableY, { align: "right" });
+
+      tableY += 7;
+      doc.setDrawColor(217, 210, 196);
+      doc.setLineWidth(0.4);
+      doc.line(115, tableY - 4, 190, tableY - 4);
+
+      doc.setFont("times", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(colorInk);
+      doc.text("Grand Total:", 148, tableY, { align: "right" });
+      doc.text(`₹${order.total}`, 186, tableY, { align: "right" });
+
+      // 6. Footer Heritage Note (Bottom of Page)
+      const footerY = 265;
+      doc.setDrawColor(217, 210, 196);
+      doc.setLineWidth(0.3);
+      doc.line(20, footerY - 5, 190, footerY - 5);
+
+      doc.setFont("times", "italic");
+      doc.setFontSize(10);
+      doc.setTextColor(colorEarth);
+      doc.text("Thank you for choosing Hadoti Farms.", 105, footerY, { align: "center" });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(colorMuted);
+      doc.text("Every grain is slow-cleaned by hand, supporting smallholder farmers in Rajasthan.", 105, footerY + 4, { align: "center" });
+      doc.text("Certified pesticide-free. Trace your batch via www.hadotifarms.com/standards", 105, footerY + 8, { align: "center" });
+
+      // Save PDF document
+      doc.save(`Invoice-HF-${order.orderNumber}.pdf`);
+      showToast(`Invoice receipt HF-${order.orderNumber}.pdf downloaded successfully!`);
+    } catch (error) {
+      console.error("Failed to generate PDF:", error);
+      showToast("Failed to generate PDF receipt. Please try again.", "error");
+    }
   };
 
   // -------------------------------------------------------------
@@ -499,12 +745,9 @@ const AdminPanelContent: React.FC = () => {
 
       {/* ----------------- SIDEBAR ----------------- */}
       <aside className="sidebar">
-        <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">🌾</div>
-          <div>
-            <span className="sidebar-logo-text">Hadoti Farms</span>
-            <div style={{ fontSize: "9px", color: "var(--text-muted)", letterSpacing: "1.5px", fontWeight: 700, marginTop: "2px", textTransform: "uppercase" }}>Admin Dashboard</div>
-          </div>
+        <div className="sidebar-logo" style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "20px", gap: "10px", borderBottom: "1px solid var(--border-glass)" }}>
+          <img src="/Creatives/darkLogo.png" alt="Hadoti Farms" style={{ height: "48px", objectFit: "contain" }} />
+          <div style={{ fontSize: "9px", color: "var(--text-muted)", letterSpacing: "1.5px", fontWeight: 700, textTransform: "uppercase" }}>Admin Dashboard</div>
         </div>
         
         <ul className="sidebar-nav">
@@ -564,6 +807,14 @@ const AdminPanelContent: React.FC = () => {
               <Sliders size={18} /> Bespoke Crops / Dals
             </a>
           </li>
+          <li>
+            <a 
+              className={`sidebar-nav-item ${activeTab === "reviews" ? "active" : ""}`}
+              onClick={() => setActiveTab("reviews")}
+            >
+              <MessageSquare size={18} /> Customer Reviews
+            </a>
+          </li>
         </ul>
 
         <div className="sidebar-footer" style={{ borderTop: "none", background: "transparent", padding: "20px 16px" }}>
@@ -600,6 +851,7 @@ const AdminPanelContent: React.FC = () => {
             {activeTab === "farmers" && "Hadoti Cooperatives Directory"}
             {activeTab === "blogs" && "Heirloom Stories & Recipes"}
             {activeTab === "dalOptions" && "Bespoke Customizer Configuration"}
+            {activeTab === "reviews" && "Customer Review Feedback Control"}
             {activeTab === "users" && "User Access & Permissions Directory"}
             {activeTab === "blend-details" && "Bespoke Customizer Formulation Details"}
           </h2>
@@ -713,6 +965,21 @@ const AdminPanelContent: React.FC = () => {
                       </div>
                       <div className="kpi-icon-box purple">
                         <UserCheck size={20} />
+                      </div>
+                    </div>
+
+                    {/* Card 6: CUSTOMER REVIEWS */}
+                    <div className="kpi-card">
+                      <div>
+                        <div className="kpi-info-label">Customer Reviews</div>
+                        <div className="kpi-info-val">{stats.summary.totalReviews || 0}</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "8px" }}>
+                          <span className="trend-badge gold">Feedback Logs</span>
+                          <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "500" }}>Active review entries</span>
+                        </div>
+                      </div>
+                      <div className="kpi-icon-box gold">
+                        <MessageSquare size={20} />
                       </div>
                     </div>
                   </div>
@@ -1393,13 +1660,22 @@ const AdminPanelContent: React.FC = () => {
                               </span>
                             </td>
                             <td>
-                              <button 
-                                className={cli.role === "admin" ? "btn-danger" : "btn-primary"} 
-                                style={{ padding: "6px 12px", fontSize: "11px", width: "auto" }}
-                                onClick={() => handleUpdateUserRole(cli._id, cli.role)}
-                              >
-                                {cli.role === "admin" ? "Revoke System Admin" : "Promote to Admin"}
-                              </button>
+                              <div style={{ display: "flex", gap: "8px" }}>
+                                <button 
+                                  className="btn-secondary" 
+                                  style={{ padding: "6px 12px", fontSize: "11px", width: "auto" }}
+                                  onClick={() => fetchUserAddresses(cli)}
+                                >
+                                  Saved Addresses ({cli.addresses?.length || 0})
+                                </button>
+                                <button 
+                                  className={cli.role === "admin" ? "btn-danger" : "btn-primary"} 
+                                  style={{ padding: "6px 12px", fontSize: "11px", width: "auto" }}
+                                  onClick={() => handleUpdateUserRole(cli._id, cli.role)}
+                                >
+                                  {cli.role === "admin" ? "Revoke System Admin" : "Promote to Admin"}
+                                </button>
+                              </div>
                             </td>
                             <td className="text-muted">{new Date(cli.createdAt).toLocaleDateString()}</td>
                           </tr>
@@ -1408,6 +1684,104 @@ const AdminPanelContent: React.FC = () => {
                           <tr>
                             <td colSpan={6} style={{ textAlign: "center", padding: "30px", color: "var(--text-muted)" }}>
                               👥 No customer accounts synced to database yet.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* ============================================================= */}
+              {/* VIEW: CUSTOMER REVIEWS */}
+              {/* ============================================================= */}
+              {activeTab === "reviews" && (
+                <div className="dashboard-panel animate-fade-in">
+                  <div className="manager-toolbar">
+                    <div className="search-input-wrapper">
+                      <Search size={18} className="search-icon" />
+                      <input 
+                        type="text" 
+                        placeholder="Search reviews by user, product, or comment..." 
+                        value={reviewSearch}
+                        onChange={(e) => setReviewSearch(e.target.value)}
+                        className="form-control search-input"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="data-table-container">
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>User</th>
+                          <th>Product</th>
+                          <th>Rating</th>
+                          <th>Comment</th>
+                          <th>Date</th>
+                          <th>Operations</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reviews
+                          .filter((r) => {
+                            const query = reviewSearch.toLowerCase();
+                            return (
+                              r.userName?.toLowerCase().includes(query) ||
+                              r.productSlug?.toLowerCase().includes(query) ||
+                              r.comment?.toLowerCase().includes(query)
+                            );
+                          })
+                          .map((r, i) => (
+                            <tr key={r._id || i}>
+                              <td>
+                                <div style={{ display: "flex", flexDirection: "column" }}>
+                                  <span style={{ fontWeight: "600" }}>{r.userName}</span>
+                                  <span className="text-muted" style={{ fontSize: "10px" }}><code>{r.userUid}</code></span>
+                                </div>
+                              </td>
+                              <td style={{ fontWeight: "500" }}>
+                                <code style={{ color: "var(--accent-primary)" }}>{r.productSlug}</code>
+                              </td>
+                              <td>
+                                <div style={{ display: "flex", gap: "2px", color: "var(--accent-gold)" }}>
+                                  {Array.from({ length: 5 }).map((_, idx) => (
+                                    <Star 
+                                      key={idx} 
+                                      size={12} 
+                                      fill={idx < r.rating ? "currentColor" : "none"} 
+                                      stroke="currentColor" 
+                                      strokeWidth={idx < r.rating ? 0 : 1}
+                                    />
+                                  ))}
+                                </div>
+                              </td>
+                              <td style={{ maxWidth: "300px", wordBreak: "break-word" }}>
+                                {r.comment}
+                              </td>
+                              <td className="text-muted">
+                                {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "Just now"}
+                              </td>
+                              <td>
+                                <button 
+                                  className="btn-danger" 
+                                  style={{ padding: "6px 12px", fontSize: "11px", width: "auto" }}
+                                  onClick={() => setDeleteConfirm({
+                                    id: r._id || "",
+                                    type: "review",
+                                    title: `${r.userName}'s review on ${r.productSlug}`
+                                  })}
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        {reviews.length === 0 && (
+                          <tr>
+                            <td colSpan={6} style={{ textAlign: "center", padding: "30px", color: "var(--text-muted)" }}>
+                              💬 No reviews found in the database.
                             </td>
                           </tr>
                         )}
@@ -1552,9 +1926,14 @@ const AdminPanelContent: React.FC = () => {
                       <h3 className="panel-title" style={{ fontSize: "18px" }}>Fulfillment Order Master Sheet</h3>
                       <span className="text-muted" style={{ fontSize: "12px" }}>Database ID: {selectedOrder._id}</span>
                     </div>
-                    <button className="btn-secondary" onClick={() => setActiveTab("orders")}>
-                      ← Back to Orders
-                    </button>
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      <button className="btn-primary" style={{ width: "auto", display: "flex", alignItems: "center", gap: "6px" }} onClick={() => handleDownloadInvoice(selectedOrder)}>
+                        <span>📄</span> Download Invoice Receipt
+                      </button>
+                      <button className="btn-secondary" onClick={() => setActiveTab("orders")}>
+                        ← Back to Orders
+                      </button>
+                    </div>
                   </div>
 
                   <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "32px" }}>
@@ -2079,6 +2458,48 @@ const AdminPanelContent: React.FC = () => {
       {/* ------------------------------------------------------------- */}
       {/* DIALOGUE: CONFIRMATION PROMPTS */}
       {/* ------------------------------------------------------------- */}
+      {selectedUserForAddresses && (
+        <div className="dialog-overlay" style={{ zIndex: 1100 }}>
+          <div className="dialog-box" style={{ maxWidth: "480px", width: "90%" }}>
+            <h3 className="dialog-title" style={{ fontFamily: "var(--font-display)", fontSize: "22px", marginBottom: "4px" }}>
+              Saved Addresses
+            </h3>
+            <p className="dialog-desc" style={{ marginBottom: "16px", fontSize: "12px", color: "var(--text-muted)" }}>
+              Account Holder: <strong>{selectedUserForAddresses.displayName || "Hadoti Customer"}</strong> ({selectedUserForAddresses.email})
+            </p>
+
+            {loadingAddresses ? (
+              <div className="spinner-wrapper" style={{ minHeight: "120px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <div className="spinner"></div>
+                <p style={{ color: "var(--text-muted)", fontSize: "12px", marginTop: "10px" }}>Retrieving address ledger...</p>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxHeight: "300px", overflowY: "auto", paddingRight: "4px" }}>
+                {selectedUserAddresses.map((addr: any, idx: number) => (
+                  <div key={addr._id || idx} style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-glass)", borderRadius: "10px", padding: "14px", fontSize: "13px", textAlign: "left" }}>
+                    <div style={{ fontWeight: "700", marginBottom: "6px", color: "var(--accent-primary)", fontSize: "14px" }}>{addr.name}</div>
+                    <div style={{ color: "var(--text-primary)", fontWeight: "500" }}>{addr.address}</div>
+                    <div style={{ color: "var(--text-primary)", fontWeight: "500" }}>{addr.city}, {addr.state} - {addr.pin}</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: "11px", marginTop: "8px", borderTop: "1px dashed var(--border-glass)", paddingTop: "6px", display: "flex", alignItems: "center", gap: "4px" }}>
+                      <span>📞</span> {addr.phone}
+                    </div>
+                  </div>
+                ))}
+                {selectedUserAddresses.length === 0 && (
+                  <div style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "13px", padding: "30px 10px" }}>
+                    📍 No saved addresses associated with this customer profile.
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="dialog-actions" style={{ marginTop: "20px", borderTop: "1px solid var(--border-glass)", paddingTop: "14px" }}>
+              <button className="btn-secondary" style={{ width: "100%" }} onClick={() => setSelectedUserForAddresses(null)}>Close Addresses Ledger</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {deleteConfirm && (
         <div className="dialog-overlay">
           <div className="dialog-box">

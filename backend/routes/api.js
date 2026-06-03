@@ -329,6 +329,7 @@ router.get("/admin/stats", async (req, res) => {
     const totalFarmers = await Farmer.countDocuments({});
     const totalProducts = await Product.countDocuments({});
     const totalUsers = await User.countDocuments({});
+    const totalReviews = await Review.countDocuments({});
 
     // Recent orders with details
     const recentOrders = await Order.find({}).sort({ createdAt: -1 }).limit(6);
@@ -376,7 +377,8 @@ router.get("/admin/stats", async (req, res) => {
         totalOrders,
         totalFarmers,
         totalProducts,
-        totalUsers
+        totalUsers,
+        totalReviews
       },
       recentOrders,
       recentBlends,
@@ -600,6 +602,26 @@ router.put("/users/:id/role", async (req, res) => {
     res.json(user);
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+});
+
+// --- Reviews Management ---
+router.get("/reviews", async (req, res) => {
+  try {
+    const reviews = await Review.find({}).sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.delete("/reviews/:id", async (req, res) => {
+  try {
+    const review = await Review.findByIdAndDelete(req.params.id);
+    if (!review) return res.status(404).json({ message: "Review not found" });
+    res.json({ message: "Review deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
