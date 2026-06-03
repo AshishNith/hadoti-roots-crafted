@@ -6,6 +6,7 @@ import { getProductBySlug, getProductReviews, createProductReview } from "@/lib/
 import { Button } from "@/components/ui/HFButton";
 import { QuantityControl } from "@/components/ui/QuantityControl";
 import { useCart } from "@/lib/store";
+import { useAuth } from "@/lib/auth-store";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/product/$slug")({
@@ -70,12 +71,21 @@ function ProductPage() {
   const [tab, setTab] = useState<"desc" | "nutri" | "farm">("desc");
   const add = useCart((s) => s.add);
 
+  const { user } = useAuth();
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewName, setReviewName] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
+
+  useEffect(() => {
+    if (user && user.displayName) {
+      setReviewName(user.displayName);
+    } else {
+      setReviewName("");
+    }
+  }, [user]);
 
   useEffect(() => {
     let active = true;
@@ -102,6 +112,13 @@ function ProductPage() {
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("Please log in to submit a review.");
+      setTimeout(() => {
+        window.location.href = `/account?redirect=${encodeURIComponent(window.location.pathname)}`;
+      }, 1500);
+      return;
+    }
     if (!reviewName.trim() || !reviewComment.trim()) {
       toast.error("Please fill in all fields.");
       return;
@@ -110,14 +127,13 @@ function ProductPage() {
     try {
       const newReview = await createProductReview({
         productSlug: product.slug,
+        userUid: user.uid,
         userName: reviewName.trim(),
         rating: reviewRating,
         comment: reviewComment.trim(),
       });
       toast.success("Review submitted successfully!");
       setReviews((prev) => [newReview, ...prev]);
-      setReviewName("");
-      setReviewRating(5);
       setReviewComment("");
     } catch (err) {
       console.error(err);
@@ -590,6 +606,11 @@ function ProductPage() {
                   Write a Review
                 </h3>
                 <form onSubmit={handleSubmitReview} className="space-y-4">
+                  {!user && (
+                    <div className="font-mono text-[10px] text-[color:var(--earth)] bg-[color:var(--earth)]/5 border border-[color:var(--earth)]/20 p-3 leading-relaxed rounded-sm text-center">
+                      Note: You must be signed in to submit a review. Clicking submit will redirect you to the login page.
+                    </div>
+                  )}
                   <div>
                     <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--muted-foreground)] mb-2">
                       Your Name
@@ -651,7 +672,11 @@ function ProductPage() {
                     className="w-full justify-center"
                     disabled={submittingReview}
                   >
-                    {submittingReview ? "Submitting..." : "Submit Review"}
+                    {submittingReview 
+                      ? "Submitting..." 
+                      : user 
+                      ? "Submit Review" 
+                      : "Sign In to Submit Review"}
                   </Button>
                 </form>
               </div>

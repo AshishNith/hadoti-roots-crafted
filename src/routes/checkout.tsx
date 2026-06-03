@@ -5,7 +5,7 @@ import { formatINR } from "@/lib/data";
 import { Button } from "@/components/ui/HFButton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-store";
-import { placeOrder, saveBlend } from "@/lib/api-client";
+import { placeOrder, saveBlend, getUserAddresses } from "@/lib/api-client";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — Hadoti Farms" }] }),
@@ -38,9 +38,18 @@ function CheckoutPage() {
   const [shippingState, setShippingState] = useState("");
   const [shippingPin, setShippingPin] = useState("");
 
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+
   useEffect(() => {
-    if (user && !shippingName) {
-      setShippingName(user.displayName || "");
+    if (user) {
+      if (!shippingName) {
+        setShippingName(user.displayName || "");
+      }
+      getUserAddresses(user.uid)
+        .then(setSavedAddresses)
+        .catch((err) => console.error("Error loading checkout saved addresses:", err));
+    } else {
+      setSavedAddresses([]);
     }
   }, [user]);
 
@@ -323,6 +332,36 @@ function CheckoutPage() {
             {step === 0 && (
               <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(1); }}>
                 <h2 className="font-display text-3xl">Delivery details</h2>
+                {savedAddresses.length > 0 && (
+                  <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-5 rounded-sm space-y-3">
+                    <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[color:var(--earth)] font-semibold block">
+                      Use a Saved Address
+                    </span>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {savedAddresses.map((a) => (
+                        <div
+                          key={a._id}
+                          onClick={() => {
+                            setShippingName(a.name);
+                            setShippingPhone(a.phone);
+                            setShippingAddress(a.address);
+                            setShippingCity(a.city);
+                            setShippingState(a.state);
+                            setShippingPin(a.pin);
+                            toast.success(`Autofilled: ${a.name}'s address`);
+                          }}
+                          className="border border-[color:var(--border)] bg-[color:var(--bg)] p-4 rounded-sm hover:border-[color:var(--earth)] cursor-pointer transition-all text-left space-y-1"
+                        >
+                          <div className="font-display text-lg leading-tight font-medium text-[color:var(--ink)]">{a.name}</div>
+                          <div className="font-mono text-[10px] text-[color:var(--muted-foreground)]">{a.phone}</div>
+                          <div className="font-mono text-[10px] text-[color:var(--ink)] leading-snug line-clamp-2">
+                            {a.address}, {a.city}, {a.state} - {a.pin}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Field label="Full name" value={shippingName} onChange={setShippingName} />
                   <Field label="Phone" type="tel" value={shippingPhone} onChange={setShippingPhone} />

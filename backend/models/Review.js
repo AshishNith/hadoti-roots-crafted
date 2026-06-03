@@ -8,6 +8,12 @@ const reviewSchema = new mongoose.Schema(
       index: true,
       trim: true,
     },
+    userUid: {
+      type: String,
+      default: "legacy",
+      index: true,
+      trim: true,
+    },
     userName: {
       type: String,
       required: true,

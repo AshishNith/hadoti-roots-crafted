@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth-store";
 import { Button } from "@/components/ui/HFButton";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
-import { getUserOrders, getSavedBlends } from "@/lib/api-client";
+import { getUserOrders, getSavedBlends, getUserAddresses, addUserAddress, deleteUserAddress } from "@/lib/api-client";
 import { 
   ArrowLeft, 
   Package, 
@@ -30,8 +30,19 @@ function AccountPage() {
 
   const [orders, setOrders] = useState<any[]>([]);
   const [blends, setBlends] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "blends">("dashboard");
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "blends" | "addresses">("dashboard");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  
+  // Add Address Form State
+  const [addName, setAddName] = useState("");
+  const [addPhone, setAddPhone] = useState("");
+  const [addAddress, setAddAddress] = useState("");
+  const [addCity, setAddCity] = useState("");
+  const [addState, setAddState] = useState("");
+  const [addPin, setAddPin] = useState("");
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   // Parse active prepaid subscriptions from orders
   const activeSubscriptions: any[] = [];
@@ -102,6 +113,9 @@ function AccountPage() {
       getSavedBlends(user.uid)
         .then(setBlends)
         .catch((err) => console.error("Error fetching blends:", err));
+      getUserAddresses(user.uid)
+        .then(setAddresses)
+        .catch((err) => console.error("Error fetching addresses:", err));
     }
   }, [user]);
 
@@ -123,6 +137,10 @@ function AccountPage() {
         await signIn(email, password);
         toast.success("Welcome back!");
       }
+      const redirect = new URLSearchParams(window.location.search).get("redirect");
+      if (redirect) {
+        window.location.href = redirect;
+      }
     } catch (err: any) {
       toast.error(err.message || "Authentication failed");
     }
@@ -132,6 +150,10 @@ function AccountPage() {
     try {
       await signInWithGoogle();
       toast.success("Signed in successfully!");
+      const redirect = new URLSearchParams(window.location.search).get("redirect");
+      if (redirect) {
+        window.location.href = redirect;
+      }
     } catch (err: any) {
       toast.error(err.message || "Google authentication failed");
     }
@@ -143,6 +165,53 @@ function AccountPage() {
       toast.success("Signed out successfully");
     } catch (err: any) {
       toast.error("Failed to sign out");
+    }
+  };
+
+  const handleAddAddress = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addName.trim() || !addPhone.trim() || !addAddress.trim() || !addCity.trim() || !addState.trim() || !addPin.trim()) {
+      toast.error("Please fill in all address details");
+      return;
+    }
+    setSavingAddress(true);
+    try {
+      const updatedList = await addUserAddress(user.uid, {
+        name: addName.trim(),
+        phone: addPhone.trim(),
+        address: addAddress.trim(),
+        city: addCity.trim(),
+        state: addState.trim(),
+        pin: addPin.trim()
+      });
+      setAddresses(updatedList);
+      toast.success("Address saved successfully");
+      
+      // Reset form
+      setAddName("");
+      setAddPhone("");
+      setAddAddress("");
+      setAddCity("");
+      setAddState("");
+      setAddPin("");
+      setShowAddForm(false);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to save address");
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
+  const handleDeleteAddress = async (addressId: string) => {
+    if (!confirm("Are you sure you want to delete this address?")) return;
+    try {
+      const updatedList = await deleteUserAddress(user.uid, addressId);
+      setAddresses(updatedList);
+      toast.success("Address deleted successfully");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to delete address");
     }
   };
 
@@ -178,8 +247,8 @@ function AccountPage() {
           </div>
 
           {/* Tabs Navigation */}
-          <div className="flex gap-6 border-b border-[color:var(--border)] pb-4 mb-8">
-            {["dashboard", "orders", "blends"].map((t) => (
+          <div className="flex gap-6 border-b border-[color:var(--border)] pb-4 mb-8 overflow-x-auto scrollbar-none whitespace-nowrap">
+            {["dashboard", "orders", "blends", "addresses"].map((t) => (
               <button
                 key={t}
                 onClick={() => {
@@ -192,7 +261,13 @@ function AccountPage() {
                     : "border-transparent text-[color:var(--muted-foreground)]"
                 }`}
               >
-                {t === "dashboard" ? "Overview" : t === "orders" ? `Orders (${orders.length})` : `Saved Blends (${blends.length})`}
+                {t === "dashboard"
+                  ? "Overview"
+                  : t === "orders"
+                  ? `Orders (${orders.length})`
+                  : t === "blends"
+                  ? `Saved Blends (${blends.length})`
+                  : `Addresses (${addresses.length})`}
               </button>
             ))}
           </div>
@@ -428,6 +503,149 @@ function AccountPage() {
                               {b.weight} pouch
                             </span>
                             <span className="font-display text-2xl">₹{b.price}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "addresses" && (
+                <div className="space-y-8 animate-fade-in">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <h2 className="font-display text-4xl">Saved Addresses</h2>
+                      <p className="font-mono text-[10px] text-[color:var(--muted-foreground)] uppercase tracking-wider mt-1">
+                        Manage your delivery locations
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowAddForm(!showAddForm)}
+                      className="font-mono text-xs uppercase tracking-[0.2em] bg-[color:var(--ink)] text-white hover:bg-[color:var(--earth)] px-5 py-2.5 rounded-sm transition-colors cursor-pointer"
+                    >
+                      {showAddForm ? "View Saved" : "+ Add New Address"}
+                    </button>
+                  </div>
+
+                  {showAddForm ? (
+                    <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-6 md:p-8 rounded-sm max-w-xl">
+                      <h3 className="font-display text-2xl mb-6">New Delivery Address</h3>
+                      <form onSubmit={handleAddAddress} className="space-y-4">
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <label className="block">
+                            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">Full Name</span>
+                            <input
+                              type="text"
+                              required
+                              value={addName}
+                              onChange={(e) => setAddName(e.target.value)}
+                              className="mt-1 w-full bg-transparent border-b border-[color:var(--ink)] py-2 text-sm outline-none focus:border-[color:var(--earth)] transition-colors"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">Phone</span>
+                            <input
+                              type="tel"
+                              required
+                              value={addPhone}
+                              onChange={(e) => setAddPhone(e.target.value)}
+                              className="mt-1 w-full bg-transparent border-b border-[color:var(--ink)] py-2 text-sm outline-none focus:border-[color:var(--earth)] transition-colors"
+                            />
+                          </label>
+                        </div>
+
+                        <label className="block">
+                          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">Address</span>
+                          <input
+                            type="text"
+                            required
+                            value={addAddress}
+                            onChange={(e) => setAddAddress(e.target.value)}
+                            className="mt-1 w-full bg-transparent border-b border-[color:var(--ink)] py-2 text-sm outline-none focus:border-[color:var(--earth)] transition-colors"
+                          />
+                        </label>
+
+                        <div className="grid sm:grid-cols-3 gap-4">
+                          <label className="block">
+                            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">City</span>
+                            <input
+                              type="text"
+                              required
+                              value={addCity}
+                              onChange={(e) => setAddCity(e.target.value)}
+                              className="mt-1 w-full bg-transparent border-b border-[color:var(--ink)] py-2 text-sm outline-none focus:border-[color:var(--earth)] transition-colors"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">State</span>
+                            <input
+                              type="text"
+                              required
+                              value={addState}
+                              onChange={(e) => setAddState(e.target.value)}
+                              className="mt-1 w-full bg-transparent border-b border-[color:var(--ink)] py-2 text-sm outline-none focus:border-[color:var(--earth)] transition-colors"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">PIN</span>
+                            <input
+                              type="text"
+                              required
+                              value={addPin}
+                              onChange={(e) => setAddPin(e.target.value)}
+                              className="mt-1 w-full bg-transparent border-b border-[color:var(--ink)] py-2 text-sm outline-none focus:border-[color:var(--earth)] transition-colors"
+                            />
+                          </label>
+                        </div>
+
+                        <div className="flex gap-4 pt-4">
+                          <button
+                            type="button"
+                            onClick={() => setShowAddForm(false)}
+                            className="font-mono text-xs uppercase tracking-[0.2em] border border-[color:var(--border)] hover:bg-[color:var(--cream)] px-5 py-2.5 rounded-sm transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <Button type="submit" disabled={savingAddress}>
+                            {savingAddress ? "Saving..." : "Save Address"}
+                          </Button>
+                        </div>
+                      </form>
+                    </div>
+                  ) : addresses.length === 0 ? (
+                    <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/20 p-10 text-center">
+                      <p className="font-display italic text-2xl text-[color:var(--muted-foreground)]">
+                        No saved addresses found.
+                      </p>
+                      <button
+                        onClick={() => setShowAddForm(true)}
+                        className="mt-4 inline-block story-link font-mono text-xs uppercase tracking-[0.2em] cursor-pointer"
+                      >
+                        + Add Your First Address
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      {addresses.map((a) => (
+                        <div key={a._id} className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-6 flex flex-col justify-between min-h-[180px] rounded-sm hover:border-[color:var(--earth)] transition-all">
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-start">
+                              <h3 className="font-display text-2xl leading-tight text-[color:var(--ink)]">{a.name}</h3>
+                              <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[color:var(--muted-foreground)]">Saved</span>
+                            </div>
+                            <p className="font-mono text-xs text-[color:var(--muted-foreground)]">{a.phone}</p>
+                            <p className="font-mono text-xs text-[color:var(--ink)] leading-relaxed mt-2">
+                              {a.address}, {a.city}, {a.state} - {a.pin}
+                            </p>
+                          </div>
+                          <div className="border-t border-[color:var(--border)] pt-4 mt-6 flex justify-end">
+                            <button
+                              onClick={() => handleDeleteAddress(a._id)}
+                              className="font-mono text-[10px] text-red-600 hover:underline tracking-[0.15em] uppercase cursor-pointer"
+                            >
+                              Delete Address
+                            </button>
                           </div>
                         </div>
                       ))}

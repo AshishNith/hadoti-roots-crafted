@@ -116,7 +116,13 @@ function RootComponent() {
   const setUser = useAuth((s) => s.setUser);
 
   useEffect(() => {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured) {
+      const mockUser = useAuth.getState().user;
+      if (mockUser) {
+        syncUser(mockUser).catch((err) => console.error("Failed to sync mock user to MongoDB:", err));
+      }
+      return;
+    }
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {

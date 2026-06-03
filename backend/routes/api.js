@@ -123,6 +123,67 @@ router.post("/users/sync", async (req, res) => {
   }
 });
 
+// GET saved addresses for a user
+router.get("/users/:uid/addresses", async (req, res) => {
+  try {
+    const user = await User.findOne({ uid: req.params.uid });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.addresses || []);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST add a saved address
+router.post("/users/:uid/addresses", async (req, res) => {
+  try {
+    const { name, phone, address, city, state, pin } = req.body;
+    if (!name || !phone || !address || !city || !state || !pin) {
+      return res.status(400).json({ message: "Incomplete address details" });
+    }
+    const user = await User.findOne({ uid: req.params.uid });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    // Avoid duplicates
+    const isDuplicate = user.addresses.some(
+      (addr) =>
+        addr.name === name &&
+        addr.phone === phone &&
+        addr.address === address &&
+        addr.city === city &&
+        addr.state === state &&
+        addr.pin === pin
+    );
+    
+    if (!isDuplicate) {
+      user.addresses.push({ name, phone, address, city, state, pin });
+      await user.save();
+    }
+    res.status(201).json(user.addresses);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// DELETE a saved address
+router.delete("/users/:uid/addresses/:addressId", async (req, res) => {
+  try {
+    const user = await User.findOne({ uid: req.params.uid });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    user.addresses.pull(req.params.addressId);
+    await user.save();
+    res.status(200).json(user.addresses);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // POST create order
 router.post("/orders", async (req, res) => {
   try {
@@ -143,6 +204,36 @@ router.post("/orders", async (req, res) => {
       paymentStatus: paymentMethod === "cod" ? "cod" : "paid",
     });
     await newOrder.save();
+
+    // Auto-save address to user profile if not duplicates
+    try {
+      const user = await User.findOne({ uid: userUid });
+      if (user) {
+        const isDuplicate = user.addresses.some(
+          (addr) =>
+            addr.name === shippingAddress.name &&
+            addr.phone === shippingAddress.phone &&
+            addr.address === shippingAddress.address &&
+            addr.city === shippingAddress.city &&
+            addr.state === shippingAddress.state &&
+            addr.pin === shippingAddress.pin
+        );
+        if (!isDuplicate) {
+          user.addresses.push({
+            name: shippingAddress.name,
+            phone: shippingAddress.phone,
+            address: shippingAddress.address,
+            city: shippingAddress.city,
+            state: shippingAddress.state,
+            pin: shippingAddress.pin,
+          });
+          await user.save();
+        }
+      }
+    } catch (addrErr) {
+      console.error("Auto-save address on checkout error:", addrErr);
+    }
+
     res.status(201).json(newOrder);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -204,12 +295,13 @@ router.get("/reviews/product/:slug", async (req, res) => {
 // POST create review
 router.post("/reviews", async (req, res) => {
   try {
-    const { productSlug, userName, rating, comment } = req.body;
-    if (!productSlug || !userName || !rating || !comment) {
+    const { productSlug, userUid, userName, rating, comment } = req.body;
+    if (!productSlug || !userUid || !userName || !rating || !comment) {
       return res.status(400).json({ message: "Incomplete review details" });
     }
     const newReview = new Review({
       productSlug,
+      userUid,
       userName,
       rating,
       comment,

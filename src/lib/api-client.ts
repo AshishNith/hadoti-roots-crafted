@@ -126,11 +126,38 @@ export async function getProductReviews(slug: string): Promise<any[]> {
 
 export async function createProductReview(reviewData: {
   productSlug: string;
+  userUid: string;
   userName: string;
   rating: number;
   comment: string;
 }): Promise<any> {
   return postOrThrow<any>(`${API_BASE_URL}/reviews`, reviewData);
+}
+
+export async function getUserAddresses(uid: string): Promise<any[]> {
+  return fetchOrThrow<any[]>(`${API_BASE_URL}/users/${uid}/addresses`);
+}
+
+export async function addUserAddress(uid: string, addressData: {
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  pin: string;
+}): Promise<any[]> {
+  return postOrThrow<any[]>(`${API_BASE_URL}/users/${uid}/addresses`, addressData);
+}
+
+export async function deleteUserAddress(uid: string, addressId: string): Promise<any[]> {
+  const url = `${API_BASE_URL}/users/${uid}/addresses/${addressId}`;
+  const res = await fetch(url, {
+    method: "DELETE",
+  });
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status} from ${url}`);
+  }
+  return (await res.json()) as any[];
 }
 
 

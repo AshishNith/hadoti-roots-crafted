@@ -9,6 +9,7 @@ import {
   User as FirebaseUser
 } from "firebase/auth";
 import { auth, isFirebaseConfigured } from "./firebase";
+import { syncUser } from "./api-client";
 
 export interface AuthUser {
   uid: string;
@@ -67,6 +68,7 @@ export const useAuth = create<AuthState>((set) => ({
       if (typeof window !== "undefined") {
         localStorage.setItem("hadoti_farms_mock_user", JSON.stringify(mockUser));
       }
+      syncUser(mockUser).catch((err) => console.error("Failed to sync mock user to MongoDB:", err));
       set({ user: mockUser, loading: false });
       return;
     }
@@ -106,6 +108,7 @@ export const useAuth = create<AuthState>((set) => ({
       if (typeof window !== "undefined") {
         localStorage.setItem("hadoti_farms_mock_user", JSON.stringify(mockUser));
       }
+      syncUser(mockUser).catch((err) => console.error("Failed to sync mock user to MongoDB:", err));
       set({ user: mockUser, loading: false });
       return;
     }
@@ -143,6 +146,7 @@ export const useAuth = create<AuthState>((set) => ({
       if (typeof window !== "undefined") {
         localStorage.setItem("hadoti_farms_mock_user", JSON.stringify(mockUser));
       }
+      syncUser(mockUser).catch((err) => console.error("Failed to sync mock user to MongoDB:", err));
       set({ user: mockUser, loading: false });
       return;
     }
