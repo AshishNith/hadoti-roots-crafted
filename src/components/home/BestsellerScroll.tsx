@@ -18,7 +18,9 @@ export function BestsellerScroll() {
   }, []);
 
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia();
+
+    mm.add("(min-width: 768px)", () => {
       const tr = track.current!;
       const distance = tr.scrollWidth - window.innerWidth + 80;
       gsap.to(tr, {
@@ -33,14 +35,20 @@ export function BestsellerScroll() {
           invalidateOnRefresh: true,
         },
       });
-    }, root);
-    return () => ctx.revert();
+    });
+
+    mm.add("(max-width: 767px)", () => {
+      // Clean up properties so native CSS touch scrolling operates smoothly
+      gsap.set(track.current, { clearProps: "all" });
+    });
+
+    return () => mm.revert();
   }, [data]);
 
   const items = data.slice(0, 6);
 
   return (
-    <section ref={root} className="relative bg-[color:var(--bg)] py-24 overflow-hidden">
+    <section ref={root} className="relative bg-[color:var(--bg)] py-16 md:py-24 overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 mb-12 flex items-end justify-between">
         <h2 className="font-display text-5xl md:text-6xl leading-[1] max-w-md">
           Most <span className="italic text-[color:var(--earth)]">loved.</span>
@@ -50,13 +58,13 @@ export function BestsellerScroll() {
         </p>
       </div>
 
-      <div ref={track} className="flex gap-6 pl-6 lg:pl-10 will-change-transform">
+      <div ref={track} className="flex gap-6 pl-6 lg:pl-10 overflow-x-auto md:overflow-x-visible pb-6 md:pb-0 scrollbar-none snap-x snap-mandatory will-change-transform">
         {items.map((p, i) => (
           <Link
             key={p.slug}
             to="/product/$slug"
             params={{ slug: p.slug }}
-            className="group relative shrink-0 w-[320px] md:w-[380px]"
+            className="group relative shrink-0 w-[290px] sm:w-[320px] md:w-[380px] snap-start"
           >
             <div className="relative h-[420px] zoom-frame">
               <div

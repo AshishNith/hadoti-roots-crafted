@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { Button } from "@/components/ui/HFButton";
 import { toast } from "sonner";
+import { jsPDF } from "jspdf";
 import { getUserOrders, getSavedBlends } from "@/lib/api-client";
 import { 
   ArrowLeft, 
@@ -31,6 +32,67 @@ function AccountPage() {
   const [blends, setBlends] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "blends">("dashboard");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+
+  // Parse active prepaid subscriptions from orders
+  const activeSubscriptions: any[] = [];
+  orders.forEach((order) => {
+    if (order.status === "cancelled") return;
+    order.items.forEach((item: any) => {
+      const nameLower = item.name.toLowerCase();
+      const customLower = (item.customization || "").toLowerCase();
+      if (
+        nameLower.includes("ration box") &&
+        (customLower.includes("prepaid plan") || customLower.includes("subscription"))
+      ) {
+        let months = 1;
+        if (customLower.includes("3-month")) months = 3;
+        else if (customLower.includes("6-month")) months = 6;
+        else if (customLower.includes("12-month")) months = 12;
+
+        const orderDate = new Date(order.createdAt);
+        const endDate = new Date(orderDate);
+        endDate.setMonth(endDate.getMonth() + months);
+
+        const today = new Date();
+        const isActive = today < endDate;
+
+        let nextDelivery: Date | null = null;
+        if (isActive) {
+          const next = new Date(orderDate);
+          for (let i = 1; i <= months; i++) {
+            next.setMonth(orderDate.getMonth() + i);
+            if (next > today) {
+              nextDelivery = next;
+              break;
+            }
+          }
+        }
+
+        let currentBox = months;
+        if (isActive && nextDelivery) {
+          const monthsPassed = Math.floor(
+            (today.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24 * 30.4)
+          );
+          currentBox = Math.min(months, Math.max(1, monthsPassed + 1));
+        }
+
+        activeSubscriptions.push({
+          itemId: item.id,
+          orderNumber: order.orderNumber,
+          name: item.name,
+          customization: item.customization,
+          weight: item.weight,
+          price: item.price,
+          orderDate,
+          endDate,
+          nextDelivery,
+          currentBox,
+          months,
+          isActive,
+        });
+      }
+    });
+  });
 
   useEffect(() => {
     if (user) {
@@ -198,22 +260,73 @@ function AccountPage() {
                   </div>
 
                   {/* Subscriptions */}
-                  <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-8">
-                    <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                  <div className="border border-[color:var(--border)] bg-[color:var(--cream)]/40 p-8 space-y-6">
+                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[color:var(--border)] pb-4">
                       <h3 className="font-display text-3xl">Active Subscriptions</h3>
                       <span className="font-mono text-xs text-[color:var(--earth)] uppercase tracking-[0.15em]">
                         Hadoti Ration Box
                       </span>
                     </div>
-                    <p className="text-sm text-[color:var(--muted-foreground)] max-w-xl leading-relaxed">
-                      Your customized monthly supply (Medium Box - 5kg) of pesticide-free stone-ground grains, heritage dals, and sun-dried chillies is scheduled to ship on June 5, 2026.
-                    </p>
-                    <Link
-                      to="/customize/ration-box"
-                      className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em]"
-                    >
-                      Manage Subscription →
-                    </Link>
+
+                    {activeSubscriptions.length > 0 ? (
+                      <div className="space-y-6">
+                        {activeSubscriptions.map((sub, index) => (
+                          <div key={index} className="border border-[color:var(--border)] bg-[color:var(--cream)] p-6 relative">
+                            {sub.isActive ? (
+                              <span className="absolute top-4 right-4 font-mono text-[9px] uppercase tracking-[0.12em] bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-sm">
+                                Active
+                              </span>
+                            ) : (
+                              <span className="absolute top-4 right-4 font-mono text-[9px] uppercase tracking-[0.12em] bg-gray-50 text-gray-500 border border-gray-100 px-2 py-0.5 rounded-sm">
+                                Completed
+                              </span>
+                            )}
+
+                            <div className="font-display text-2xl">{sub.name}</div>
+                            <div className="font-mono text-[10px] text-[color:var(--muted-foreground)] mt-1">
+                              Ordered in: {sub.orderNumber} · {sub.orderDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                            </div>
+
+                            <p className="font-mono text-xs text-[color:var(--muted-foreground)] bg-[color:var(--bg)] p-3 border border-[color:var(--border)] mt-4 leading-relaxed">
+                              {sub.customization}
+                            </p>
+
+                            <div className="grid sm:grid-cols-3 gap-4 font-mono text-xs border-t border-[color:var(--border)] pt-4 mt-4">
+                              <div>
+                                <span className="text-[color:var(--muted-foreground)] block mb-0.5">PLAN PERIOD</span>
+                                <span className="font-semibold text-[color:var(--ink)]">
+                                  {sub.orderDate.toLocaleDateString("en-IN", { month: "short", year: "numeric" })} – {sub.endDate.toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[color:var(--muted-foreground)] block mb-0.5">STATUS</span>
+                                <span className="font-semibold text-[color:var(--ink)]">
+                                  {sub.isActive ? `Box ${sub.currentBox} of ${sub.months}` : "All delivered"}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[color:var(--muted-foreground)] block mb-0.5">NEXT DISPATCH</span>
+                                <span className="font-semibold text-[color:var(--earth)]">
+                                  {sub.nextDelivery ? sub.nextDelivery.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Finished"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-sm text-[color:var(--muted-foreground)] max-w-xl leading-relaxed">
+                          You don't have any active subscription plans. Build your customized monthly ration box and select a 3, 6, or 12-month prepaid plan to lock in up to 15% off and secure your farm-direct supply.
+                        </p>
+                        <Link
+                          to="/customize/ration-box"
+                          className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em]"
+                        >
+                          Build Your Box & Subscribe →
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -480,7 +593,218 @@ function OrderDetail({ order, onBack }: { order: any; onBack: () => void }) {
   ];
 
   const handleDownloadInvoice = () => {
-    toast.success(`Invoice receipt HF-${order.orderNumber}.pdf downloaded successfully!`);
+    try {
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // Set standard colors
+      const colorInk = "#1C1A16";
+      const colorEarth = "#8B5E3C";
+      const colorMuted = "#6b655c";
+
+      // 1. Header (Brand Name & Tagline)
+      doc.setFont("times", "bold");
+      doc.setFontSize(26);
+      doc.setTextColor(colorInk);
+      doc.text("HADOTI FARMS", 20, 25);
+
+      doc.setFont("times", "italic");
+      doc.setFontSize(10);
+      doc.setTextColor(colorEarth);
+      doc.text("Organically Grown, Stone-Ground & Traceable", 20, 30);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(colorMuted);
+      doc.text("Bundi & Kota Soil Cooperatives, Rajasthan, India", 20, 35);
+      doc.text("www.hadotifarms.com | support@hadotifarms.com", 20, 39);
+
+      // 2. Right Side Header (Receipt details)
+      doc.setFont("times", "bold");
+      doc.setFontSize(18);
+      doc.setTextColor(colorInk);
+      doc.text("INVOICE RECEIPT", 190, 25, { align: "right" });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(colorMuted);
+      doc.text(`Receipt #: HF-${order.orderNumber}`, 190, 30, { align: "right" });
+      doc.text(
+        `Date: ${new Date(order.createdAt).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })}`,
+        190,
+        35,
+        { align: "right" }
+      );
+
+      // Divider line
+      doc.setDrawColor(217, 210, 196); // border color #d9d2c4
+      doc.setLineWidth(0.4);
+      doc.line(20, 44, 190, 44);
+
+      // 3. Billing & Shipping Address (Left) and Payment Info (Right)
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(colorEarth);
+      doc.text("DELIVERED TO:", 20, 53);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.5);
+      doc.setTextColor(colorInk);
+      doc.text(order.shippingAddress.name, 20, 59);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(colorMuted);
+
+      // Render shipping address lines
+      const fullAddress = `${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.pin}`;
+      const addressLines = doc.splitTextToSize(fullAddress, 75);
+      let addressY = 64;
+      addressLines.forEach((line: string) => {
+        doc.text(line, 20, addressY);
+        addressY += 4.5;
+      });
+      doc.text(`Phone: ${order.shippingAddress.phone}`, 20, addressY);
+
+      // Payment details on right
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(colorEarth);
+      doc.text("PAYMENT INFORMATION:", 115, 53);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(colorInk);
+      doc.text(`Payment Method: ${order.paymentMethod.toUpperCase()}`, 115, 59);
+      doc.text(`Transaction Status: ${order.paymentStatus.toUpperCase()}`, 115, 63.5);
+      doc.text(`Order Status: ${order.status.toUpperCase()}`, 115, 68);
+
+      // 4. Items Table Header
+      let tableY = Math.max(addressY + 12, 78);
+
+      // Draw table header background
+      doc.setFillColor(237, 232, 220); // Cream color #EDE8DC
+      doc.rect(20, tableY, 170, 8, "F");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(colorInk);
+      doc.text("PRODUCT NAME", 24, tableY + 5.5);
+      doc.text("SPECIFICATIONS / CUSTOMIZATION", 80, tableY + 5.5);
+      doc.text("QTY", 148, tableY + 5.5, { align: "right" });
+      doc.text("PRICE", 168, tableY + 5.5, { align: "right" });
+      doc.text("TOTAL", 186, tableY + 5.5, { align: "right" });
+
+      tableY += 8;
+
+      // Render rows
+      order.items.forEach((item: any) => {
+        let nameY = tableY + 6;
+        let specsY = tableY + 6;
+
+        // Product Name
+        doc.setFont("times", "bold");
+        doc.setFontSize(10.5);
+        doc.setTextColor(colorInk);
+        const nameLines = doc.splitTextToSize(item.name, 52);
+        nameLines.forEach((line: string) => {
+          doc.text(line, 24, nameY);
+          nameY += 4.5;
+        });
+
+        // Specifications
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(colorMuted);
+        doc.text(`Pouch Size: ${item.weight}`, 80, specsY);
+        specsY += 4;
+
+        if (item.customization) {
+          const customLines = doc.splitTextToSize(item.customization, 62);
+          customLines.forEach((line: string) => {
+            doc.text(line, 80, specsY);
+            specsY += 3.5;
+          });
+        }
+
+        // Qty, Price, Total aligning center vertically
+        const rowHeight = Math.max(nameY - tableY, specsY - tableY) + 3;
+        const middleY = tableY + rowHeight / 2 + 1;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(colorInk);
+        doc.text(String(item.qty), 148, middleY, { align: "right" });
+        doc.text(`₹${item.price}`, 168, middleY, { align: "right" });
+        doc.text(`₹${item.price * item.qty}`, 186, middleY, { align: "right" });
+
+        // Row Separator Line
+        doc.setDrawColor(217, 210, 196);
+        doc.setLineWidth(0.2);
+        doc.line(20, tableY + rowHeight, 190, tableY + rowHeight);
+
+        tableY += rowHeight;
+      });
+
+      // 5. Pricing summary block
+      tableY += 8;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(colorMuted);
+      doc.text("Subtotal:", 148, tableY, { align: "right" });
+      doc.text(`₹${order.subtotal}`, 186, tableY, { align: "right" });
+
+      tableY += 5;
+      doc.text("Eco-Shipping:", 148, tableY, { align: "right" });
+      doc.text(order.deliveryFee === 0 ? "FREE" : `₹${order.deliveryFee}`, 186, tableY, { align: "right" });
+
+      tableY += 5;
+      doc.text("GST (Included):", 148, tableY, { align: "right" });
+      doc.text("₹0.00", 186, tableY, { align: "right" });
+
+      tableY += 7;
+      doc.setDrawColor(217, 210, 196);
+      doc.setLineWidth(0.4);
+      doc.line(115, tableY - 4, 190, tableY - 4);
+
+      doc.setFont("times", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(colorInk);
+      doc.text("Grand Total:", 148, tableY, { align: "right" });
+      doc.text(`₹${order.total}`, 186, tableY, { align: "right" });
+
+      // 6. Footer Heritage Note (Bottom of Page)
+      const footerY = 265;
+      doc.setDrawColor(217, 210, 196);
+      doc.setLineWidth(0.3);
+      doc.line(20, footerY - 5, 190, footerY - 5);
+
+      doc.setFont("times", "italic");
+      doc.setFontSize(10);
+      doc.setTextColor(colorEarth);
+      doc.text("Thank you for choosing Hadoti Farms.", 105, footerY, { align: "center" });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(colorMuted);
+      doc.text("Every grain is slow-cleaned by hand, supporting smallholder farmers in Rajasthan.", 105, footerY + 4, { align: "center" });
+      doc.text("Certified pesticide-free. Trace your batch via www.hadotifarms.com/standards", 105, footerY + 8, { align: "center" });
+
+      // Save PDF document
+      doc.save(`Invoice-HF-${order.orderNumber}.pdf`);
+      toast.success(`Invoice receipt HF-${order.orderNumber}.pdf downloaded successfully!`);
+    } catch (error) {
+      console.error("Failed to generate PDF:", error);
+      toast.error("Failed to generate PDF receipt. Please try again.");
+    }
   };
 
   return (

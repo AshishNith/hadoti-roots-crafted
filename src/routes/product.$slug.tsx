@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Star } from "lucide-react";
 import { formatINR, imageFor } from "@/lib/data";
-import { getProductBySlug } from "@/lib/api-client";
+import { getProductBySlug, getProductReviews, createProductReview } from "@/lib/api-client";
 import { Button } from "@/components/ui/HFButton";
 import { QuantityControl } from "@/components/ui/QuantityControl";
 import { useCart } from "@/lib/store";
@@ -66,8 +67,75 @@ function ProductPage() {
   const { product } = Route.useLoaderData() as any;
   const [weight, setWeight] = useState(product.weight);
   const [qty, setQty] = useState(1);
-  const [tab, setTab] = useState<"desc" | "nutri" | "farm" | "rev">("desc");
+  const [tab, setTab] = useState<"desc" | "nutri" | "farm">("desc");
   const add = useCart((s) => s.add);
+
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewName, setReviewName] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    async function loadReviews() {
+      setReviewsLoading(true);
+      try {
+        const data = await getProductReviews(product.slug);
+        if (active) {
+          setReviews(data);
+        }
+      } catch (err) {
+        console.error("Failed to load reviews:", err);
+      } finally {
+        if (active) {
+          setReviewsLoading(false);
+        }
+      }
+    }
+    loadReviews();
+    return () => {
+      active = false;
+    };
+  }, [product.slug]);
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewName.trim() || !reviewComment.trim()) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+    setSubmittingReview(true);
+    try {
+      const newReview = await createProductReview({
+        productSlug: product.slug,
+        userName: reviewName.trim(),
+        rating: reviewRating,
+        comment: reviewComment.trim(),
+      });
+      toast.success("Review submitted successfully!");
+      setReviews((prev) => [newReview, ...prev]);
+      setReviewName("");
+      setReviewRating(5);
+      setReviewComment("");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit review. Please try again.");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const avgRating = reviews.length > 0
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+    : null;
+
+  const distribution = [5, 4, 3, 2, 1].map((stars) => {
+    const count = reviews.filter((r) => r.rating === stars).length;
+    const pct = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+    return { stars, count, pct };
+  });
 
   const [gluten, setGluten] = useState<"free" | "low" | "regular">("regular");
   const [carbs, setCarbs] = useState<"low" | "medium" | "fiber">("medium");
@@ -267,7 +335,7 @@ function ProductPage() {
                 {weights.length > 0 && (
                   <div className="mt-8">
                     <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-3">Weight</div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {weights.map((w) => (
                         <button
                           key={w}
@@ -308,7 +376,7 @@ function ProductPage() {
                       <h3 className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4 text-[color:var(--earth)]">
                         Grind Texture
                       </h3>
-                      <div className="flex gap-2">
+                      <div className="grid grid-cols-2 gap-2">
                         {[
                           { id: "whole", label: "Whole" },
                           { id: "split", label: "Split" },
@@ -337,7 +405,7 @@ function ProductPage() {
                       <h3 className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4 text-[color:var(--earth)]">
                         Grind Style
                       </h3>
-                      <div className="flex gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {grindStyles.map((g) => (
                           <button
                             key={g.id}
@@ -371,7 +439,7 @@ function ProductPage() {
               </>
             )}
 
-            <div className="mt-8 grid grid-cols-3 gap-4 border-t border-[color:var(--border)] pt-6">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-[color:var(--border)] pt-6">
               {["Farm Direct", "No Pesticides", "Ships in 3 days"].map((t) => (
                 <div key={t} className="font-mono text-[10px] uppercase tracking-[0.18em] text-center text-[color:var(--muted-foreground)]">
                   {t}
@@ -383,17 +451,16 @@ function ProductPage() {
 
         {/* Tabs */}
         <div className="mt-32">
-          <div className="flex gap-8 border-b border-[color:var(--border)]">
+          <div className="flex gap-8 border-b border-[color:var(--border)] overflow-x-auto scrollbar-none whitespace-nowrap">
             {[
               ["desc", "Description"],
               ["nutri", "Nutrition"],
               ["farm", "Farm Source"],
-              ["rev", "Reviews"],
             ].map(([id, label]) => (
               <button
                 key={id}
                 onClick={() => setTab(id as typeof tab)}
-                className={`font-mono text-xs uppercase tracking-[0.2em] pb-4 -mb-px border-b-2 ${
+                className={`font-mono text-xs uppercase tracking-[0.2em] pb-4 -mb-px border-b-2 shrink-0 ${
                   tab === id ? "border-[color:var(--earth)] text-[color:var(--ink)]" : "border-transparent text-[color:var(--muted-foreground)]"
                 }`}
               >
@@ -405,7 +472,190 @@ function ProductPage() {
             {tab === "desc" && <p>{product.shortDesc} Slow-cleaned by hand, packed in jute-lined kraft, shipped within three days of order.</p>}
             {tab === "nutri" && <p>High in plant protein, naturally gluten-free, no additives or preservatives. Detailed nutrition panel inside the pack.</p>}
             {tab === "farm" && <p>Sourced from farmer collectives across Bundi and Kota — every batch traceable to its season and field.</p>}
-            {tab === "rev" && <p>4.9 ★ across 248 reviews. "Tastes like home." — Aarti M., Bengaluru.</p>}
+          </div>
+        </div>
+
+        {/* Dedicated Customer Reviews Section */}
+        <div className="mt-24 border-t border-[color:var(--border)] pt-16">
+          <div className="mb-12 text-left">
+            <h2 className="font-display text-4xl md:text-5xl">
+              Customer <span className="italic text-[color:var(--earth)]">Reviews</span>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-12 gap-12 mt-4 items-start text-left">
+            {/* Summary & Reviews List */}
+            <div className="md:col-span-7 space-y-8">
+              {/* Summary Section */}
+              <div className="border border-[color:var(--border)] bg-[color:var(--cream)] p-6 rounded-sm flex flex-col sm:flex-row justify-between items-center sm:items-stretch gap-6">
+                {/* Average rating */}
+                <div className="flex flex-col justify-center items-center sm:items-start shrink-0">
+                  <span className="font-display text-6xl font-medium text-[color:var(--ink)]">
+                    {avgRating ?? "0.0"}
+                  </span>
+                  <div className="flex items-center gap-0.5 text-[color:var(--gold)] mt-2">
+                    {Array.from({ length: 5 }).map((_, idx) => {
+                      const starVal = idx + 1;
+                      const ratingNum = avgRating ? parseFloat(avgRating) : 0;
+                      const isFull = ratingNum >= starVal;
+                      return (
+                        <Star
+                          key={idx}
+                          size={18}
+                          fill={isFull ? "currentColor" : "none"}
+                          stroke="currentColor"
+                          strokeWidth={isFull ? 0 : 1}
+                          className={isFull ? "text-[color:var(--gold)]" : "text-[color:var(--muted-foreground)]"}
+                        />
+                      );
+                    })}
+                  </div>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-[color:var(--muted-foreground)] mt-3">
+                    Based on {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
+                  </span>
+                </div>
+
+                {/* Distribution bars */}
+                <div className="flex-1 space-y-2 max-w-xs w-full flex flex-col justify-center">
+                  {distribution.map(({ stars, count, pct }) => (
+                    <div key={stars} className="flex items-center gap-3 text-xs font-mono text-[color:var(--muted-foreground)]">
+                      <span className="w-8 text-right">{stars} ★</span>
+                      <div className="flex-grow h-2 bg-[color:var(--bg)] border border-[color:var(--border)] rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[color:var(--earth)] transition-all duration-500"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className="w-6 text-left">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reviews List */}
+              <div className="space-y-6">
+                <h3 className="font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--earth)] border-b border-[color:var(--border)] pb-2">
+                  Recent Reviews ({reviews.length})
+                </h3>
+                {reviewsLoading ? (
+                  <div className="py-10 text-center font-mono text-xs uppercase tracking-[0.2em] text-[color:var(--muted-foreground)] animate-pulse">
+                    Loading reviews...
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <div className="py-12 text-center font-display italic text-lg text-[color:var(--muted-foreground)] border border-dashed border-[color:var(--border)] rounded-sm">
+                    No reviews yet. Be the first to share your thoughts on this product.
+                  </div>
+                ) : (
+                  <div className="divide-y divide-[color:var(--border)]">
+                    {reviews.map((r, i) => (
+                      <div key={r._id || i} className={`${i > 0 ? "pt-6" : ""} pb-6 space-y-3`}>
+                        <div className="flex items-center justify-between">
+                          <div className="font-mono text-xs uppercase tracking-[0.15em] text-[color:var(--ink)] font-bold">
+                            {r.userName}
+                          </div>
+                          <div className="font-mono text-[10px] text-[color:var(--muted-foreground)]">
+                            {r.createdAt ? new Date(r.createdAt).toLocaleDateString("en-IN", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }) : "Just now"}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-0.5 text-[color:var(--gold)]">
+                          {Array.from({ length: 5 }).map((_, idx) => (
+                            <Star
+                              key={idx}
+                              size={12}
+                              fill={idx < r.rating ? "currentColor" : "none"}
+                              stroke="currentColor"
+                              strokeWidth={idx < r.rating ? 0 : 1}
+                              className={idx < r.rating ? "text-[color:var(--gold)]" : "text-[color:var(--border)]"}
+                            />
+                          ))}
+                        </div>
+                        <p className="font-body text-sm leading-relaxed text-[color:var(--ink)]/90">
+                          {r.comment}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Review Form */}
+            <div className="md:col-span-5 md:sticky md:top-36">
+              <div className="border border-[color:var(--border)] bg-[color:var(--cream)] p-6 rounded-sm">
+                <h3 className="font-display text-2xl mb-4 text-[color:var(--ink)]">
+                  Write a Review
+                </h3>
+                <form onSubmit={handleSubmitReview} className="space-y-4">
+                  <div>
+                    <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--muted-foreground)] mb-2">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter your name"
+                      value={reviewName}
+                      onChange={(e) => setReviewName(e.target.value)}
+                      className="w-full bg-[color:var(--bg)] border border-[color:var(--border)] rounded-sm px-4 py-2.5 font-body text-sm text-[color:var(--ink)] focus:outline-none focus:border-[color:var(--earth)] transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--muted-foreground)] mb-2">
+                      Rating
+                    </label>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: 5 }).map((_, idx) => {
+                        const ratingVal = idx + 1;
+                        const isFilled = ratingVal <= reviewRating;
+                        return (
+                          <button
+                            type="button"
+                            key={idx}
+                            onClick={() => setReviewRating(ratingVal)}
+                            className="p-1 -ml-1 transition-transform hover:scale-110 focus:outline-none cursor-pointer"
+                          >
+                            <Star
+                              size={22}
+                              fill={isFilled ? "currentColor" : "none"}
+                              stroke="currentColor"
+                              strokeWidth={isFilled ? 0 : 1}
+                              className={isFilled ? "text-[color:var(--gold)]" : "text-[color:var(--muted-foreground)]"}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--muted-foreground)] mb-2">
+                      Comments
+                    </label>
+                    <textarea
+                      required
+                      rows={4}
+                      placeholder="Share your experience with this product..."
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      className="w-full bg-[color:var(--bg)] border border-[color:var(--border)] rounded-sm px-4 py-2.5 font-body text-sm text-[color:var(--ink)] focus:outline-none focus:border-[color:var(--earth)] transition-colors resize-none"
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full justify-center"
+                    disabled={submittingReview}
+                  >
+                    {submittingReview ? "Submitting..." : "Submit Review"}
+                  </Button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>

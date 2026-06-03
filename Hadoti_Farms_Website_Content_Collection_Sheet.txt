@@ -409,7 +409,7 @@ This is the interactive flour ratio blender page (presets, sliders, grind and st
     Write Your Text Here: 
 
 65. Delivery Selection Choices
-    Current Text: One-time delivery (Order this box once) · Monthly subscription (Save 8%. Edit or pause anytime)
+    Current Text: One-time delivery (Standard price) · 3-Month Prepaid Plan (Save 5%) · 6-Month Prepaid Plan (Save 10%) · 12-Month Prepaid Plan (Save 15%)
     Write Your Text Here: 
 
 --------------------------------------------------------------------------------

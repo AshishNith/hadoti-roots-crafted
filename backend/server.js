@@ -12,8 +12,21 @@ connectDB();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-ms-client-request-id'],
+  credentials: true,
+  optionsSuccessStatus: 204
+}));
+
+app.use((req, res, next) => {
+  console.log(`[CORS Check] ${req.method} ${req.url} from ${req.headers.origin || 'unknown'}`);
+  next();
+});
+
 app.use(express.json());
 
 // Routes

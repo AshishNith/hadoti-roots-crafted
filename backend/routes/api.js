@@ -8,6 +8,7 @@ import DalOption from "../models/DalOption.js";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
 import CustomBlend from "../models/CustomBlend.js";
+import Review from "../models/Review.js";
 
 const router = express.Router();
 
@@ -185,6 +186,36 @@ router.get("/blends/user/:uid", async (req, res) => {
   try {
     const blends = await CustomBlend.find({ userUid: req.params.uid }).sort({ createdAt: -1 });
     res.json(blends);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET reviews for a product
+router.get("/reviews/product/:slug", async (req, res) => {
+  try {
+    const reviews = await Review.find({ productSlug: req.params.slug }).sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST create review
+router.post("/reviews", async (req, res) => {
+  try {
+    const { productSlug, userName, rating, comment } = req.body;
+    if (!productSlug || !userName || !rating || !comment) {
+      return res.status(400).json({ message: "Incomplete review details" });
+    }
+    const newReview = new Review({
+      productSlug,
+      userName,
+      rating,
+      comment,
+    });
+    await newReview.save();
+    res.status(201).json(newReview);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

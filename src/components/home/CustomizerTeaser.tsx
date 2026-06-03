@@ -29,10 +29,11 @@ export function CustomizerTeaser() {
   const root = useRef<HTMLElement>(null);
 
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia();
+
+    mm.add("(min-width: 768px)", () => {
       gsap.set("[data-panel]", { opacity: 0, y: 80 });
       gsap.set("[data-teaser-progress]", { transformOrigin: "top", scaleY: 0 });
-      gsap.set("[data-teaser-progress-mobile]", { transformOrigin: "left", scaleX: 0 });
 
       gsap.timeline({
         scrollTrigger: {
@@ -44,18 +45,23 @@ export function CustomizerTeaser() {
         },
       })
         .to("[data-teaser-progress]", { scaleY: 1, ease: "none" }, 0)
-        .to("[data-teaser-progress-mobile]", { scaleX: 1, ease: "none" }, 0)
         .to("[data-panel='0']", { opacity: 1, y: 0 }, 0)
         .to("[data-panel='0']", { opacity: 0, y: -80 }, 1)
         .to("[data-panel='1']", { opacity: 1, y: 0 }, 1)
         .to("[data-panel='1']", { opacity: 0, y: -80 }, 2)
         .to("[data-panel='2']", { opacity: 1, y: 0 }, 2);
-    }, root);
-    return () => ctx.revert();
+    });
+
+    mm.add("(max-width: 767px)", () => {
+      // Reset panel styles for mobile to let them flow naturally
+      gsap.set("[data-panel]", { opacity: 1, y: 0, clearProps: "all" });
+    });
+
+    return () => mm.revert();
   }, []);
 
   return (
-    <section ref={root} className="relative h-screen bg-[color:var(--ink)] text-white overflow-hidden">
+    <section ref={root} className="relative min-h-screen md:h-screen bg-[color:var(--ink)] text-white overflow-y-auto md:overflow-hidden py-12 md:py-0">
       <style>{`
         @keyframes spin-slow {
           from { transform: rotate(0deg); }
@@ -73,7 +79,7 @@ export function CustomizerTeaser() {
         }
       `}</style>
       <GrainOverlay opacity={0.12} />
-      <div className="relative h-full grid md:grid-cols-2">
+      <div className="relative h-full flex flex-col md:grid md:grid-cols-2 gap-12 md:gap-0">
         {/* Elegant middle dividing progress bar for desktop */}
         <div className="hidden md:block absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[2px] bg-white/10 z-10">
           <div 
@@ -82,9 +88,9 @@ export function CustomizerTeaser() {
           />
         </div>
 
-        <div className="relative flex items-center px-6 md:px-16 py-16 overflow-hidden">
-          {/* Mobile horizontal progress bar */}
-          <div className="md:hidden absolute bottom-0 left-0 right-0 h-[2px] bg-white/10 z-10">
+        <div className="relative flex items-center px-6 md:px-16 py-6 md:py-16">
+          {/* Mobile horizontal progress bar (hidden since animation is disabled on mobile) */}
+          <div className="hidden absolute bottom-0 left-0 right-0 h-[2px] bg-white/10 z-10">
             <div 
               data-teaser-progress-mobile
               className="absolute top-0 bottom-0 left-0 h-full bg-gradient-to-r from-[color:var(--gold)] to-[color:var(--earth)] origin-left w-full will-change-transform"
@@ -110,7 +116,7 @@ export function CustomizerTeaser() {
           </div>
         </div>
 
-        <div className="relative flex items-center px-6 md:px-16 py-16 overflow-hidden">
+        <div className="relative flex flex-col md:block items-center px-6 md:px-16 py-6 md:py-16 gap-10 md:gap-0">
           {/* Abstract glowing volumetric aura in the background */}
           <div className="absolute right-[-10%] bottom-[-10%] w-[450px] h-[450px] rounded-full bg-[color:var(--gold)]/10 blur-[130px] pointer-events-none" />
           <div className="absolute left-[15%] top-[15%] w-[300px] h-[300px] rounded-full bg-[color:var(--earth)]/12 blur-[100px] pointer-events-none" />
@@ -119,7 +125,7 @@ export function CustomizerTeaser() {
             <div
               key={p.tag}
               data-panel={i}
-              className="absolute inset-0 px-6 md:px-16 flex flex-col md:flex-row items-center gap-12"
+              className="relative md:absolute md:inset-0 px-6 md:px-16 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-12 border border-white/5 md:border-none bg-white/[0.02] md:bg-transparent p-6 md:p-0 rounded-sm w-full"
             >
               <div className="max-w-xs md:max-w-[280px] lg:max-w-md flex-1">
                 <div className="font-mono text-[11px] uppercase tracking-[0.24em] text-[color:var(--gold)] mb-6">

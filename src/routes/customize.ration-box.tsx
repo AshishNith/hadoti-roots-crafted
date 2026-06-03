@@ -17,6 +17,13 @@ const sizes = [
   { id: "l", label: "Large", weight: 8, price: 2099 },
 ];
 
+const plans = [
+  { id: "once", label: "One-time delivery", desc: "Standard ration box delivered once.", discount: 0, months: 1 },
+  { id: "3month", label: "3-Month Prepaid Plan", desc: "3 deliveries (1 per month). Paid upfront.", discount: 0.05, months: 3 },
+  { id: "6month", label: "6-Month Prepaid Plan", desc: "6 deliveries (1 per month). Paid upfront.", discount: 0.10, months: 6 },
+  { id: "12month", label: "12-Month Prepaid Plan", desc: "12 deliveries (1 per month). Paid upfront.", discount: 0.15, months: 12 },
+];
+
 const catalog = [
   { id: "moong", label: "Moong Dal", cat: "Dals", w: 0.5 },
   { id: "urad", label: "Urad Dal", cat: "Dals", w: 0.5 },
@@ -32,12 +39,14 @@ function RationBuilder() {
   const [step, setStep] = useState(0);
   const [size, setSize] = useState(sizes[0]);
   const [picks, setPicks] = useState<Record<string, number>>({});
-  const [sub, setSub] = useState<"once" | "monthly">("monthly");
+  const [sub, setSub] = useState<string>("once");
   const add = useCart((s) => s.add);
 
   const filled = catalog.reduce((s, c) => s + (picks[c.id] ?? 0) * c.w, 0);
   const remaining = Math.max(0, size.weight - filled);
-  const finalPrice = Math.round(size.price * (sub === "monthly" ? 0.92 : 1));
+  
+  const selectedPlan = plans.find((p) => p.id === sub) || plans[0];
+  const finalPrice = Math.round(size.price * selectedPlan.months * (1 - selectedPlan.discount));
 
   const onAdd = () => {
     const summary = Object.entries(picks)
@@ -50,7 +59,7 @@ function RationBuilder() {
       price: finalPrice,
       weight: `${size.weight}kg`,
       qty: 1,
-      customization: `${summary || "Empty box"} · ${sub === "monthly" ? "Monthly" : "One-time"}`,
+      customization: `${summary || "Empty box"} · ${selectedPlan.label}`,
       image: "/images/ration_box.png",
     });
     toast.success("Box added to cart");
@@ -130,21 +139,48 @@ function RationBuilder() {
             )}
             {step === 2 && (
               <div>
-                <h2 className="font-display text-3xl mb-8">Delivery.</h2>
-                <div className="space-y-3">
-                  {[
-                    ["once", "One-time delivery", "Order this box once."],
-                    ["monthly", "Monthly subscription", "Save 8%. Edit or pause anytime."],
-                  ].map(([id, l, d]) => (
-                    <button
-                      key={id}
-                      onClick={() => setSub(id as "once" | "monthly")}
-                      className={`w-full text-left p-6 border ${sub === id ? "border-[color:var(--earth)] bg-[color:var(--cream)]" : "border-[color:var(--border)]"}`}
-                    >
-                      <div className="font-display text-2xl">{l}</div>
-                      <div className="text-sm text-[color:var(--muted-foreground)] mt-1">{d}</div>
-                    </button>
-                  ))}
+                <h2 className="font-display text-3xl mb-8">Delivery Plan</h2>
+                <div className="space-y-4">
+                  {plans.map((p) => {
+                    const priceForPlan = Math.round(size.price * p.months * (1 - p.discount));
+                    const avgMonthly = Math.round(priceForPlan / p.months);
+                    const isSelected = sub === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => setSub(p.id)}
+                        className={`w-full text-left p-6 border transition-all duration-200 relative ${
+                          isSelected
+                            ? "border-[color:var(--earth)] bg-[color:var(--cream)] ring-1 ring-[color:var(--earth)]"
+                            : "border-[color:var(--border)] hover:border-[color:var(--ink)]"
+                        }`}
+                      >
+                        {p.discount > 0 && (
+                          <span className="absolute top-4 right-4 font-mono text-[9px] uppercase tracking-[0.12em] bg-[color:var(--earth)] text-white px-2 py-0.5 rounded-sm">
+                            Save {p.discount * 100}%
+                          </span>
+                        )}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                          <div>
+                            <div className="font-display text-2xl">{p.label}</div>
+                            <div className="text-sm text-[color:var(--muted-foreground)] mt-1">{p.desc}</div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            {p.months > 1 ? (
+                              <>
+                                <div className="font-display text-2xl">{formatINR(priceForPlan)}</div>
+                                <div className="font-mono text-[10px] text-[color:var(--muted-foreground)] mt-0.5">
+                                  {formatINR(avgMonthly)} / month
+                                </div>
+                              </>
+                            ) : (
+                              <div className="font-display text-2xl">{formatINR(priceForPlan)}</div>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -175,10 +211,15 @@ function RationBuilder() {
             <div className="font-mono text-xs text-[color:var(--muted-foreground)] mt-1">{size.weight}kg capacity</div>
             <div className="mt-6 border-t border-[color:var(--border)] pt-4 space-y-2 font-mono text-xs">
               <Row label="Filled" value={`${filled.toFixed(1)}kg`} />
-              <Row label="Delivery" value={sub === "monthly" ? "Monthly · save 8%" : "One-time"} />
+              <Row label="Plan" value={selectedPlan.label} />
+              {selectedPlan.months > 1 && (
+                <Row label="Avg. Monthly" value={`${formatINR(Math.round(finalPrice / selectedPlan.months))}/mo`} />
+              )}
             </div>
             <div className="mt-6 flex items-center justify-between border-t border-[color:var(--border)] pt-4">
-              <span className="font-mono text-[11px] uppercase tracking-[0.22em]">Estimate</span>
+              <span className="font-mono text-[11px] uppercase tracking-[0.22em]">
+                {selectedPlan.months > 1 ? "Upfront Total" : "Estimate"}
+              </span>
               <span className="font-display text-3xl">{formatINR(finalPrice)}</span>
             </div>
           </aside>

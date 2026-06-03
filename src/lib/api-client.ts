@@ -7,7 +7,17 @@ import {
   type DalOption
 } from "./data";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000/api";
+const getApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  if (typeof window !== "undefined" && window.location.hostname) {
+    return `http://${window.location.hostname}:5000/api`;
+  }
+  return "http://127.0.0.1:5000/api";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 async function fetchOrThrow<T>(url: string): Promise<T> {
   const res = await fetch(url);
@@ -108,6 +118,19 @@ export async function saveBlend(blendData: {
 
 export async function getSavedBlends(uid: string): Promise<any[]> {
   return fetchOrThrow<any[]>(`${API_BASE_URL}/blends/user/${uid}`);
+}
+
+export async function getProductReviews(slug: string): Promise<any[]> {
+  return fetchOrThrow<any[]>(`${API_BASE_URL}/reviews/product/${slug}`);
+}
+
+export async function createProductReview(reviewData: {
+  productSlug: string;
+  userName: string;
+  rating: number;
+  comment: string;
+}): Promise<any> {
+  return postOrThrow<any>(`${API_BASE_URL}/reviews`, reviewData);
 }
 
 
