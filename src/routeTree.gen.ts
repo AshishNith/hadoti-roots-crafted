@@ -29,6 +29,7 @@ import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as CustomizeRationBoxRouteImport } from './routes/customize.ration-box'
 import { Route as CustomizeMasalaRouteImport } from './routes/customize.masala'
 import { Route as CustomizeGiftHamperRouteImport } from './routes/customize.gift-hamper'
+import { Route as CustomizeFlourRouteImport } from './routes/customize.flour'
 import { Route as CustomizeDalMixRouteImport } from './routes/customize.dal-mix'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
@@ -132,6 +133,11 @@ const CustomizeGiftHamperRoute = CustomizeGiftHamperRouteImport.update({
   path: '/customize/gift-hamper',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CustomizeFlourRoute = CustomizeFlourRouteImport.update({
+  id: '/customize/flour',
+  path: '/customize/flour',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CustomizeDalMixRoute = CustomizeDalMixRouteImport.update({
   id: '/customize/dal-mix',
   path: '/customize/dal-mix',
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
+  '/customize/flour': typeof CustomizeFlourRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
   '/customize/masala': typeof CustomizeMasalaRoute
   '/customize/ration-box': typeof CustomizeRationBoxRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
+  '/customize/flour': typeof CustomizeFlourRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
   '/customize/masala': typeof CustomizeMasalaRoute
   '/customize/ration-box': typeof CustomizeRationBoxRoute
@@ -207,6 +215,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/customize/dal-mix': typeof CustomizeDalMixRoute
+  '/customize/flour': typeof CustomizeFlourRoute
   '/customize/gift-hamper': typeof CustomizeGiftHamperRoute
   '/customize/masala': typeof CustomizeMasalaRoute
   '/customize/ration-box': typeof CustomizeRationBoxRoute
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/blog/$slug'
     | '/customize/dal-mix'
+    | '/customize/flour'
     | '/customize/gift-hamper'
     | '/customize/masala'
     | '/customize/ration-box'
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/blog/$slug'
     | '/customize/dal-mix'
+    | '/customize/flour'
     | '/customize/gift-hamper'
     | '/customize/masala'
     | '/customize/ration-box'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/blog/$slug'
     | '/customize/dal-mix'
+    | '/customize/flour'
     | '/customize/gift-hamper'
     | '/customize/masala'
     | '/customize/ration-box'
@@ -306,6 +318,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CustomizeDalMixRoute: typeof CustomizeDalMixRoute
+  CustomizeFlourRoute: typeof CustomizeFlourRoute
   CustomizeGiftHamperRoute: typeof CustomizeGiftHamperRoute
   CustomizeMasalaRoute: typeof CustomizeMasalaRoute
   CustomizeRationBoxRoute: typeof CustomizeRationBoxRoute
@@ -458,6 +471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomizeGiftHamperRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/customize/flour': {
+      id: '/customize/flour'
+      path: '/customize/flour'
+      fullPath: '/customize/flour'
+      preLoaderRoute: typeof CustomizeFlourRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/customize/dal-mix': {
       id: '/customize/dal-mix'
       path: '/customize/dal-mix'
@@ -490,6 +510,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   BlogSlugRoute: BlogSlugRoute,
   CustomizeDalMixRoute: CustomizeDalMixRoute,
+  CustomizeFlourRoute: CustomizeFlourRoute,
   CustomizeGiftHamperRoute: CustomizeGiftHamperRoute,
   CustomizeMasalaRoute: CustomizeMasalaRoute,
   CustomizeRationBoxRoute: CustomizeRationBoxRoute,

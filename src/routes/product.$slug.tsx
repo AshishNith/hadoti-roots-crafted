@@ -77,7 +77,7 @@ function ProductPage() {
 
   const weights = product.weight === "Gift Box"
     ? []
-    : product.customizable === "grain"
+    : product.customizable === "grain" || product.customizable === "single-flour"
       ? ["1kg", "3kg", "5kg"]
       : product.category === "masalas"
         ? ["100g", "250g", "500g"]
@@ -184,6 +184,10 @@ function ProductPage() {
     } else if (product.customizable === "single-dal") {
       customizationStr = `Grind: ${dalGrind === "whole" ? "Whole" : "Split"}`;
       itemId = `${product.slug}-${weight}-${dalGrind}`;
+    } else if (product.customizable === "single-flour") {
+      const gStyle = grindStyles.find((o) => o.id === grind)?.label;
+      customizationStr = `Grind: ${gStyle}`;
+      itemId = `${product.slug}-${weight}-${grind}`;
     } else if (product.customizable) {
       customizationStr = "Standard blend";
     }
@@ -243,270 +247,129 @@ function ProductPage() {
             <h1 className="font-display text-5xl md:text-6xl leading-[1]">{product.name}</h1>
             <p className="mt-5 text-[color:var(--muted-foreground)] max-w-md">{product.shortDesc}</p>
 
-            {weights.length > 0 && (
-              <div className="mt-8">
-                <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-3">Weight</div>
-                <div className="flex gap-2">
-                  {weights.map((w) => (
-                    <button
-                      key={w}
-                      onClick={() => setWeight(w)}
-                      className={`font-mono text-xs uppercase tracking-[0.18em] px-5 py-2 border ${
-                        weight === w
-                          ? "bg-[color:var(--earth)] text-white border-[color:var(--earth)]"
-                          : "border-[color:var(--ink)]"
-                      }`}
-                    >
-                      {w}
-                    </button>
-                  ))}
+            {product.customizable === "grain" ? (
+              <div className="mt-8 border-t border-[color:var(--border)] pt-8 space-y-6">
+                <div className="bg-[color:var(--cream)] border border-[color:var(--ink)] p-6 rounded-sm">
+                  <h3 className="font-display text-xl mb-2">Build Your Custom Blend</h3>
+                  <p className="text-xs text-[color:var(--muted-foreground)] leading-relaxed">
+                    This specialty flour is ground-to-order at our Kota mill. Choose from Sharbati Wheat, Maize, Jowar, Ragi, Bajra, Oats, and Chana to create your family's perfect blend. Calibrate protein, carbs, and fiber in real-time.
+                  </p>
+                  <Link
+                    to="/customize/flour"
+                    className="mt-6 w-full inline-block bg-[color:var(--ink)] text-white text-center font-mono text-xs uppercase tracking-[0.2em] py-4 hover:bg-[color:var(--earth)] transition-colors cursor-pointer"
+                  >
+                    Customize Your Flour Blend →
+                  </Link>
                 </div>
               </div>
-            )}
-
-            {product.customizable === "dal" && (
-              <Link
-                to="/customize/dal-mix"
-                className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em] text-[color:var(--earth)]"
-              >
-                Customize this blend →
-              </Link>
-            )}
-            {product.customizable === "masala" && (
-              <Link
-                to="/customize/masala"
-                className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em] text-[color:var(--earth)]"
-              >
-                Build your masala →
-              </Link>
-            )}
-
-            {product.customizable === "single-dal" && (
-              <div className="mt-8 border-t border-[color:var(--border)] pt-8 space-y-6 animate-fade-in">
-                <div>
-                  <h3 className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4 text-[color:var(--earth)]">
-                    Grind Texture
-                  </h3>
-                  <div className="flex gap-2">
-                    {[
-                      { id: "whole", label: "Whole" },
-                      { id: "split", label: "Split" },
-                    ].map((g) => (
-                      <button
-                        key={g.id}
-                        type="button"
-                        onClick={() => setDalGrind(g.id as "whole" | "split")}
-                        className={`flex-1 font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-2.5 border rounded-sm text-center transition-all cursor-pointer ${
-                          dalGrind === g.id
-                            ? "bg-[color:var(--earth)] text-white border-[color:var(--earth)]"
-                            : "border-[color:var(--ink)] hover:bg-[color:var(--cream)]"
-                        }`}
-                      >
-                        {g.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {product.customizable === "grain" && (
-              <div className="mt-8 border-t border-[color:var(--border)] pt-8 space-y-8 animate-fade-in">
-                <div>
-                  <h3 className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4 text-[color:var(--earth)]">
-                    1. Gluten Level
-                  </h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {glutenOptions.map((g) => (
-                      <button
-                        key={g.id}
-                        type="button"
-                        onClick={() => setGluten(g.id)}
-                        className={`text-left p-3 border rounded-sm flex flex-col justify-between min-h-[95px] transition-all duration-300 cursor-pointer ${
-                          gluten === g.id
-                            ? "border-[color:var(--earth)] bg-[color:var(--cream)] shadow-sm"
-                            : "border-[color:var(--border)] hover:border-[color:var(--ink)]"
-                        }`}
-                      >
-                        <span className="font-display text-base leading-tight font-medium">{g.label}</span>
-                        <div>
-                          <span className="block text-[10px] text-[color:var(--muted-foreground)] leading-tight mt-1">
-                            {g.desc}
-                          </span>
-                          <span className="block text-[10px] font-mono mt-1 text-[color:var(--earth)] font-semibold">
-                            {g.surcharge > 0 ? `+${formatINR(g.surcharge)}/kg` : "Included"}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4 text-[color:var(--earth)]">
-                    2. Diet Focus & Carbs
-                  </h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {carbOptions.map((c) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => setCarbs(c.id)}
-                        className={`text-left p-3 border rounded-sm flex flex-col justify-between min-h-[95px] transition-all duration-300 cursor-pointer ${
-                          carbs === c.id
-                            ? "border-[color:var(--earth)] bg-[color:var(--cream)] shadow-sm"
-                            : "border-[color:var(--border)] hover:border-[color:var(--ink)]"
-                        }`}
-                      >
-                        <span className="font-display text-base leading-tight font-medium">{c.label}</span>
-                        <div>
-                          <span className="block text-[10px] text-[color:var(--muted-foreground)] leading-tight mt-1">
-                            {c.desc}
-                          </span>
-                          <span className="block text-[10px] font-mono mt-1 text-[color:var(--earth)] font-semibold">
-                            {c.surcharge > 0 ? `+${formatINR(c.surcharge)}/kg` : "Included"}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4 text-[color:var(--earth)]">
-                    3. Seed & Herb Boosters
-                  </h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {boosterOptions.map((b) => {
-                      const isPicked = boosters.includes(b.id);
-                      return (
+            ) : (
+              <>
+                {weights.length > 0 && (
+                  <div className="mt-8">
+                    <div className="font-mono text-[11px] uppercase tracking-[0.22em] mb-3">Weight</div>
+                    <div className="flex gap-2">
+                      {weights.map((w) => (
                         <button
-                          key={b.id}
-                          type="button"
-                          onClick={() =>
-                            setBoosters((prev) =>
-                              isPicked ? prev.filter((id) => id !== b.id) : [...prev, b.id]
-                            )
-                          }
-                          className={`text-left p-3 border rounded-sm flex items-center justify-between transition-all duration-300 cursor-pointer ${
-                            isPicked
-                              ? "border-[color:var(--earth)] bg-[color:var(--cream)] shadow-sm"
-                              : "border-[color:var(--border)] hover:border-[color:var(--ink)]"
+                          key={w}
+                          onClick={() => setWeight(w)}
+                          className={`font-mono text-xs uppercase tracking-[0.18em] px-5 py-2 border ${
+                            weight === w
+                              ? "bg-[color:var(--earth)] text-white border-[color:var(--earth)]"
+                              : "border-[color:var(--ink)]"
                           }`}
                         >
-                          <div>
-                            <span className="font-display text-[15px] block leading-tight font-medium">{b.name}</span>
-                            <span className="text-[10px] text-[color:var(--muted-foreground)] block leading-tight mt-0.5">
-                              {b.desc}
-                            </span>
-                          </div>
-                          <span className="font-mono text-[11px] text-[color:var(--earth)] shrink-0 ml-2 font-semibold">
-                            +{formatINR(b.price)}
-                          </span>
+                          {w}
                         </button>
-                      );
-                    })}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div>
-                  <h3 className="font-mono text-[11px] uppercase tracking-[0.22em] mb-3 text-[color:var(--earth)]">
-                    4. Grind Texture
-                  </h3>
-                  <div className="flex gap-2">
-                    {grindStyles.map((g) => (
-                      <button
-                        key={g.id}
-                        type="button"
-                        onClick={() => setGrind(g.id)}
-                        className={`flex-1 font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-2.5 border rounded-sm text-center transition-all cursor-pointer ${
-                          grind === g.id
-                            ? "bg-[color:var(--earth)] text-white border-[color:var(--earth)]"
-                            : "border-[color:var(--ink)] hover:bg-[color:var(--cream)]"
-                        }`}
-                      >
-                        {g.label}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="font-mono text-[10px] text-[color:var(--muted-foreground)] mt-2 text-center">
-                    {grindStyles.find((g) => g.id === grind)?.desc}
-                  </p>
-                </div>
+                {product.customizable === "dal" && (
+                  <Link
+                    to="/customize/dal-mix"
+                    className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em] text-[color:var(--earth)]"
+                  >
+                    Customize this blend →
+                  </Link>
+                )}
+                {product.customizable === "masala" && (
+                  <Link
+                    to="/customize/masala"
+                    className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em] text-[color:var(--earth)]"
+                  >
+                    Build your masala →
+                  </Link>
+                )}
 
-                {/* Nutritional Composition */}
-                <div className="bg-[color:var(--cream)]/60 border border-[color:var(--border)] p-4 rounded-sm">
-                  <h4 className="font-mono text-[10px] uppercase tracking-[0.2em] mb-4 text-[color:var(--earth)] flex justify-between">
-                    <span>Est. Nutritional Profile</span>
-                    <span className="italic">Based on choices</span>
-                  </h4>
-                  <div className="space-y-3 font-mono text-[11px]">
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] uppercase tracking-[0.1em]">
-                        <span>Gluten Index</span>
-                        <span className="text-[color:var(--muted-foreground)] font-semibold">
-                          {nutri.gluten === 100 ? "High (100%)" : nutri.gluten === 40 ? "Low (40%)" : "Gluten-Free (0%)"}
-                        </span>
-                      </div>
-                      <div className="w-full bg-[color:var(--border)]/50 h-1.5 rounded-full overflow-hidden">
-                        <div
-                          className="bg-[color:var(--earth)] h-full transition-all duration-500 ease-out"
-                          style={{ width: `${nutri.gluten}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] uppercase tracking-[0.1em]">
-                        <span>Carbohydrates</span>
-                        <span className="text-[color:var(--muted-foreground)] font-semibold">{nutri.carbs}%</span>
-                      </div>
-                      <div className="w-full bg-[color:var(--border)]/50 h-1.5 rounded-full overflow-hidden">
-                        <div
-                          className="bg-[color:var(--gold)] h-full transition-all duration-500 ease-out"
-                          style={{ width: `${nutri.carbs}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] uppercase tracking-[0.1em]">
-                        <span>Protein</span>
-                        <span className="text-[color:var(--muted-foreground)] font-semibold">{nutri.protein}%</span>
-                      </div>
-                      <div className="w-full bg-[color:var(--border)]/50 h-1.5 rounded-full overflow-hidden">
-                        <div
-                          className="bg-[color:var(--sage)] h-full transition-all duration-500 ease-out"
-                          style={{ width: `${nutri.protein * 3}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] uppercase tracking-[0.1em]">
-                        <span>Dietary Fiber</span>
-                        <span className="text-[color:var(--muted-foreground)] font-semibold">{nutri.fiber}%</span>
-                      </div>
-                      <div className="w-full bg-[color:var(--border)]/50 h-1.5 rounded-full overflow-hidden">
-                        <div
-                          className="bg-[color:var(--ink)]/40 h-full transition-all duration-500 ease-out"
-                          style={{ width: `${nutri.fiber * 3}%` }}
-                        />
+                {product.customizable === "single-dal" && (
+                  <div className="mt-8 border-t border-[color:var(--border)] pt-8 space-y-6 animate-fade-in">
+                    <div>
+                      <h3 className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4 text-[color:var(--earth)]">
+                        Grind Texture
+                      </h3>
+                      <div className="flex gap-2">
+                        {[
+                          { id: "whole", label: "Whole" },
+                          { id: "split", label: "Split" },
+                        ].map((g) => (
+                          <button
+                            key={g.id}
+                            type="button"
+                            onClick={() => setDalGrind(g.id as "whole" | "split")}
+                            className={`flex-1 font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-2.5 border rounded-sm text-center transition-all cursor-pointer ${
+                              dalGrind === g.id
+                                ? "bg-[color:var(--earth)] text-white border-[color:var(--earth)]"
+                                : "border-[color:var(--ink)] hover:bg-[color:var(--cream)]"
+                            }`}
+                          >
+                            {g.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
+                )}
+
+                {product.customizable === "single-flour" && (
+                  <div className="mt-8 border-t border-[color:var(--border)] pt-8 space-y-6 animate-fade-in">
+                    <div>
+                      <h3 className="font-mono text-[11px] uppercase tracking-[0.22em] mb-4 text-[color:var(--earth)]">
+                        Grind Style
+                      </h3>
+                      <div className="flex gap-2">
+                        {grindStyles.map((g) => (
+                          <button
+                            key={g.id}
+                            type="button"
+                            onClick={() => setGrind(g.id)}
+                            className={`flex-1 font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-2.5 border rounded-sm text-center transition-all cursor-pointer ${
+                              grind === g.id
+                                ? "bg-[color:var(--earth)] text-white border-[color:var(--earth)]"
+                                : "border-[color:var(--ink)] hover:bg-[color:var(--cream)]"
+                            }`}
+                          >
+                            {g.label}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="font-mono text-[9px] text-[color:var(--muted-foreground)] mt-2 text-center">
+                        {grindStyles.find((g) => g.id === grind)?.desc}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-10 flex items-end justify-between">
+                  <div className="font-display text-4xl">{formatINR(price)}</div>
+                  <QuantityControl value={qty} onChange={setQty} />
                 </div>
-              </div>
+
+                <Button className="mt-6 w-full" onClick={onAdd}>
+                  Add to Cart
+                </Button>
+              </>
             )}
-
-            <div className="mt-10 flex items-end justify-between">
-              <div className="font-display text-4xl">{formatINR(price)}</div>
-              <QuantityControl value={qty} onChange={setQty} />
-            </div>
-
-            <Button className="mt-6 w-full" onClick={onAdd}>
-              Add to Cart
-            </Button>
 
             <div className="mt-8 grid grid-cols-3 gap-4 border-t border-[color:var(--border)] pt-6">
               {["Farm Direct", "No Pesticides", "Ships in 3 days"].map((t) => (

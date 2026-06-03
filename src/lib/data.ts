@@ -5,7 +5,7 @@ export type Product = {
   category: "dals" | "masalas" | "ration" | "hampers" | "grains";
   price: number;
   weight: string;
-  customizable: "dal" | "masala" | "ration" | "hamper" | "grain" | "single-dal" | null;
+  customizable: "dal" | "masala" | "ration" | "hamper" | "grain" | "single-dal" | "single-flour" | null;
   image?: string | null;
 };
 
@@ -165,13 +165,67 @@ export const products: Product[] = [
     customizable: "hamper",
   },
   {
+    slug: "pure-sharbati-wheat-atta",
+    name: "Pure Sharbati Wheat Atta",
+    shortDesc: "100% Sharbati wheat, traditional stone-ground.",
+    category: "grains",
+    price: 90,
+    weight: "1kg",
+    customizable: "single-flour",
+  },
+  {
     slug: "jowar-atta",
     name: "Jowar Atta",
-    shortDesc: "Stone ground the slow way.",
+    shortDesc: "Stone ground the slow way from Bundi jowar.",
     category: "grains",
     price: 110,
     weight: "1kg",
-    customizable: null,
+    customizable: "single-flour",
+  },
+  {
+    slug: "makki-atta",
+    name: "Makki Atta (Maize)",
+    shortDesc: "Stone-ground yellow corn meal, naturally gluten-free.",
+    category: "grains",
+    price: 100,
+    weight: "1kg",
+    customizable: "single-flour",
+  },
+  {
+    slug: "bajra-atta",
+    name: "Bajra Atta",
+    shortDesc: "Iron-rich pearl millet flour, stone-ground.",
+    category: "grains",
+    price: 95,
+    weight: "1kg",
+    customizable: "single-flour",
+  },
+  {
+    slug: "ragi-atta",
+    name: "Ragi Atta",
+    shortDesc: "Calcium-dense finger millet flour, stone-ground.",
+    category: "grains",
+    price: 120,
+    weight: "1kg",
+    customizable: "single-flour",
+  },
+  {
+    slug: "chana-atta",
+    name: "Chana Atta (Besan)",
+    shortDesc: "Rich protein roasted chickpea flour, stone-ground.",
+    category: "grains",
+    price: 130,
+    weight: "1kg",
+    customizable: "single-flour",
+  },
+  {
+    slug: "oats-atta",
+    name: "Oats Atta",
+    shortDesc: "Milled whole oat groats, rich in beta-glucan fiber.",
+    category: "grains",
+    price: 150,
+    weight: "1kg",
+    customizable: "single-flour",
   },
   {
     slug: "custom-flour-blend",
@@ -304,6 +358,12 @@ export function imageFor(slug: string): string {
     "monthly-ration-box-small": "/images/ration_box.png",
     "festive-gift-hamper": "/images/gift_hamper.png",
     "jowar-atta": "/images/jowar_atta.png",
+    "pure-sharbati-wheat-atta": "/images/jowar_atta.png",
+    "makki-atta": "/images/jowar_atta.png",
+    "bajra-atta": "/images/jowar_atta.png",
+    "ragi-atta": "/images/jowar_atta.png",
+    "chana-atta": "/images/jowar_atta.png",
+    "oats-atta": "/images/jowar_atta.png",
     "custom-flour-blend": "/images/jowar_atta.png",
   };
   return mapping[slug] || "/images/panchratan_dal.png";

@@ -331,6 +331,19 @@ This applies when a customer views any of the 8 individual dals (Moong, Urad, Ma
 
 --------------------------------------------------------------------------------
 
+[SECTION 5.1A: SINGLE FLOUR PRODUCT DETAIL PAGES (Weight & Grind Selection)]
+This applies when a customer views any of the 7 individual flours (Wheat, Jowar, Maize, Bajra, Ragi, Chana, Oats).
+
+59a. Weight Options Label & Choices
+     Current Text: Pack Size (1kg · 3kg · 5kg)
+     Write Your Text Here: 
+
+59b. Grind Option Label & Choices
+     Current Text: Grind Style (Fine Ground · Chakki Coarse · Coarse)
+     Write Your Text Here: 
+
+--------------------------------------------------------------------------------
+
 [SECTION 5.2: MIXED DAL BUILDER (Panch Dal Multi-Customizer)]
 This is the simplified 3-step wizard for creating custom dal blends.
 
@@ -352,7 +365,28 @@ This is the simplified 3-step wizard for creating custom dal blends.
 
 --------------------------------------------------------------------------------
 
-[SECTION 5.2: MASALA BLENDER CUSTOMIZER]
+[SECTION 5.2A: DEDICATED ATTA (FLOUR) CUSTOMIZER]
+This is the interactive flour ratio blender page (presets, sliders, grind and style, pack and name).
+
+60d. Preset Names & Labels
+     Current Text: 100% Sharbati Wheat · Diabetic Friendly (Low-GI) · Gluten-Free Blend · High Protein Blend · Weight Loss (High Fiber)
+     Write Your Text Here: 
+
+60e. Milled Grains & Description Texts
+     Current Text: Sharbati Wheat (Earthy, high-protein base) · Maize/Corn (Makki) (Antioxidant rich, rustic texture) · Sorghum (Jowar) (Low GI, rich fiber) · Pearl Millet (Bajra) (High iron, winter grain) · Finger Millet (Ragi) (Calcium powerhouse, low GI) · Chickpea (Chana/Besan) (High protein, nutty aroma) · Oats (Soluble fiber, heart healthy)
+     Write Your Text Here: 
+
+60f. Step 2 Grind Choices
+     Current Text: Choose Grind: Fine Ground (Soft rotis) · Chakki Coarse (Rustic rotis/parathas) · Coarse (Baati & Choorma)
+     Write Your Text Here: 
+
+60g. Step 3 Pack Size Choices
+     Current Text: Choose Pack Weight (1kg · 3kg · 5kg)
+     Write Your Text Here: 
+
+--------------------------------------------------------------------------------
+
+[SECTION 5.3: MASALA BLENDER CUSTOMIZER]
 
 61. Main Heading
     Current Text: Calibrate the heat.
