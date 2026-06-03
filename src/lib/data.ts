@@ -8,6 +8,7 @@ export type Product = {
   customizable: "dal" | "masala" | "ration" | "hamper" | "grain" | "single-dal" | "single-flour" | null;
   image?: string | null;
   stock?: number;
+  originalPrice?: number;
 };
 
 export type Farmer = {

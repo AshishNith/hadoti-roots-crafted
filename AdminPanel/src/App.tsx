@@ -370,7 +370,7 @@ const AdminPanelContent: React.FC = () => {
   const triggerAddProduct = () => {
     setEditingProduct(null);
     setProductForm({
-      name: "", slug: "", shortDesc: "", category: "dals", price: 150, weight: "500g", customizable: null, image: "/images/panchratan_dal.png", stock: 15
+      name: "", slug: "", shortDesc: "", category: "dals", price: 150, originalPrice: 200, weight: "500g", customizable: null, image: "/images/panchratan_dal.png", stock: 15
     });
     setActiveTab("product-form");
   };
@@ -1297,8 +1297,20 @@ const AdminPanelContent: React.FC = () => {
                             <h4 className="product-card-name">{prod.name}</h4>
                             <p className="product-card-desc">{prod.shortDesc}</p>
                             
-                            <div className="product-card-meta">
-                              <span className="product-card-price">₹{prod.price}</span>
+                            <div className="product-card-meta" style={{ display: "flex", flexDirection: "column", gap: "2px", alignItems: "flex-start" }}>
+                              <div>
+                                {prod.originalPrice && prod.originalPrice > prod.price ? (
+                                  <span style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "4px" }}>
+                                    <span style={{ textDecoration: "line-through", color: "var(--text-muted)", fontSize: "12px" }}>₹{prod.originalPrice}</span>
+                                    <span className="product-card-price" style={{ color: "var(--accent-primary)" }}>₹{prod.price}</span>
+                                    <span style={{ color: "var(--accent-secondary)", fontSize: "11px", fontWeight: "bold" }}>
+                                      ({Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100)}% OFF)
+                                    </span>
+                                  </span>
+                                ) : (
+                                  <span className="product-card-price">₹{prod.price}</span>
+                                )}
+                              </div>
                               <span className="product-card-weight">{prod.weight} baseweight</span>
                             </div>
 
@@ -1851,6 +1863,39 @@ const AdminPanelContent: React.FC = () => {
 
                     <div className="form-row" style={{ display: "flex", gap: "16px", marginBottom: "18px" }}>
                       <div className="form-group" style={{ flex: 1 }}>
+                        <label className="form-label">Original Price (MRP ₹) *</label>
+                        <input 
+                          type="number" 
+                          className="form-control" 
+                          value={productForm.originalPrice || 0}
+                          onChange={(e) => setProductForm(p => ({ ...p, originalPrice: Number(e.target.value) }))}
+                          min="0"
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label className="form-label" style={{ display: "flex", justifyContent: "between", alignItems: "center", width: "100%" }}>
+                          <span style={{ flexGrow: 1 }}>Offer Price (Selling ₹) *</span>
+                          {productForm.originalPrice && productForm.price && productForm.originalPrice > productForm.price ? (
+                            <span style={{ color: "var(--accent-secondary)", fontSize: "11px", fontWeight: "bold" }}>
+                              ({Math.round(((productForm.originalPrice - productForm.price) / productForm.originalPrice) * 100)}% OFF)
+                            </span>
+                          ) : null}
+                        </label>
+                        <input 
+                          type="number" 
+                          className="form-control" 
+                          value={productForm.price}
+                          onChange={(e) => setProductForm(p => ({ ...p, price: Number(e.target.value) }))}
+                          min="0"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-row" style={{ display: "flex", gap: "16px", marginBottom: "18px" }}>
+                      <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label">Baseline Weight Indicator *</label>
                         <input 
                           type="text" 
@@ -1858,18 +1903,6 @@ const AdminPanelContent: React.FC = () => {
                           value={productForm.weight}
                           onChange={(e) => setProductForm(p => ({ ...p, weight: e.target.value }))}
                           placeholder="e.g. 500g, 1kg, 3kg"
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group" style={{ flex: 1 }}>
-                        <label className="form-label">Price Rate (INR ₹) *</label>
-                        <input 
-                          type="number" 
-                          className="form-control" 
-                          value={productForm.price}
-                          onChange={(e) => setProductForm(p => ({ ...p, price: Number(e.target.value) }))}
-                          min="0"
                           required
                         />
                       </div>

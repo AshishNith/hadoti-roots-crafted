@@ -9,6 +9,7 @@ export interface Product {
   customizable: string | null;
   image: string | null;
   stock?: number;
+  originalPrice?: number;
 }
 
 export interface Farmer {

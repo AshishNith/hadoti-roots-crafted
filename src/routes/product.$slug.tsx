@@ -176,6 +176,12 @@ function ProductPage() {
     ? Math.round((product.price / defaultWeightG) * selectedWeightG)
     : product.price;
 
+  let originalPrice = product.originalPrice 
+    ? (defaultWeightG && selectedWeightG
+      ? Math.round((product.originalPrice / defaultWeightG) * selectedWeightG)
+      : product.originalPrice)
+    : 0;
+
   if (product.customizable === "grain") {
     const weightKg = selectedWeightG ? selectedWeightG / 1000 : 1;
     const selectedGlutenSurcharge = glutenOptions.find((g) => g.id === gluten)?.surcharge ?? 0;
@@ -185,6 +191,9 @@ function ProductPage() {
       .reduce((sum, b) => sum + b.price, 0);
 
     price = Math.round((product.price + selectedGlutenSurcharge + selectedCarbSurcharge) * weightKg + boostersCost);
+    if (product.originalPrice) {
+      originalPrice = Math.round((product.originalPrice + selectedGlutenSurcharge + selectedCarbSurcharge) * weightKg + boostersCost);
+    }
   }
 
   const getNutritionProfile = () => {
@@ -471,7 +480,19 @@ function ProductPage() {
                 </div>
 
                 <div className="mt-10 flex items-end justify-between">
-                  <div className="font-display text-4xl">{formatINR(price)}</div>
+                  <div className="flex flex-col items-start gap-1">
+                    {originalPrice > price && (
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-base line-through text-[color:var(--muted-foreground)]">
+                          {formatINR(originalPrice)}
+                        </span>
+                        <span className="font-mono text-xs uppercase tracking-[0.1em] text-emerald-700 font-medium">
+                          ({Math.round(((originalPrice - price) / originalPrice) * 100)}% OFF)
+                        </span>
+                      </div>
+                    )}
+                    <div className="font-display text-4xl">{formatINR(price)}</div>
+                  </div>
                   <QuantityControl value={qty} onChange={setQty} />
                 </div>
 

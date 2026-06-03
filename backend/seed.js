@@ -383,6 +383,9 @@ const seedData = async () => {
       } else {
         item.stock = Math.floor(8 + Math.random() * 15); // normal stock
       }
+
+      // Assign original prices (MRP) representing a ~20% discount (Offer = MRP / 1.25)
+      item.originalPrice = Math.round(item.price * 1.25);
     }
     await Product.insertMany(productsSeed);
 

@@ -42,7 +42,23 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         </div>
         <div className="text-right shrink-0">
-          <div className="font-mono text-sm">{formatINR(product.price)}</div>
+          {product.originalPrice && product.originalPrice > product.price ? (
+            <div className="flex flex-col items-end">
+              <div className="flex items-center gap-1.5 justify-end">
+                <span className="font-mono text-xs line-through text-[color:var(--muted-foreground)]">
+                  {formatINR(product.originalPrice)}
+                </span>
+                <span className="font-mono text-sm font-medium text-[color:var(--ink)]">
+                  {formatINR(product.price)}
+                </span>
+              </div>
+              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-emerald-700 font-semibold mt-0.5">
+                {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+              </span>
+            </div>
+          ) : (
+            <div className="font-mono text-sm">{formatINR(product.price)}</div>
+          )}
           <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--muted-foreground)] mt-1">
             {product.weight}
           </div>
