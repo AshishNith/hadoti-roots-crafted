@@ -4,7 +4,8 @@ import {
   type BlogPost,
   type Testimonial,
   type Stat,
-  type DalOption
+  type DalOption,
+  type YouTubeVideo
 } from "./data";
 
 const getApiBaseUrl = () => {
@@ -158,6 +159,10 @@ export async function deleteUserAddress(uid: string, addressId: string): Promise
     throw new Error(`HTTP error! status: ${res.status} from ${url}`);
   }
   return (await res.json()) as any[];
+}
+
+export async function getLatestVideos(): Promise<YouTubeVideo[]> {
+  return fetchOrThrow<YouTubeVideo[]>(`${API_BASE_URL}/youtube/videos`);
 }
 
 

@@ -4,6 +4,7 @@ import { TrustBar } from "@/components/home/TrustBar";
 import { FeaturedCategories } from "@/components/home/FeaturedCategories";
 import { CustomizerTeaser } from "@/components/home/CustomizerTeaser";
 import { StatsSection } from "@/components/home/StatsSection";
+import { FieldDiaries } from "@/components/home/FieldDiaries";
 import { BestsellerScroll } from "@/components/home/BestsellerScroll";
 import { FarmStory } from "@/components/home/FarmStory";
 import { Testimonials } from "@/components/home/Testimonials";
@@ -30,6 +31,7 @@ function Index() {
       <CustomizerTeaser />
       <StatsSection />
       <BestsellerScroll />
+      <FieldDiaries />
       <FarmStory />
       <Testimonials />
       <BlogPreview />

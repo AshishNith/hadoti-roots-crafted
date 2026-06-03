@@ -391,3 +391,12 @@ export function imageForFarmer(name: string): string {
   return mapping[name] || "/images/farmer_ramesh.png";
 }
 
+export type YouTubeVideo = {
+  id: string;
+  title: string;
+  published: string;
+  description: string;
+  thumbnail: string;
+  url: string;
+};
+

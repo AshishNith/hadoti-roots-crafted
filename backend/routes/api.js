@@ -625,4 +625,80 @@ router.delete("/reviews/:id", async (req, res) => {
   }
 });
 
+// YouTube Playlist RSS Feed Fetch & Parse
+let videoCache = null;
+let cacheTime = 0;
+
+router.get("/youtube/videos", async (req, res) => {
+  try {
+    const playlistId = process.env.YOUTUBE_PLAYLIST_ID || "PL2iAl79gAPTQweN3pRffvmoPMAnfe5EVJ";
+    const now = Date.now();
+    
+    // Cache for 10 minutes
+    if (videoCache && (now - cacheTime < 600000)) {
+      return res.json(videoCache);
+    }
+
+    const feedUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
+    const response = await fetch(feedUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch RSS feed: ${response.statusText}`);
+    }
+    const xmlText = await response.text();
+    
+    const entries = [];
+    const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+    let match;
+    
+    while ((match = entryRegex.exec(xmlText)) !== null) {
+      const entryContent = match[1];
+      
+      const videoIdMatch = entryContent.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
+      const titleMatch = entryContent.match(/<title>([^<]+)<\/title>/);
+      const publishedMatch = entryContent.match(/<published>([^<]+)<\/published>/);
+      const descriptionMatch = entryContent.match(/<media:description>([\s\S]*?)<\/media:description>/);
+      
+      if (videoIdMatch) {
+        const id = videoIdMatch[1].trim();
+        const title = titleMatch ? titleMatch[1].trim() : "YouTube Video";
+        const published = publishedMatch ? publishedMatch[1].trim() : new Date().toISOString();
+        const description = descriptionMatch ? descriptionMatch[1].trim() : "";
+        
+        entries.push({
+          id,
+          title: decodeHtmlEntities(title),
+          published,
+          description: decodeHtmlEntities(description),
+          thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+          url: `https://www.youtube.com/watch?v=${id}`
+        });
+      }
+    }
+    
+    const latestVideos = entries.slice(0, 6);
+    videoCache = latestVideos;
+    cacheTime = now;
+    
+    res.json(latestVideos);
+  } catch (error) {
+    console.error("Error fetching/parsing YouTube RSS:", error);
+    if (videoCache) {
+      return res.json(videoCache);
+    }
+    res.status(500).json({ message: "Failed to load YouTube videos" });
+  }
+});
+
+function decodeHtmlEntities(str) {
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
+}
+
 export default router;
+
