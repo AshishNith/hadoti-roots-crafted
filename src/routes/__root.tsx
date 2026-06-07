@@ -15,6 +15,8 @@ import { Footer } from "@/components/layout/Footer";
 import { CustomCursor } from "@/components/layout/CustomCursor";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { Toaster } from "@/components/ui/sonner";
+import { Analytics } from "@vercel/analytics/react";
+
 
 function NotFoundComponent() {
   return (
@@ -76,6 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
+      { rel: "icon", type: "image/png", href: "/images/favicon.png" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -153,6 +156,7 @@ function RootComponent() {
       </main>
       <Footer />
       <Toaster />
+      <Analytics />
     </QueryClientProvider>
   );
 }
