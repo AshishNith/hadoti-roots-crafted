@@ -1,12 +1,27 @@
-import { useLayoutEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { GrainOverlay } from "@/components/ui/GrainOverlay";
 import { Button } from "@/components/ui/HFButton";
 import { Ticker } from "@/components/layout/Ticker";
 
+const HERO_IMAGES = [
+  "/images/hero_field_bg.png",
+  "/images/hero_chillies_bg.png",
+  "/images/hero_mill_bg.png",
+  "/images/hero_farmer_bg.png",
+];
+
 export function Hero() {
   const root = useRef<HTMLElement>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -36,8 +51,8 @@ export function Hero() {
           duration: 0.9,
           ease: "power4.out",
         }, 0.1)
-        .to("[data-hero-sub]", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, "-=0.6")
-        .to("[data-hero-ctas]", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, "-=0.6");
+          .to("[data-hero-sub]", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, "-=0.6")
+          .to("[data-hero-ctas]", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, "-=0.6");
       }
 
       // 3. Scroll-linked timeline with pinning and scrubbing
@@ -77,12 +92,22 @@ export function Hero() {
     >
       <div
         data-hero-bg
-        className="absolute inset-0 will-change-transform bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "linear-gradient(180deg, rgba(28,26,22,0.55) 0%, rgba(28,26,22,0.85) 100%), url('/images/hero_bg.png')",
-        }}
-      />
+        className="absolute inset-0 will-change-transform overflow-hidden"
+      >
+        {HERO_IMAGES.map((img, index) => {
+          const isActive = index === currentImageIndex;
+          return (
+            <div
+              key={img}
+              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${isActive ? "opacity-100 animate-kenburns z-10" : "opacity-0 z-0"
+                }`}
+              style={{
+                backgroundImage: `linear-gradient(180deg, rgba(28,26,22,0.55) 0%, rgba(28,26,22,0.85) 100%), url(${img})`,
+              }}
+            />
+          );
+        })}
+      </div>
       <GrainOverlay opacity={0.18} />
 
       <div className="relative h-full flex flex-col justify-between py-12">
