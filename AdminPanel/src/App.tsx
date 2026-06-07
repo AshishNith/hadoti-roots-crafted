@@ -18,7 +18,11 @@ import {
   RefreshCw, 
   Sliders,
   MessageSquare,
-  Star
+  Star,
+  Eye,
+  EyeOff,
+  Menu,
+  X
 } from "lucide-react";
 import { AuthProvider, useAdminAuth } from "./context/AuthContext";
 import { api } from "./services/api";
@@ -33,10 +37,17 @@ const AdminPanelContent: React.FC = () => {
   
   // Views navigation state
   const [activeTab, setActiveTab] = useState<string>("dashboard");
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
+    setIsSidebarOpen(false);
+  };
   
   // Login form state
   const [email, setEmail] = useState<string>("admin@hadotifarms.com");
   const [password, setPassword] = useState<string>("admin123");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
 
@@ -673,7 +684,13 @@ const AdminPanelContent: React.FC = () => {
     return (
       <div className="login-bg">
         <form className="login-card" onSubmit={handleLogin}>
-          <div className="login-header-logo">H</div>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "24px" }}>
+            <img 
+              src="/Creatives/darkLogo.png" 
+              alt="Hadoti Farms Logo" 
+              style={{ height: "64px", objectFit: "contain" }} 
+            />
+          </div>
           <h1 className="login-title">Hadoti Farms</h1>
           <p className="login-subtitle">Administrative Ecosystem Control</p>
           
@@ -697,14 +714,38 @@ const AdminPanelContent: React.FC = () => {
 
           <div className="form-group">
             <label className="form-label">Password</label>
-            <input 
-              type="password" 
-              className="form-control" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required 
-            />
+            <div style={{ position: "relative" }}>
+              <input 
+                type={showPassword ? "text" : "password"} 
+                className="form-control" 
+                style={{ paddingRight: "40px" }}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required 
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--text-muted)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "4px",
+                  zIndex: 10
+                }}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="btn-primary" style={{ marginTop: "10px" }} disabled={isLoggingIn}>
@@ -729,6 +770,9 @@ const AdminPanelContent: React.FC = () => {
   // Sidebar Layout Navigation
   return (
     <div className="app-container animate-fade-in">
+      {isSidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)} />
+      )}
       
       {/* Toast Alert Popups */}
       {successMessage && (
@@ -744,17 +788,26 @@ const AdminPanelContent: React.FC = () => {
       )}
 
       {/* ----------------- SIDEBAR ----------------- */}
-      <aside className="sidebar">
-        <div className="sidebar-logo" style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "20px", gap: "10px", borderBottom: "1px solid var(--border-glass)" }}>
-          <img src="/Creatives/darkLogo.png" alt="Hadoti Farms" style={{ height: "48px", objectFit: "contain" }} />
-          <div style={{ fontSize: "9px", color: "var(--text-muted)", letterSpacing: "1.5px", fontWeight: 700, textTransform: "uppercase" }}>Admin Dashboard</div>
+      <aside className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
+        <div className="sidebar-logo" style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: "20px 16px", borderBottom: "1px solid var(--border-glass)" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1 }}>
+            <img src="/Creatives/darkLogo.png" alt="Hadoti Farms" style={{ height: "48px", objectFit: "contain" }} />
+            <div style={{ fontSize: "9px", color: "var(--text-muted)", letterSpacing: "1.5px", fontWeight: 700, textTransform: "uppercase", marginTop: "6px" }}>Admin Dashboard</div>
+          </div>
+          <button 
+            className="sidebar-close-btn"
+            onClick={() => setIsSidebarOpen(false)}
+            title="Close Menu"
+          >
+            <X size={18} />
+          </button>
         </div>
         
         <ul className="sidebar-nav">
           <li>
             <a 
               className={`sidebar-nav-item ${activeTab === "dashboard" ? "active" : ""}`}
-              onClick={() => setActiveTab("dashboard")}
+              onClick={() => handleTabClick("dashboard")}
             >
               <LayoutDashboard size={18} /> Dashboard
             </a>
@@ -762,7 +815,7 @@ const AdminPanelContent: React.FC = () => {
           <li>
             <a 
               className={`sidebar-nav-item ${activeTab === "users" ? "active" : ""}`}
-              onClick={() => setActiveTab("users")}
+              onClick={() => handleTabClick("users")}
             >
               <Users size={18} /> Users
             </a>
@@ -770,7 +823,7 @@ const AdminPanelContent: React.FC = () => {
           <li>
             <a 
               className={`sidebar-nav-item ${activeTab === "products" ? "active" : ""}`}
-              onClick={() => setActiveTab("products")}
+              onClick={() => handleTabClick("products")}
             >
               <ShoppingBag size={18} /> Products
             </a>
@@ -778,7 +831,7 @@ const AdminPanelContent: React.FC = () => {
           <li>
             <a 
               className={`sidebar-nav-item ${activeTab === "orders" ? "active" : ""}`}
-              onClick={() => setActiveTab("orders")}
+              onClick={() => handleTabClick("orders")}
             >
               <ShoppingCart size={18} /> Orders
             </a>
@@ -786,7 +839,7 @@ const AdminPanelContent: React.FC = () => {
           <li>
             <a 
               className={`sidebar-nav-item ${activeTab === "farmers" ? "active" : ""}`}
-              onClick={() => setActiveTab("farmers")}
+              onClick={() => handleTabClick("farmers")}
             >
               <Users size={18} /> Farmers Collective
             </a>
@@ -794,7 +847,7 @@ const AdminPanelContent: React.FC = () => {
           <li>
             <a 
               className={`sidebar-nav-item ${activeTab === "blogs" ? "active" : ""}`}
-              onClick={() => setActiveTab("blogs")}
+              onClick={() => handleTabClick("blogs")}
             >
               <BookOpen size={18} /> Sun-Dried Blogs
             </a>
@@ -802,7 +855,7 @@ const AdminPanelContent: React.FC = () => {
           <li>
             <a 
               className={`sidebar-nav-item ${activeTab === "dalOptions" ? "active" : ""}`}
-              onClick={() => setActiveTab("dalOptions")}
+              onClick={() => handleTabClick("dalOptions")}
             >
               <Sliders size={18} /> Bespoke Crops / Dals
             </a>
@@ -810,7 +863,7 @@ const AdminPanelContent: React.FC = () => {
           <li>
             <a 
               className={`sidebar-nav-item ${activeTab === "reviews" ? "active" : ""}`}
-              onClick={() => setActiveTab("reviews")}
+              onClick={() => handleTabClick("reviews")}
             >
               <MessageSquare size={18} /> Customer Reviews
             </a>
@@ -844,17 +897,26 @@ const AdminPanelContent: React.FC = () => {
         
         {/* TOP HEADER */}
         <header className="top-header">
-          <h2 className="header-title">
-            {activeTab === "dashboard" && "Platform Diagnostic Health"}
-            {activeTab === "products" && "Heritage Inventory Management"}
-            {activeTab === "orders" && "Fulfillment Pipeline Operations"}
-            {activeTab === "farmers" && "Hadoti Cooperatives Directory"}
-            {activeTab === "blogs" && "Heirloom Stories & Recipes"}
-            {activeTab === "dalOptions" && "Bespoke Customizer Configuration"}
-            {activeTab === "reviews" && "Customer Review Feedback Control"}
-            {activeTab === "users" && "User Access & Permissions Directory"}
-            {activeTab === "blend-details" && "Bespoke Customizer Formulation Details"}
-          </h2>
+          <div style={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0 }}>
+            <button 
+              className="sidebar-toggle-btn"
+              onClick={() => setIsSidebarOpen(true)}
+              title="Open Navigation Menu"
+            >
+              <Menu size={20} />
+            </button>
+            <h2 className="header-title">
+              {activeTab === "dashboard" && "Platform Diagnostic Health"}
+              {activeTab === "products" && "Heritage Inventory Management"}
+              {activeTab === "orders" && "Fulfillment Pipeline Operations"}
+              {activeTab === "farmers" && "Hadoti Cooperatives Directory"}
+              {activeTab === "blogs" && "Heirloom Stories & Recipes"}
+              {activeTab === "dalOptions" && "Bespoke Customizer Configuration"}
+              {activeTab === "reviews" && "Customer Review Feedback Control"}
+              {activeTab === "users" && "User Access & Permissions Directory"}
+              {activeTab === "blend-details" && "Bespoke Customizer Formulation Details"}
+            </h2>
+          </div>
           
           <div className="header-actions">
             <div className={isMockMode ? "mock-badge" : "live-badge"} onClick={toggleMockMode} title="Toggle Mock Environment Overrides">

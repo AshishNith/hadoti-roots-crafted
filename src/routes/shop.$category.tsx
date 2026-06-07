@@ -27,7 +27,7 @@ export const Route = createFileRoute("/shop/$category")({
 });
 
 function CategoryPage() {
-  const { category, items } = Route.useLoaderData();
+  const { category, items } = Route.useLoaderData() as { category: string; items: any[] };
   return (
     <section className="pt-40 pb-32">
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10">

@@ -170,13 +170,17 @@ function AccountPage() {
 
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("You must be signed in");
+      return;
+    }
     if (!addName.trim() || !addPhone.trim() || !addAddress.trim() || !addCity.trim() || !addState.trim() || !addPin.trim()) {
       toast.error("Please fill in all address details");
       return;
     }
     setSavingAddress(true);
     try {
-      const updatedList = await addUserAddress(user.uid, {
+      const updatedList = await addUserAddress(user!.uid, {
         name: addName.trim(),
         phone: addPhone.trim(),
         address: addAddress.trim(),
@@ -205,8 +209,12 @@ function AccountPage() {
 
   const handleDeleteAddress = async (addressId: string) => {
     if (!confirm("Are you sure you want to delete this address?")) return;
+    if (!user) {
+      toast.error("You must be signed in");
+      return;
+    }
     try {
-      const updatedList = await deleteUserAddress(user.uid, addressId);
+      const updatedList = await deleteUserAddress(user!.uid, addressId);
       setAddresses(updatedList);
       toast.success("Address deleted successfully");
     } catch (err: any) {
@@ -667,6 +675,13 @@ function AccountPage() {
           
           {/* Header */}
           <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <img 
+                src="/images/logo-dark.png" 
+                alt="Hadoti Farms Logo" 
+                className="h-16 w-auto object-contain"
+              />
+            </div>
             <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-[color:var(--earth)] mb-3">
               Hadoti Farms
             </div>

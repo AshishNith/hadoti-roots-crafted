@@ -68,7 +68,7 @@ function CheckoutPage() {
       }));
 
       await placeOrder({
-        userUid: user.uid,
+        userUid: user!.uid,
         items: orderItems,
         shippingAddress: {
           name: shippingName,
@@ -95,7 +95,7 @@ function CheckoutPage() {
             ? "ration"
             : "grain";
           await saveBlend({
-            userUid: user.uid,
+            userUid: user!.uid,
             name: i.name,
             blendType,
             customizationSummary: i.customization,

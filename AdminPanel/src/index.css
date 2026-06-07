@@ -1287,3 +1287,150 @@ button, input, select, textarea {
 .text-success { color: var(--accent-primary); }
 .text-warning { color: var(--accent-secondary); }
 .text-danger { color: var(--accent-danger); }
+
+/* ---------- RESPONSIVE SIDEBAR TOGGLE & MOBILE STYLES ---------- */
+
+/* Sidebar Toggle Button (Hidden on desktop) */
+.sidebar-toggle-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  transition: var(--transition-smooth);
+}
+.sidebar-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Sidebar Close Button (Hidden on desktop) */
+.sidebar-close-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+.sidebar-close-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-primary);
+}
+
+/* Sidebar Backdrop (Hidden on desktop) */
+.sidebar-backdrop {
+  display: none;
+}
+
+/* RESPONSIVE MEDIA QUERIES */
+@media (max-width: 1024px) {
+  .sidebar-toggle-btn {
+    display: flex;
+  }
+  
+  .sidebar-close-btn {
+    display: flex;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: -260px;
+    height: 100vh;
+    z-index: 1000;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.3);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .top-header {
+    padding: 0 16px;
+    height: 60px;
+  }
+
+  .header-title {
+    font-size: 16px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .page-container {
+    padding: 20px 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .kpi-card {
+    padding: 16px;
+  }
+
+  .kpi-info-val {
+    font-size: 24px;
+  }
+
+  .dashboard-greeting-title {
+    font-size: 22px;
+  }
+
+  /* Toolbar items wrap on mobile */
+  .manager-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .search-input-wrapper {
+    max-width: 100%;
+  }
+
+  .category-filter-tabs {
+    padding-bottom: 4px;
+  }
+
+  .login-card {
+    width: 90%;
+    padding: 24px;
+  }
+
+  .dialog-box {
+    width: 90%;
+    padding: 20px;
+  }
+  
+  /* Tables on mobile should scroll smoothly */
+  .data-table-container {
+    margin: 0 -16px;
+    padding: 0 16px;
+    width: calc(100% + 32px);
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
