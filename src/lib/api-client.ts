@@ -98,8 +98,21 @@ export async function placeOrder(orderData: {
   deliveryFee: number;
   total: number;
   paymentMethod: string;
+  razorpayOrderId?: string | null;
+  razorpayPaymentId?: string | null;
+  razorpaySignature?: string | null;
 }): Promise<any> {
   return postOrThrow<any>(`${API_BASE_URL}/orders`, orderData);
+}
+
+export async function createRazorpayOrder(amount: number): Promise<{
+  id: string;
+  amount: number;
+  currency: string;
+  mock: boolean;
+  keyId: string;
+}> {
+  return postOrThrow<any>(`${API_BASE_URL}/payments/create-order`, { amount });
 }
 
 export async function getUserOrders(uid: string): Promise<any[]> {

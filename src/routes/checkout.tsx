@@ -5,7 +5,21 @@ import { formatINR } from "@/lib/data";
 import { Button } from "@/components/ui/HFButton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-store";
-import { placeOrder, saveBlend, getUserAddresses } from "@/lib/api-client";
+import { placeOrder, saveBlend, getUserAddresses, createRazorpayOrder } from "@/lib/api-client";
+
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if ((window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — Hadoti Farms" }] }),
@@ -56,6 +70,12 @@ function CheckoutPage() {
   const total = subtotal + (subtotal > 999 ? 0 : 60);
 
   const place = async () => {
+    if (!shippingName || !shippingPhone || !shippingAddress || !shippingCity || !shippingState || !shippingPin) {
+      toast.error("Please fill in all delivery details first.");
+      setStep(0);
+      return;
+    }
+
     try {
       const orderItems = items.map((i) => ({
         id: i.id,
@@ -67,50 +87,131 @@ function CheckoutPage() {
         image: i.image || null,
       }));
 
-      await placeOrder({
-        userUid: user!.uid,
-        items: orderItems,
-        shippingAddress: {
-          name: shippingName,
-          phone: shippingPhone,
-          address: shippingAddress,
-          city: shippingCity,
-          state: shippingState,
-          pin: shippingPin,
-        },
-        subtotal,
-        deliveryFee: subtotal > 999 ? 0 : 60,
-        total,
-        paymentMethod: pay,
-      });
+      const shippingDetails = {
+        name: shippingName,
+        phone: shippingPhone,
+        address: shippingAddress,
+        city: shippingCity,
+        state: shippingState,
+        pin: shippingPin,
+      };
 
-      // Save custom blends
-      for (const i of items) {
-        if (i.customization) {
-          const blendType = i.id.includes("dal")
-            ? "dal"
-            : i.id.includes("masala")
-            ? "masala"
-            : i.id.includes("ration")
-            ? "ration"
-            : "grain";
-          await saveBlend({
-            userUid: user!.uid,
-            name: i.name,
-            blendType,
-            customizationSummary: i.customization,
-            weight: i.weight,
-            price: i.price,
-          }).catch((err) => console.error("Error saving blend:", err));
+      if (pay === "cod") {
+        setAuthLoading(true);
+        await placeOrder({
+          userUid: user!.uid,
+          items: orderItems,
+          shippingAddress: shippingDetails,
+          subtotal,
+          deliveryFee: subtotal > 999 ? 0 : 60,
+          total,
+          paymentMethod: pay,
+        });
+        await handlePostOrderSuccess();
+      } else {
+        // Online Payment Flow (Card / UPI)
+        setAuthLoading(true);
+        const scriptLoaded = await loadRazorpayScript();
+        if (!scriptLoaded) {
+          toast.error("Failed to load Razorpay SDK. Please check your internet connection.");
+          setAuthLoading(false);
+          return;
         }
-      }
 
-      clear();
-      setStep(2);
-      toast.success("Order placed. Your harvest is on its way.");
+        // 1. Create order on backend
+        let rzpOrder;
+        try {
+          rzpOrder = await createRazorpayOrder(total);
+        } catch (err: any) {
+          toast.error("Failed to initiate transaction: " + (err.message || "Unknown error"));
+          setAuthLoading(false);
+          return;
+        }
+
+        setAuthLoading(false);
+
+        // 2. Open Razorpay Checkout Dialog
+        const options = {
+          key: rzpOrder.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_mockkey123",
+          amount: rzpOrder.amount,
+          currency: rzpOrder.currency || "INR",
+          name: "Hadoti Farms",
+          description: "Fresh Organic Staples & Custom Blends",
+          image: "https://hadoti-farms.vercel.app/images/hero_bg.png",
+          order_id: rzpOrder.id,
+          handler: async function (response: any) {
+            setAuthLoading(true);
+            try {
+              // 3. Complete order placement with payment details
+              await placeOrder({
+                userUid: user!.uid,
+                items: orderItems,
+                shippingAddress: shippingDetails,
+                subtotal,
+                deliveryFee: subtotal > 999 ? 0 : 60,
+                total,
+                paymentMethod: pay,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              });
+              await handlePostOrderSuccess();
+            } catch (err: any) {
+              toast.error("Payment validation failed: " + (err.message || "Please contact support."));
+            } finally {
+              setAuthLoading(false);
+            }
+          },
+          prefill: {
+            name: shippingName,
+            email: user!.email || "",
+            contact: shippingPhone,
+          },
+          theme: {
+            color: "#8b5e3c", // Hadoti Farms brand color (var(--earth))
+          },
+          modal: {
+            ondismiss: function () {
+              toast.dismiss();
+              toast.info("Payment cancelled.");
+            }
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+      }
     } catch (err: any) {
       toast.error("Failed to place order: " + (err.message || "Unknown error"));
+      setAuthLoading(false);
     }
+  };
+
+  const handlePostOrderSuccess = async () => {
+    // Save custom blends
+    for (const i of items) {
+      if (i.customization) {
+        const blendType = i.id.includes("dal")
+          ? "dal"
+          : i.id.includes("masala")
+          ? "masala"
+          : i.id.includes("ration")
+          ? "ration"
+          : "grain";
+        await saveBlend({
+          userUid: user!.uid,
+          name: i.name,
+          blendType,
+          customizationSummary: i.customization,
+          weight: i.weight,
+          price: i.price,
+        }).catch((err) => console.error("Error saving blend:", err));
+      }
+    }
+
+    clear();
+    setStep(2);
+    toast.success("Order placed. Your harvest is on its way.");
   };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {

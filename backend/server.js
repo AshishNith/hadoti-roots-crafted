@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import apiRoutes from "./routes/api.js";
 
-// Load env variables
+// Load env variables from .env
 dotenv.config();
 
 // Connect to MongoDB

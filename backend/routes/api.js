@@ -1,4 +1,7 @@
 import express from "express";
+import crypto from "crypto";
+import Razorpay from "razorpay";
+import { sendOrderEmail } from "../config/emails.js";
 import Product from "../models/Product.js";
 import Farmer from "../models/Farmer.js";
 import BlogPost from "../models/BlogPost.js";
@@ -184,13 +187,129 @@ router.delete("/users/:uid/addresses/:addressId", async (req, res) => {
   }
 });
 
+// POST create Razorpay order
+router.post("/payments/create-order", async (req, res) => {
+  try {
+    const { amount } = req.body;
+    if (!amount) {
+      return res.status(400).json({ message: "Amount is required" });
+    }
+
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!keyId || !keySecret) {
+      console.warn("Razorpay KEY_ID or KEY_SECRET is missing. Running in payment Mock Mode.");
+      // Return a simulated Razorpay order response
+      const mockOrderId = `order_mock_${Math.random().toString(36).substring(2, 9)}`;
+      return res.json({
+        id: mockOrderId,
+        amount: amount * 100, // in paise
+        currency: "INR",
+        mock: true,
+        keyId: "rzp_test_mockkey123"
+      });
+    }
+
+    const razorpay = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
+
+    const options = {
+      amount: Math.round(amount * 100), // amount in paise (must be integer)
+      currency: "INR",
+      receipt: `receipt_order_${Math.floor(Math.random() * 1000000)}`,
+    };
+
+    const order = await razorpay.orders.create(options);
+    res.json({
+      id: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      mock: false,
+      keyId: keyId
+    });
+  } catch (error) {
+    console.error("Razorpay order creation error:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST verify Razorpay signature
+router.post("/payments/verify-signature", async (req, res) => {
+  try {
+    const { razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
+
+    if (!razorpayPaymentId || !razorpayOrderId || !razorpaySignature) {
+      return res.status(400).json({ message: "Missing Razorpay details" });
+    }
+
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keySecret) {
+      console.warn("Razorpay KEY_SECRET is missing. Bypassing signature verification.");
+      return res.json({ status: "success", verified: true, mock: true });
+    }
+
+    const hmac = crypto.createHmac("sha256", keySecret);
+    hmac.update(razorpayOrderId + "|" + razorpayPaymentId);
+    const generatedSignature = hmac.digest("hex");
+
+    if (generatedSignature === razorpaySignature) {
+      res.json({ status: "success", verified: true, mock: false });
+    } else {
+      res.status(400).json({ status: "failed", verified: false, message: "Signature verification failed" });
+    }
+  } catch (error) {
+    console.error("Razorpay signature verification error:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // POST create order
 router.post("/orders", async (req, res) => {
   try {
-    const { userUid, items, shippingAddress, subtotal, deliveryFee, total, paymentMethod } = req.body;
+    const {
+      userUid,
+      items,
+      shippingAddress,
+      subtotal,
+      deliveryFee,
+      total,
+      paymentMethod,
+      razorpayOrderId,
+      razorpayPaymentId,
+      razorpaySignature
+    } = req.body;
+
     if (!userUid || !items || !shippingAddress || total === undefined) {
       return res.status(400).json({ message: "Incomplete order data" });
     }
+
+    // Verify payment details if paymentMethod is UPI or Card
+    let paymentStatus = "pending";
+    if (paymentMethod === "cod") {
+      paymentStatus = "cod";
+    } else if (paymentMethod === "upi" || paymentMethod === "card") {
+      const keySecret = process.env.RAZORPAY_KEY_SECRET;
+      if (keySecret) {
+        if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+          return res.status(400).json({ message: "Online payment details are required for UPI/Card orders." });
+        }
+        // Crypto verification
+        const hmac = crypto.createHmac("sha256", keySecret);
+        hmac.update(razorpayOrderId + "|" + razorpayPaymentId);
+        const generatedSignature = hmac.digest("hex");
+        if (generatedSignature !== razorpaySignature) {
+          return res.status(400).json({ message: "Online payment signature mismatch. Order not placed." });
+        }
+        paymentStatus = "paid";
+      } else {
+        console.warn("Skipping payment verification because RAZORPAY_KEY_SECRET is not configured.");
+        paymentStatus = "paid"; // Accept simulated payments in dev mode
+      }
+    }
+
     const orderNumber = `HF-${Math.floor(10000000 + Math.random() * 90000000)}`;
     const newOrder = new Order({
       orderNumber,
@@ -201,14 +320,19 @@ router.post("/orders", async (req, res) => {
       deliveryFee,
       total,
       paymentMethod,
-      paymentStatus: paymentMethod === "cod" ? "cod" : "paid",
+      paymentStatus,
+      razorpayOrderId: razorpayOrderId || null,
+      razorpayPaymentId: razorpayPaymentId || null,
+      razorpaySignature: razorpaySignature || null
     });
     await newOrder.save();
 
-    // Auto-save address to user profile if not duplicates
+    // Auto-save address to user profile if not duplicates and retrieve email
+    let userEmail = "";
     try {
       const user = await User.findOne({ uid: userUid });
       if (user) {
+        userEmail = user.email;
         const isDuplicate = user.addresses.some(
           (addr) =>
             addr.name === shippingAddress.name &&
@@ -232,6 +356,15 @@ router.post("/orders", async (req, res) => {
       }
     } catch (addrErr) {
       console.error("Auto-save address on checkout error:", addrErr);
+    }
+
+    // Trigger async order email notification
+    if (userEmail) {
+      sendOrderEmail(newOrder, userEmail).catch((mailErr) => {
+        console.error("Failed to send order email:", mailErr);
+      });
+    } else {
+      console.warn(`[Order API] No email found for userUid: ${userUid}. Receipt email skipped.`);
     }
 
     res.status(201).json(newOrder);
