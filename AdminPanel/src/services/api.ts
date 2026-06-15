@@ -112,7 +112,7 @@ export interface DashboardStats {
 
 const API_BASE = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
   ? "/api"
-  : "https://hadoti-farms-backend.onrender.com/api";
+  : "https://hadoti-farms-backend-b3ii.onrender.com/api";
 
 async function fetchOrThrow<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
