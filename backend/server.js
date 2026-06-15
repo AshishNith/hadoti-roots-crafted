@@ -6,6 +6,7 @@ import apiRoutes from "./routes/api.js";
 
 // Load env variables from .env
 dotenv.config();
+//Just to trigger the redeployment on Vercel to move it 
 
 // Connect to MongoDB
 connectDB();
