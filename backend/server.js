@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import apiRoutes from "./routes/api.js";
+import { checkAndGenerateSubscriptionOrders } from "./config/subscriptionEngine.js";
 
 // Load env variables from .env
 dotenv.config();
@@ -10,6 +11,27 @@ dotenv.config();
 
 // Connect to MongoDB
 connectDB();
+
+// Initialize active subscription recurring order checks (runs once daily in background)
+const DAILY_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
+setInterval(async () => {
+  try {
+    console.log("[Background Task] Running daily subscription delivery check...");
+    await checkAndGenerateSubscriptionOrders();
+  } catch (err) {
+    console.error("[Background Task] Subscription check failed:", err);
+  }
+}, DAILY_INTERVAL);
+
+// Run once immediately on startup (after 5 seconds to ensure DB is fully ready)
+setTimeout(async () => {
+  try {
+    console.log("[Startup Task] Executing initial subscription delivery check...");
+    await checkAndGenerateSubscriptionOrders();
+  } catch (err) {
+    console.error("[Startup Task] Initial subscription check failed:", err);
+  }
+}, 5000);
 
 const app = express();
 

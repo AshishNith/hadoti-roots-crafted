@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { AuthProvider, useAdminAuth } from "./context/AuthContext";
 import { api } from "./services/api";
-import type { Product, Farmer, BlogPost, Order, User, DalOption, DashboardStats } from "./services/api";
+import type { Product, Farmer, BlogPost, Order, User, DalOption, DashboardStats, Subscription } from "./services/api";
 import { jsPDF } from "jspdf";
 
 // -------------------------------------------------------------
@@ -65,6 +65,13 @@ const AdminPanelContent: React.FC = () => {
   const [dalOptions, setDalOptions] = useState<DalOption[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
+  
+  // Subscription states
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
+  const [subscriptionSearch, setSubscriptionSearch] = useState<string>("");
+  const [subscriptionStatusFilter, setSubscriptionStatusFilter] = useState<string>("all");
+  const [isRunningEngine, setIsRunningEngine] = useState<boolean>(false);
 
   // User addresses details states
   const [selectedUserForAddresses, setSelectedUserForAddresses] = useState<User | null>(null);
@@ -161,6 +168,9 @@ const AdminPanelContent: React.FC = () => {
       } else if (activeTab === "reviews") {
         const data = await api.getReviews();
         setReviews(data);
+      } else if (activeTab === "subscriptions") {
+        const data = await api.getSubscriptions();
+        setSubscriptions(data);
       }
     } catch (err: any) {
       console.error(err);
@@ -324,6 +334,38 @@ const AdminPanelContent: React.FC = () => {
       }
     } catch (err: any) {
       showToast(err.message || "Failed to update order status.", "error");
+    }
+  };
+
+  // Subscription status update
+  const handleUpdateSubscriptionStatus = async (subId: string, status: string) => {
+    try {
+      const updated = await api.updateSubscriptionStatus(subId, status);
+      showToast(`Subscription status updated to "${updated.status}"`);
+      
+      // Update local states
+      setSubscriptions(prev => prev.map(s => s._id === subId ? { ...s, status: updated.status } : s));
+      if (selectedSubscription && selectedSubscription._id === subId) {
+        setSelectedSubscription(prev => prev ? { ...prev, status: updated.status } : null);
+      }
+    } catch (err: any) {
+      showToast(err.message || "Failed to update subscription status.", "error");
+    }
+  };
+
+  // Run subscription order generator engine
+  const handleRunSubscriptionEngine = async () => {
+    setIsRunningEngine(true);
+    try {
+      const res = await api.runSubscriptionEngine();
+      showToast(res.message, "success");
+      // Reload current tab data to reflect newly generated orders or updated subscription status
+      loadTabData();
+    } catch (err: any) {
+      console.error(err);
+      showToast(err.message || "Failed to run subscription engine.", "error");
+    } finally {
+      setIsRunningEngine(false);
     }
   };
 
@@ -838,6 +880,14 @@ const AdminPanelContent: React.FC = () => {
           </li>
           <li>
             <a 
+              className={`sidebar-nav-item ${activeTab === "subscriptions" ? "active" : ""}`}
+              onClick={() => handleTabClick("subscriptions")}
+            >
+              <RefreshCw size={18} /> Subscriptions
+            </a>
+          </li>
+          <li>
+            <a 
               className={`sidebar-nav-item ${activeTab === "farmers" ? "active" : ""}`}
               onClick={() => handleTabClick("farmers")}
             >
@@ -915,10 +965,40 @@ const AdminPanelContent: React.FC = () => {
               {activeTab === "reviews" && "Customer Review Feedback Control"}
               {activeTab === "users" && "User Access & Permissions Directory"}
               {activeTab === "blend-details" && "Bespoke Customizer Formulation Details"}
+              {activeTab === "subscriptions" && "Recurring Subscription Registry"}
+              {activeTab === "subscription-details" && "Subscription Lifecycle Detail Sheet"}
             </h2>
           </div>
           
           <div className="header-actions">
+            {/* Run Subscription Engine Button */}
+            <button 
+              className="btn-primary" 
+              style={{ 
+                width: "auto", 
+                padding: "8px 14px", 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "8px", 
+                fontSize: "12.5px", 
+                background: "var(--accent-primary)", 
+                border: "none",
+                color: "#000",
+                fontWeight: "bold",
+                borderRadius: "8px"
+              }} 
+              onClick={handleRunSubscriptionEngine}
+              disabled={isRunningEngine}
+              title="Run Subscription Engine to generate due monthly orders"
+            >
+              {isRunningEngine ? (
+                <span className="spinner" style={{ width: "14px", height: "14px", margin: 0, borderTopColor: "#000" }}></span>
+              ) : (
+                <span>🔄</span>
+              )}
+              <span>Run Subscription Engine</span>
+            </button>
+
             <div className={isMockMode ? "mock-badge" : "live-badge"} onClick={toggleMockMode} title="Toggle Mock Environment Overrides">
               <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", background: isMockMode ? "var(--accent-secondary)" : "var(--accent-primary)" }}></span>
               {isMockMode ? "Showcase Sandbox Enforced" : "Live MongoDB Connected"}
@@ -1042,6 +1122,21 @@ const AdminPanelContent: React.FC = () => {
                       </div>
                       <div className="kpi-icon-box gold">
                         <MessageSquare size={20} />
+                      </div>
+                    </div>
+
+                    {/* Card 7: TOTAL ACTIVE SUBSCRIPTIONS */}
+                    <div className="kpi-card">
+                      <div>
+                        <div className="kpi-info-label">Active Subscriptions</div>
+                        <div className="kpi-info-val">{stats.summary.totalSubscriptions || 0}</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "8px" }}>
+                          <span className="trend-badge green">Recurring Plans</span>
+                          <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "500" }}>Active ration subscriptions</span>
+                        </div>
+                      </div>
+                      <div className="kpi-icon-box blue">
+                        <RefreshCw size={20} />
                       </div>
                     </div>
                   </div>
@@ -1866,6 +1961,334 @@ const AdminPanelContent: React.FC = () => {
                         )}
                       </tbody>
                     </table>
+                  </div>
+                </div>
+              )}
+
+              {/* ============================================================= */}
+              {/* VIEW: SUBSCRIPTIONS */}
+              {/* ============================================================= */}
+              {activeTab === "subscriptions" && (
+                <div>
+                  <div className="manager-toolbar">
+                    <div className="search-input-wrapper">
+                      <Search size={16} className="search-icon" />
+                      <input 
+                        type="text" 
+                        className="form-control search-input" 
+                        placeholder="Search subscription number or client..." 
+                        value={subscriptionSearch}
+                        onChange={(e) => setSubscriptionSearch(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="category-filter-tabs">
+                      {["all", "active", "completed", "paused", "cancelled"].map((status) => (
+                        <button 
+                          key={status}
+                          className={`filter-tab ${subscriptionStatusFilter === status ? "active" : ""}`}
+                          onClick={() => setSubscriptionStatusFilter(status)}
+                        >
+                          {status.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="dashboard-panel">
+                    <div className="data-table-container">
+                      <table className="data-table">
+                        <thead>
+                          <tr>
+                            <th>Subscription No</th>
+                            <th>Customer</th>
+                            <th>Plan Details</th>
+                            <th>Progress</th>
+                            <th>Start Date</th>
+                            <th>Next Dispatch</th>
+                            <th>Status</th>
+                            <th>Operations</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {subscriptions
+                            .filter(sub => {
+                              const matchesSearch = sub.subscriptionNumber.toLowerCase().includes(subscriptionSearch.toLowerCase()) || 
+                                (sub.userUid || "").toLowerCase().includes(subscriptionSearch.toLowerCase());
+                              const matchesStatus = subscriptionStatusFilter === "all" || sub.status === subscriptionStatusFilter;
+                              return matchesSearch && matchesStatus;
+                            })
+                            .map((sub) => (
+                              <tr key={sub._id}>
+                                <td style={{ fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--accent-gold)" }}>
+                                  {sub.subscriptionNumber}
+                                </td>
+                                <td>
+                                  <div style={{ fontWeight: "600" }}>{sub.shippingAddress?.name}</div>
+                                  <div className="text-muted" style={{ fontSize: "12px" }}>{sub.shippingAddress?.phone}</div>
+                                </td>
+                                <td>
+                                  <div style={{ fontWeight: "600" }}>{sub.planName}</div>
+                                  <div className="text-muted" style={{ fontSize: "12px" }}>₹{sub.price} total</div>
+                                </td>
+                                <td>
+                                  <span style={{ fontWeight: "bold" }}>
+                                    {sub.currentDeliveryCount} of {sub.months} months
+                                  </span>
+                                  <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px" }}>
+                                    ({Math.round((sub.currentDeliveryCount / sub.months) * 100)}% done)
+                                  </div>
+                                </td>
+                                <td className="text-muted">
+                                  {new Date(sub.startDate).toLocaleDateString()}
+                                </td>
+                                <td style={{ fontWeight: "700", color: "var(--accent-primary)" }}>
+                                  {sub.status === "active" ? new Date(sub.nextDeliveryDate).toLocaleDateString() : "—"}
+                                </td>
+                                <td>
+                                  <span className={`badge ${sub.status}`}>
+                                    {sub.status}
+                                  </span>
+                                </td>
+                                <td>
+                                  <div style={{ display: "flex", gap: "6px" }}>
+                                    <button 
+                                      className="btn-secondary" 
+                                      style={{ padding: "6px 10px", fontSize: "12px" }} 
+                                      onClick={() => {
+                                        setSelectedSubscription(sub);
+                                        setActiveTab("subscription-details");
+                                      }}
+                                    >
+                                      Inspect
+                                    </button>
+                                    
+                                    {sub.status === "active" && (
+                                      <button 
+                                        className="btn-secondary" 
+                                        style={{ padding: "6px 10px", fontSize: "12px", background: "rgba(245, 158, 11, 0.1)", color: "var(--accent-gold)", border: "1px solid rgba(245, 158, 11, 0.2)" }} 
+                                        onClick={() => handleUpdateSubscriptionStatus(sub._id, "paused")}
+                                      >
+                                        Pause
+                                      </button>
+                                    )}
+
+                                    {sub.status === "paused" && (
+                                      <button 
+                                        className="btn-primary" 
+                                        style={{ padding: "6px 10px", fontSize: "12px", background: "var(--accent-secondary)", border: "none", color: "#000" }} 
+                                        onClick={() => handleUpdateSubscriptionStatus(sub._id, "active")}
+                                      >
+                                        Resume
+                                      </button>
+                                    )}
+
+                                    {sub.status !== "cancelled" && sub.status !== "completed" && (
+                                      <button 
+                                        className="btn-danger" 
+                                        style={{ padding: "6px 10px", fontSize: "12px", background: "var(--accent-danger)", color: "#fff", border: "none" }} 
+                                        onClick={() => {
+                                          if (confirm("Are you sure you want to cancel this customer subscription?")) {
+                                            handleUpdateSubscriptionStatus(sub._id, "cancelled");
+                                          }
+                                        }}
+                                      >
+                                        Cancel
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          {subscriptions.length === 0 && (
+                            <tr>
+                              <td colSpan={8} style={{ textAlign: "center", color: "var(--text-muted)", padding: "40px" }}>
+                                🔄 No customer subscriptions recorded in database.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ============================================================= */}
+              {/* VIEW: DETAILED SUBSCRIPTION LIFECYCLE INSPECTOR */}
+              {/* ============================================================= */}
+              {activeTab === "subscription-details" && selectedSubscription && (
+                <div className="dashboard-panel animate-fade-in-up">
+                  <div className="panel-header" style={{ borderBottom: "1px solid var(--border-glass)", paddingBottom: "16px", marginBottom: "24px" }}>
+                    <div>
+                      <h3 className="panel-title" style={{ fontSize: "18px" }}>Subscription Lifecycle Inspector</h3>
+                      <span className="text-muted" style={{ fontSize: "12px" }}>Database ID: {selectedSubscription._id}</span>
+                    </div>
+                    <button className="btn-secondary" onClick={() => setActiveTab("subscriptions")}>
+                      ← Back to Subscriptions
+                    </button>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "32px" }}>
+                    {/* Left Column: Items and Info */}
+                    <div>
+                      <div style={{ marginBottom: "24px" }}>
+                        <h4 style={{ fontSize: "13px", color: "var(--accent-gold)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "12px" }}>
+                          📦 Subscribed Items & Configuration
+                        </h4>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                          {selectedSubscription.items?.map((item) => (
+                            <div key={item.id} style={{ display: "flex", gap: "14px", padding: "16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid var(--border-glass)", alignItems: "center" }}>
+                              <img src={item.image || "/images/ration_box.png"} style={{ width: "48px", height: "48px", borderRadius: "8px", objectFit: "cover" }} alt={item.name} onError={(e) => { e.currentTarget.src = "/images/ration_box.png" }} />
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontWeight: "700", fontSize: "14px" }}>{item.name} ({item.weight})</div>
+                                {item.customization && (
+                                  <div style={{ color: "var(--accent-primary)", fontSize: "12.5px", marginTop: "2px", fontWeight: "600" }}>
+                                    ✨ Customization: {item.customization}
+                                  </div>
+                                )}
+                              </div>
+                              <div style={{ textAlign: "right" }}>
+                                <div style={{ fontWeight: "800", color: "var(--text-primary)" }}>₹{item.price}</div>
+                                <div className="text-muted" style={{ fontSize: "12px" }}>Qty: {item.qty}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Associated orders history */}
+                      <div style={{ background: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid var(--border-glass)" }}>
+                        <h4 style={{ fontSize: "13px", color: "var(--accent-gold)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "12px" }}>
+                          📋 Dispatch Orders History
+                        </h4>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          {orders
+                            .filter(o => o.orderNumber.includes(selectedSubscription.subscriptionNumber) || o.orderNumber === selectedSubscription.originalOrderNumber)
+                            .map((ord) => (
+                              <div key={ord._id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "#fff", borderRadius: "8px", border: "1px solid var(--border-glass)", fontSize: "13px" }}>
+                                <div>
+                                  <span style={{ fontWeight: "700", color: "var(--accent-gold)" }}>{ord.orderNumber}</span>
+                                  {ord.orderNumber === selectedSubscription.originalOrderNumber && (
+                                    <span style={{ fontSize: "10px", background: "rgba(16, 185, 129, 0.1)", color: "var(--accent-secondary)", padding: "1px 6px", borderRadius: "4px", marginLeft: "8px", fontWeight: "600" }}>Parent Order</span>
+                                  )}
+                                </div>
+                                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                                  <span className={`badge ${ord.status}`} style={{ fontSize: "10px" }}>{ord.status}</span>
+                                  <button 
+                                    className="btn-secondary" 
+                                    style={{ padding: "4px 8px", fontSize: "11px" }}
+                                    onClick={() => {
+                                      setSelectedOrder(ord);
+                                      setActiveTab("order-details");
+                                    }}
+                                  >
+                                    View
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Column: Status & Shipping Address */}
+                    <div>
+                      <div style={{ background: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid var(--border-glass)", display: "flex", flexDirection: "column", gap: "14px", marginBottom: "24px" }}>
+                        <h4 style={{ fontSize: "13px", color: "var(--accent-gold)", textTransform: "uppercase", letterSpacing: "0.5px", margin: 0 }}>
+                          ⚙️ Subscription Lifecycle Metrics
+                        </h4>
+
+                        <div className="flex-between">
+                          <span className="text-muted">Subscription Number:</span>
+                          <span style={{ fontWeight: "800", color: "var(--accent-gold)", fontFamily: "var(--font-display)" }}>{selectedSubscription.subscriptionNumber}</span>
+                        </div>
+
+                        <div className="flex-between">
+                          <span className="text-muted">Lifecycle Status:</span>
+                          <span className={`badge ${selectedSubscription.status}`}>{selectedSubscription.status}</span>
+                        </div>
+
+                        <div className="flex-between">
+                          <span className="text-muted">Prepaid Plan Period:</span>
+                          <span style={{ fontWeight: "600" }}>{selectedSubscription.planName} ({selectedSubscription.months} Deliveries)</span>
+                        </div>
+
+                        <div className="flex-between">
+                          <span className="text-muted">Deliveries Completed:</span>
+                          <span style={{ fontWeight: "700" }}>{selectedSubscription.currentDeliveryCount} of {selectedSubscription.months} ({Math.round((selectedSubscription.currentDeliveryCount / selectedSubscription.months) * 100)}%)</span>
+                        </div>
+
+                        <div className="flex-between">
+                          <span className="text-muted">Start Date:</span>
+                          <span>{new Date(selectedSubscription.startDate).toLocaleDateString()}</span>
+                        </div>
+
+                        <div className="flex-between">
+                          <span className="text-muted">End Date:</span>
+                          <span>{new Date(selectedSubscription.endDate).toLocaleDateString()}</span>
+                        </div>
+
+                        <div className="flex-between" style={{ borderTop: "1px dashed var(--border-glass)", paddingTop: "10px", marginTop: "4px" }}>
+                          <span className="text-muted">Last Dispatch:</span>
+                          <span>{new Date(selectedSubscription.lastDeliveryDate).toLocaleDateString()}</span>
+                        </div>
+
+                        <div className="flex-between">
+                          <span className="text-muted">Next Scheduled Dispatch:</span>
+                          <span style={{ fontWeight: "800", color: "var(--accent-primary)" }}>
+                            {selectedSubscription.status === "active" ? new Date(selectedSubscription.nextDeliveryDate).toLocaleDateString() : "—"}
+                          </span>
+                        </div>
+
+                        <div style={{ display: "flex", gap: "10px", marginTop: "10px", borderTop: "1px solid var(--border-glass)", paddingTop: "16px" }}>
+                          {selectedSubscription.status === "active" && (
+                            <button className="btn-secondary" style={{ flex: 1, padding: "10px", fontSize: "13px" }} onClick={() => handleUpdateSubscriptionStatus(selectedSubscription._id, "paused")}>
+                              Pause Subscription
+                            </button>
+                          )}
+                          {selectedSubscription.status === "paused" && (
+                            <button className="btn-primary" style={{ flex: 1, padding: "10px", fontSize: "13px", background: "var(--accent-secondary)", border: "none", color: "#000" }} onClick={() => handleUpdateSubscriptionStatus(selectedSubscription._id, "active")}>
+                              Resume Subscription
+                            </button>
+                          )}
+                          {selectedSubscription.status !== "cancelled" && selectedSubscription.status !== "completed" && (
+                            <button className="btn-danger" style={{ flex: 1, padding: "10px", fontSize: "13px", background: "var(--accent-danger)", color: "#fff", border: "none" }} onClick={() => {
+                              if (confirm("Are you sure you want to cancel this customer subscription?")) {
+                                handleUpdateSubscriptionStatus(selectedSubscription._id, "cancelled");
+                              }
+                            }}>
+                              Cancel Subscription
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Consignee Address */}
+                      <div>
+                        <h4 style={{ fontSize: "13px", color: "var(--accent-gold)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "12px" }}>
+                          📍 Subscriber Delivery Location
+                        </h4>
+                        <div style={{ background: "rgba(255,255,255,0.02)", padding: "20px", borderRadius: "12px", border: "1px solid var(--border-glass)", fontSize: "14px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <div className="flex-between">
+                            <span className="text-muted">Receiver Name:</span>
+                            <span style={{ fontWeight: "700" }}>{selectedSubscription.shippingAddress?.name}</span>
+                          </div>
+                          <div className="flex-between">
+                            <span className="text-muted">Contact Phone:</span>
+                            <span style={{ fontWeight: "700" }}>{selectedSubscription.shippingAddress?.phone}</span>
+                          </div>
+                          <div className="flex-between">
+                            <span className="text-muted">Deliver Address:</span>
+                            <span style={{ fontWeight: "700", textAlign: "right", maxWidth: "60%" }}>{selectedSubscription.shippingAddress?.address}</span>
+                          </div>
+                          <div className="flex-between">
+                            <span className="text-muted">Location Hub:</span>
+                            <span style={{ fontWeight: "700" }}>{selectedSubscription.shippingAddress?.city}, {selectedSubscription.shippingAddress?.state} - {selectedSubscription.shippingAddress?.pin}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

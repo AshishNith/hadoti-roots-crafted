@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth-store";
 import { Button } from "@/components/ui/HFButton";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
-import { getUserOrders, getSavedBlends, getUserAddresses, addUserAddress, deleteUserAddress } from "@/lib/api-client";
+import { getUserOrders, getUserSubscriptions, getSavedBlends, getUserAddresses, addUserAddress, deleteUserAddress } from "@/lib/api-client";
 import { 
   ArrowLeft, 
   Package, 
@@ -33,6 +33,8 @@ function AccountPage() {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "blends" | "addresses">("dashboard");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string | null>(null);
   
   // Add Address Form State
   const [addName, setAddName] = useState("");
@@ -44,65 +46,26 @@ function AccountPage() {
   const [savingAddress, setSavingAddress] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // Parse active prepaid subscriptions from orders
-  const activeSubscriptions: any[] = [];
-  orders.forEach((order) => {
-    if (order.status === "cancelled") return;
-    order.items.forEach((item: any) => {
-      const nameLower = item.name.toLowerCase();
-      const customLower = (item.customization || "").toLowerCase();
-      if (
-        nameLower.includes("ration box") &&
-        (customLower.includes("prepaid plan") || customLower.includes("subscription"))
-      ) {
-        let months = 1;
-        if (customLower.includes("3-month")) months = 3;
-        else if (customLower.includes("6-month")) months = 6;
-        else if (customLower.includes("12-month")) months = 12;
-
-        const orderDate = new Date(order.createdAt);
-        const endDate = new Date(orderDate);
-        endDate.setMonth(endDate.getMonth() + months);
-
-        const today = new Date();
-        const isActive = today < endDate;
-
-        let nextDelivery: Date | null = null;
-        if (isActive) {
-          const next = new Date(orderDate);
-          for (let i = 1; i <= months; i++) {
-            next.setMonth(orderDate.getMonth() + i);
-            if (next > today) {
-              nextDelivery = next;
-              break;
-            }
-          }
-        }
-
-        let currentBox = months;
-        if (isActive && nextDelivery) {
-          const monthsPassed = Math.floor(
-            (today.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24 * 30.4)
-          );
-          currentBox = Math.min(months, Math.max(1, monthsPassed + 1));
-        }
-
-        activeSubscriptions.push({
-          itemId: item.id,
-          orderNumber: order.orderNumber,
-          name: item.name,
-          customization: item.customization,
-          weight: item.weight,
-          price: item.price,
-          orderDate,
-          endDate,
-          nextDelivery,
-          currentBox,
-          months,
-          isActive,
-        });
-      }
-    });
+  // Map database subscriptions for UI rendering
+  const activeSubscriptions = subscriptions.map((sub) => {
+    const firstItem = sub.items?.[0] || {};
+    return {
+      _id: sub._id,
+      itemId: firstItem.id,
+      orderNumber: sub.subscriptionNumber,
+      originalOrderNumber: sub.originalOrderNumber,
+      name: firstItem.name || "Hadoti Ration Box",
+      customization: firstItem.customization || sub.planName,
+      weight: firstItem.weight || "3kg",
+      price: sub.price,
+      orderDate: new Date(sub.startDate),
+      endDate: new Date(sub.endDate),
+      nextDelivery: sub.status === "active" ? new Date(sub.nextDeliveryDate) : null,
+      currentBox: sub.currentDeliveryCount,
+      months: sub.months,
+      isActive: sub.status === "active",
+      status: sub.status,
+    };
   });
 
   useEffect(() => {
@@ -110,6 +73,9 @@ function AccountPage() {
       getUserOrders(user.uid)
         .then(setOrders)
         .catch((err) => console.error("Error fetching orders:", err));
+      getUserSubscriptions(user.uid)
+        .then(setSubscriptions)
+        .catch((err) => console.error("Error fetching subscriptions:", err));
       getSavedBlends(user.uid)
         .then(setBlends)
         .catch((err) => console.error("Error fetching blends:", err));
@@ -303,7 +269,19 @@ function AccountPage() {
             {/* Dashboard Cards & Lists */}
             <div className="lg:col-span-2 space-y-6">
               {activeTab === "dashboard" && (
-                <div className="space-y-6 animate-fade-in">
+                selectedSubscriptionId ? (
+                  <SubscriptionDetail 
+                    subscription={activeSubscriptions.find((s) => s._id === selectedSubscriptionId)} 
+                    orders={orders} 
+                    onBack={() => setSelectedSubscriptionId(null)} 
+                    onViewOrder={(orderId) => {
+                      setSelectedSubscriptionId(null);
+                      setSelectedOrderId(orderId);
+                      setActiveTab("orders");
+                    }}
+                  />
+                ) : (
+                  <div className="space-y-6 animate-fade-in">
                   <div className="grid sm:grid-cols-2 gap-6">
                     <button
                       onClick={() => setActiveTab("orders")}
@@ -354,7 +332,11 @@ function AccountPage() {
                     {activeSubscriptions.length > 0 ? (
                       <div className="space-y-6">
                         {activeSubscriptions.map((sub, index) => (
-                          <div key={index} className="border border-[color:var(--border)] bg-[color:var(--cream)] p-6 relative">
+                          <div 
+                            key={index} 
+                            onClick={() => setSelectedSubscriptionId(sub._id)}
+                            className="border border-[color:var(--border)] bg-[color:var(--cream)] p-6 relative hover:border-[color:var(--earth)] cursor-pointer transition-all duration-300 group"
+                          >
                             {sub.isActive ? (
                               <span className="absolute top-4 right-4 font-mono text-[9px] uppercase tracking-[0.12em] bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-sm">
                                 Active
@@ -406,12 +388,13 @@ function AccountPage() {
                           to="/customize/ration-box"
                           className="mt-6 inline-block story-link font-mono text-xs uppercase tracking-[0.2em]"
                         >
-                          Build Your Box & Subscribe →
+                          Build Your Box &amp; Subscribe →
                         </Link>
                       </div>
                     )}
                   </div>
-                </div>
+                  </div>
+                )
               )}
 
               {activeTab === "orders" && (
@@ -785,6 +768,170 @@ function AccountPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+// ============================================================================
+// SUBSCRIPTION DETAIL PANEL VIEW
+// ============================================================================
+function SubscriptionDetail({ 
+  subscription, 
+  orders, 
+  onBack, 
+  onViewOrder 
+}: { 
+  subscription: any; 
+  orders: any[]; 
+  onBack: () => void; 
+  onViewOrder: (orderId: string) => void;
+}) {
+  if (!subscription) return null;
+
+  // Find all child orders generated from this subscription
+  const childOrders = orders.filter(
+    (o) => o.orderNumber.includes(subscription.orderNumber) || o.orderNumber === subscription.originalOrderNumber
+  );
+
+  return (
+    <div className="space-y-8 animate-fade-in bg-[color:var(--cream)]/40 p-8 border border-[color:var(--border)]">
+      {/* Back Header */}
+      <div className="flex items-center justify-between border-b border-[color:var(--border)] pb-6">
+        <button 
+          onClick={onBack}
+          className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--muted-foreground)] hover:text-[color:var(--ink)] cursor-pointer"
+        >
+          <ArrowLeft size={14} /> Back to Dashboard
+        </button>
+        <span className="font-mono text-xs text-[color:var(--earth)] uppercase tracking-[0.15em]">
+          Subscription Detail
+        </span>
+      </div>
+
+      {/* Main Grid */}
+      <div className="grid md:grid-cols-3 gap-8">
+        
+        {/* Left Column - Subscription Info */}
+        <div className="md:col-span-2 space-y-6">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-display text-4xl">{subscription.name}</span>
+              <span className={`font-mono text-[9px] uppercase tracking-[0.12em] px-2.5 py-0.5 rounded-sm border ${
+                subscription.isActive
+                  ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                  : subscription.status === "paused"
+                  ? "bg-amber-50 text-amber-600 border-amber-100"
+                  : "bg-gray-50 text-gray-500 border-gray-100"
+              }`}>
+                {subscription.status}
+              </span>
+            </div>
+            <p className="font-mono text-xs text-[color:var(--muted-foreground)]">
+              Subscription No: <span className="font-semibold text-[color:var(--earth)]">{subscription.orderNumber}</span> · Started on {subscription.orderDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+            </p>
+          </div>
+
+          {/* Subscribed Items */}
+          <div className="border border-[color:var(--border)] bg-[color:var(--cream)] p-6">
+            <h4 className="font-display text-2xl mb-4">Box Selection</h4>
+            <div className="space-y-4">
+              <div className="flex gap-4 items-center">
+                <img src="/images/ration_box.png" className="w-16 h-16 object-cover border border-[color:var(--border)]" alt={subscription.name} onError={(e) => { e.currentTarget.src = "/images/ration_box.png"; }} />
+                <div className="flex-1">
+                  <h5 className="font-display text-lg leading-tight">{subscription.name}</h5>
+                  <p className="font-mono text-[11px] text-[color:var(--muted-foreground)] mt-0.5">Capacity: {subscription.weight}</p>
+                  <p className="font-mono text-xs text-[color:var(--muted-foreground)] bg-[color:var(--bg)] p-3 border border-[color:var(--border)] mt-3 leading-relaxed">
+                    {subscription.customization}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Order history */}
+          <div className="border border-[color:var(--border)] bg-[color:var(--cream)] p-6 space-y-4">
+            <h4 className="font-display text-2xl">Delivery Shipment Log</h4>
+            <p className="font-mono text-xs text-[color:var(--muted-foreground)] leading-relaxed">
+              These delivery orders are automatically generated and dispatched every month as part of your active prepaid subscription.
+            </p>
+            <div className="space-y-3 pt-2">
+              {childOrders.map((ord) => (
+                <div key={ord._id} className="flex flex-wrap items-center justify-between gap-4 p-4 border border-[color:var(--border)] bg-[color:var(--bg)]">
+                  <div className="space-y-1">
+                    <div className="font-mono text-sm font-semibold text-[color:var(--earth)]">
+                      {ord.orderNumber}
+                    </div>
+                    <div className="font-mono text-[10px] text-[color:var(--muted-foreground)]">
+                      Placed: {new Date(ord.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className={`font-mono text-[9px] uppercase tracking-[0.12em] px-2 py-0.5 rounded-full ${
+                      ord.status === "delivered"
+                        ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                        : ord.status === "cancelled"
+                        ? "bg-red-50 text-red-600 border border-red-100"
+                        : "bg-[color:var(--gold)]/10 text-[color:var(--earth)]"
+                    }`}>
+                      {ord.status}
+                    </span>
+                    <button 
+                      onClick={() => onViewOrder(ord._id)}
+                      className="font-mono text-[10px] uppercase tracking-[0.2em] border border-[color:var(--ink)] px-4 py-1.5 hover:bg-[color:var(--ink)] hover:text-white transition-all rounded-sm cursor-pointer"
+                    >
+                      Track Shipment →
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {childOrders.length === 0 && (
+                <p className="font-mono text-xs text-[color:var(--muted-foreground)] italic">No deliveries generated yet.</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Timeline and Delivery details */}
+        <div className="space-y-6">
+          {/* Subscription Stats */}
+          <div className="border border-[color:var(--border)] bg-[color:var(--cream)] p-6 space-y-4">
+            <h4 className="font-display text-xl border-b border-[color:var(--border)] pb-2">Timeline</h4>
+            <div className="space-y-4 font-mono text-xs">
+              <div>
+                <span className="text-[color:var(--muted-foreground)] block">PROGRESS</span>
+                <span className="font-semibold text-sm text-[color:var(--ink)]">
+                  Box {subscription.currentBox} of {subscription.months} delivered
+                </span>
+              </div>
+              <div className="pt-2 border-t border-[color:var(--border)]/40">
+                <span className="text-[color:var(--muted-foreground)] block">NEXT DISPATCH SCHEDULED</span>
+                <span className="font-semibold text-sm text-[color:var(--earth)]">
+                  {subscription.nextDelivery ? new Date(subscription.nextDelivery).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Completed"}
+                </span>
+              </div>
+              <div className="pt-2 border-t border-[color:var(--border)]/40">
+                <span className="text-[color:var(--muted-foreground)] block">PLAN END DATE</span>
+                <span className="font-semibold text-sm text-[color:var(--ink)]">
+                  {subscription.endDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Shipping Address */}
+          <div className="border border-[color:var(--border)] bg-[color:var(--cream)] p-6 space-y-4">
+            <h4 className="font-display text-xl border-b border-[color:var(--border)] pb-2">Delivery Address</h4>
+            <div className="font-mono text-xs space-y-2 text-[color:var(--ink)]">
+              <p className="font-semibold text-sm">{subscription.shippingAddress?.name}</p>
+              <p className="text-[color:var(--muted-foreground)]">{subscription.shippingAddress?.phone}</p>
+              <p className="leading-relaxed mt-2">
+                {subscription.shippingAddress?.address}, {subscription.shippingAddress?.city}, {subscription.shippingAddress?.state} - {subscription.shippingAddress?.pin}
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   );
 }
 

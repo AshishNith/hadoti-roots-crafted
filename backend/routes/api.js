@@ -12,6 +12,8 @@ import User from "../models/User.js";
 import Order from "../models/Order.js";
 import CustomBlend from "../models/CustomBlend.js";
 import Review from "../models/Review.js";
+import Subscription from "../models/Subscription.js";
+import { checkAndGenerateSubscriptionOrders } from "../config/subscriptionEngine.js";
 
 const router = express.Router();
 
@@ -327,6 +329,55 @@ router.post("/orders", async (req, res) => {
     });
     await newOrder.save();
 
+    // Check if the order contains subscription plans and create subscription records
+    try {
+      for (const item of newOrder.items) {
+        const nameLower = item.name.toLowerCase();
+        const customLower = (item.customization || "").toLowerCase();
+        if (
+          nameLower.includes("ration box") &&
+          (customLower.includes("prepaid plan") || customLower.includes("subscription"))
+        ) {
+          let months = 1;
+          if (customLower.includes("3-month")) months = 3;
+          else if (customLower.includes("6-month")) months = 6;
+          else if (customLower.includes("12-month")) months = 12;
+
+          const startDate = new Date();
+          const endDate = new Date(startDate);
+          endDate.setMonth(startDate.getMonth() + months);
+
+          const nextDeliveryDate = new Date(startDate);
+          nextDeliveryDate.setMonth(startDate.getMonth() + 1);
+
+          const subscriptionNumber = `SUB-${Math.floor(100000 + Math.random() * 900000)}`;
+
+          const newSubscription = new Subscription({
+            subscriptionNumber,
+            userUid: newOrder.userUid,
+            originalOrderId: newOrder._id,
+            originalOrderNumber: newOrder.orderNumber,
+            status: "active",
+            planName: customLower.includes("prepaid plan") ? `${months}-Month Prepaid Plan` : "Monthly subscription",
+            months,
+            currentDeliveryCount: 1, // The initial order covers month 1
+            price: item.price,
+            shippingAddress: newOrder.shippingAddress,
+            items: [item],
+            startDate,
+            endDate,
+            lastDeliveryDate: startDate,
+            nextDeliveryDate,
+          });
+
+          await newSubscription.save();
+          console.log(`[Subscription Hook] Created subscription ${subscriptionNumber} for order ${newOrder.orderNumber}`);
+        }
+      }
+    } catch (subErr) {
+      console.error("Failed to process subscription generation on checkout:", subErr);
+    }
+
     // Auto-save address to user profile if not duplicates and retrieve email
     let userEmail = "";
     try {
@@ -463,6 +514,7 @@ router.get("/admin/stats", async (req, res) => {
     const totalProducts = await Product.countDocuments({});
     const totalUsers = await User.countDocuments({});
     const totalReviews = await Review.countDocuments({});
+    const totalSubscriptions = await Subscription.countDocuments({});
 
     // Recent orders with details
     const recentOrders = await Order.find({}).sort({ createdAt: -1 }).limit(6);
@@ -511,7 +563,8 @@ router.get("/admin/stats", async (req, res) => {
         totalFarmers,
         totalProducts,
         totalUsers,
-        totalReviews
+        totalReviews,
+        totalSubscriptions
       },
       recentOrders,
       recentBlends,
@@ -832,6 +885,59 @@ function decodeHtmlEntities(str) {
     .replace(/&apos;/g, "'")
     .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
 }
+
+// --- Subscriptions API ---
+
+// GET user subscriptions
+router.get("/subscriptions/user/:uid", async (req, res) => {
+  try {
+    const subscriptions = await Subscription.find({ userUid: req.params.uid }).sort({ createdAt: -1 });
+    res.json(subscriptions);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET all subscriptions (for Admin)
+router.get("/subscriptions", async (req, res) => {
+  try {
+    const subscriptions = await Subscription.find({}).sort({ createdAt: -1 });
+    res.json(subscriptions);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// PUT update subscription status
+router.put("/subscriptions/:id/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!status || !["active", "completed", "cancelled", "paused"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    const sub = await Subscription.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    if (!sub) return res.status(404).json({ message: "Subscription not found" });
+    res.json(sub);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// POST run subscription engine to generate monthly orders
+router.post("/admin/subscriptions/run-engine", async (req, res) => {
+  try {
+    const generated = await checkAndGenerateSubscriptionOrders();
+    res.json({
+      message: `Subscription order check complete. Generated ${generated.length} monthly delivery orders.`,
+      generatedOrdersCount: generated.length,
+      orders: generated
+    });
+  } catch (error) {
+    console.error("Subscription engine run error:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
 
 export default router;
 

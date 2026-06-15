@@ -119,6 +119,10 @@ export async function getUserOrders(uid: string): Promise<any[]> {
   return fetchOrThrow<any[]>(`${API_BASE_URL}/orders/user/${uid}`);
 }
 
+export async function getUserSubscriptions(uid: string): Promise<any[]> {
+  return fetchOrThrow<any[]>(`${API_BASE_URL}/subscriptions/user/${uid}`);
+}
+
 export async function saveBlend(blendData: {
   userUid: string;
   name: string;

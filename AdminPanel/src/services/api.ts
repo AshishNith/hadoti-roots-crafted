@@ -94,6 +94,27 @@ export interface DalOption {
   desc: string;
 }
 
+export interface Subscription {
+  _id: string;
+  subscriptionNumber: string;
+  userUid: string;
+  originalOrderId: string;
+  originalOrderNumber: string;
+  status: "active" | "completed" | "cancelled" | "paused";
+  planName: string;
+  months: number;
+  currentDeliveryCount: number;
+  price: number;
+  shippingAddress: ShippingAddress;
+  items: OrderItem[];
+  startDate: string;
+  endDate: string;
+  lastDeliveryDate: string;
+  nextDeliveryDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DashboardStats {
   summary: {
     totalSales: number;
@@ -102,6 +123,7 @@ export interface DashboardStats {
     totalProducts: number;
     totalUsers: number;
     totalReviews: number;
+    totalSubscriptions: number;
   };
   recentOrders: Order[];
   recentBlends: any[];
@@ -214,4 +236,17 @@ export const api = {
   getReviews: () => fetchOrThrow<any[]>(`${API_BASE}/reviews`),
   deleteReview: (id: string) => 
     fetchOrThrow<{ message: string }>(`${API_BASE}/reviews/${id}`, { method: "DELETE" }),
+
+  // Subscriptions
+  getSubscriptions: () => fetchOrThrow<Subscription[]>(`${API_BASE}/subscriptions`),
+  updateSubscriptionStatus: (id: string, status: string) =>
+    fetchOrThrow<Subscription>(`${API_BASE}/subscriptions/${id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status })
+    }),
+  runSubscriptionEngine: () =>
+    fetchOrThrow<{ message: string; generatedOrdersCount: number; orders: any[] }>(
+      `${API_BASE}/admin/subscriptions/run-engine`,
+      { method: "POST" }
+    ),
 };
